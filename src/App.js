@@ -1,89 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 
-// ── Storage via localStorage ──────────────────────────────────────────────────
-const KEYS = { entries:"reset-entries", phase:"reset-phase", nextDate:"reset-nextdate" };
+// ── Storage ──────────────────────────────────────────────────────────────────
+const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile" };
 function load(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } }
 function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
-
-// ── Constants ────────────────────────────────────────────────────────────────
-const START_WEIGHT = 137;
-const GOAL_WEIGHT  = 65;
-const TOTAL_LOSS   = START_WEIGHT - GOAL_WEIGHT;
-
-const HISTORICAL = [
-  {date:"2026-02-18",weight:137,  note:"Start!"},
-  {date:"2026-02-19",weight:135.9,note:""},
-  {date:"2026-02-20",weight:134.8,note:""},
-  {date:"2026-02-21",weight:134.3,note:""},
-  {date:"2026-02-22",weight:133.8,note:""},
-  {date:"2026-02-24",weight:133.6,note:""},
-  {date:"2026-02-25",weight:133.2,note:""},
-  {date:"2026-02-26",weight:133.1,note:""},
-  {date:"2026-02-27",weight:132.5,note:""},
-  {date:"2026-03-01",weight:132.8,note:""},
-  {date:"2026-03-02",weight:132.2,note:""},
-  {date:"2026-03-04",weight:131.9,note:""},
-  {date:"2026-03-06",weight:131.2,note:""},
-  {date:"2026-03-08",weight:131.3,note:""},
-  {date:"2026-03-09",weight:130.7,note:""},
-  {date:"2026-03-10",weight:130.5,note:""},
-  {date:"2026-03-11",weight:130.2,note:""},
-  {date:"2026-03-12",weight:130,  note:""},
-  {date:"2026-03-13",weight:129.5,note:""},
-  {date:"2026-03-14",weight:129.3,note:""},
-  {date:"2026-03-16",weight:128.9,note:""},
-  {date:"2026-03-17",weight:128.5,note:""},
-  {date:"2026-03-19",weight:127.7,note:""},
-  {date:"2026-03-20",weight:127.6,note:""},
-  {date:"2026-03-23",weight:127.3,note:""},
-  {date:"2026-03-24",weight:126.8,note:""},
-  {date:"2026-03-25",weight:126.5,note:""},
-  {date:"2026-03-27",weight:126.4,note:"Start fase 3 🥳"},
-  {date:"2026-03-28",weight:126,  note:""},
-  {date:"2026-03-29",weight:125.8,note:""},
-  {date:"2026-03-30",weight:125.4,note:""},
-  {date:"2026-03-31",weight:125,  note:""},
-  {date:"2026-04-01",weight:124.3,note:""},
-  {date:"2026-04-03",weight:124.3,note:""},
-  {date:"2026-04-04",weight:124.1,note:""},
-  {date:"2026-04-05",weight:124.4,note:""},
-  {date:"2026-04-07",weight:124.1,note:""},
-  {date:"2026-04-08",weight:123.9,note:""},
-  {date:"2026-04-09",weight:124.3,note:""},
-  {date:"2026-04-10",weight:123.4,note:"Start fase 2"},
-  {date:"2026-04-11",weight:123,  note:""},
-  {date:"2026-04-12",weight:122.9,note:""},
-  {date:"2026-04-13",weight:122.7,note:""},
-  {date:"2026-04-14",weight:122.1,note:""},
-  {date:"2026-04-16",weight:121.8,note:""},
-  {date:"2026-04-17",weight:121.5,note:""},
-  {date:"2026-04-18",weight:121.7,note:""},
-  {date:"2026-04-19",weight:121.3,note:""},
-  {date:"2026-04-20",weight:121.5,note:""},
-  {date:"2026-04-21",weight:121.3,note:""},
-  {date:"2026-04-22",weight:120.8,note:""},
-  {date:"2026-04-23",weight:120.5,note:""},
-  {date:"2026-04-24",weight:120.6,note:""},
-  {date:"2026-04-25",weight:120.3,note:""},
-  {date:"2026-04-26",weight:119.7,note:""},
-  {date:"2026-04-27",weight:119.8,note:""},
-  {date:"2026-04-28",weight:120,  note:""},
-  {date:"2026-04-29",weight:119.5,note:""},
-  {date:"2026-05-01",weight:118.6,note:""},
-  {date:"2026-05-02",weight:118.7,note:""},
-  {date:"2026-05-03",weight:118.3,note:"Twee dagen terug 12000 stappen gelopen!"},
-];
 
 const MILESTONES = [
   {loss:5,   emoji:"🌱", msg:"5 kg eraf! De reis begint!"},
   {loss:10,  emoji:"⭐", msg:"10 kg! Waanzinnig goed bezig!"},
-  {loss:17.5,emoji:"🏆", msg:"17,5 kg! Jouw record!"},
+  {loss:15,  emoji:"🏆", msg:"15 kg! Fantastisch!"},
   {loss:20,  emoji:"🎯", msg:"20 kg! Ongelooflijk!"},
   {loss:25,  emoji:"💫", msg:"25 kg! Je bent een kampioen!"},
   {loss:30,  emoji:"🔥", msg:"30 kg! Halve weg bijna!"},
   {loss:40,  emoji:"🌟", msg:"40 kg! Fenomenaal!"},
   {loss:50,  emoji:"👑", msg:"50 kg! Een held!"},
-  {loss:72,  emoji:"🎉", msg:"DOEL BEREIKT! Je hebt het gedaan!"},
 ];
 
 const card = { background:"white", borderRadius:20, padding:"20px 18px", margin:"0 0 14px", boxShadow:"0 2px 16px rgba(0,0,0,0.06)" };
@@ -92,6 +22,21 @@ const inp  = { width:"100%", border:"1.5px solid #e5e7eb", borderRadius:12, padd
 const btn  = { background:"#2d6a4f", color:"white", border:"none", borderRadius:14, padding:"15px 20px", fontSize:15, fontFamily:"Georgia,serif", cursor:"pointer", width:"100%", fontWeight:600 };
 const btnSm= { background:"transparent", color:"#2d6a4f", border:"2px solid #2d6a4f", borderRadius:12, padding:"8px 14px", fontSize:12, fontFamily:"Georgia,serif", cursor:"pointer" };
 
+// ── HR Icon SVG ───────────────────────────────────────────────────────────────
+function HRIcon({ size=60 }) {
+  const s = size;
+  return (
+    <svg width={s} height={s} viewBox="0 0 200 200">
+      <rect width="200" height="200" rx="100" fill="#1b4332"/>
+      <circle cx="100" cy="100" r="78" fill="none" stroke="#52b788" strokeWidth="5"/>
+      <text x="100" y="128" textAnchor="middle" fontFamily="Georgia,serif" fontSize="80" fontWeight="700" fill="white">HR</text>
+      <ellipse cx="163" cy="32" rx="18" ry="10" fill="#52b788" transform="rotate(-35 163 32)"/>
+      <line x1="161" y1="22" x2="148" y2="48" stroke="#1b4332" strokeWidth="3" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────────
 function Confetti() {
   const colors = ["#2d6a4f","#52b788","#b5838d","#ffd166","#06d6a0","#f4a261"];
   return (
@@ -107,9 +52,10 @@ function Confetti() {
   );
 }
 
-function Chart({ entries, height=140 }) {
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function Chart({ entries, goalWeight, height=140 }) {
   const [tooltip, setTooltip] = useState(null);
-  if (entries.length < 2) return <div style={{height,display:"flex",alignItems:"center",justifyContent:"center",color:"#9ca3af",fontSize:13}}>Voeg meer metingen toe</div>;
+  if (entries.length < 2) return <div style={{height,display:"flex",alignItems:"center",justifyContent:"center",color:"#9ca3af",fontSize:13}}>Voeg meer metingen toe voor de grafiek</div>;
   const W=340,H=height,PL=38,PR=14,PT=10,PB=26;
   const ws=entries.map(e=>e.weight);
   const mn=Math.floor(Math.min(...ws))-1,mx=Math.ceil(Math.max(...ws))+1;
@@ -124,7 +70,7 @@ function Chart({ entries, height=140 }) {
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:"visible"}} onMouseLeave={()=>setTooltip(null)}>
       <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#52b788" stopOpacity=".25"/><stop offset="100%" stopColor="#52b788" stopOpacity="0"/></linearGradient></defs>
       {yLabels.map(y=><g key={y}><line x1={PL} y1={py(y)} x2={W-PR} y2={py(y)} stroke="#f3f4f6" strokeWidth="1"/><text x={PL-4} y={py(y)+4} textAnchor="end" fontSize="9" fill="#9ca3af">{y}</text></g>)}
-      {GOAL_WEIGHT>=mn&&GOAL_WEIGHT<=mx&&<><line x1={PL} y1={py(GOAL_WEIGHT)} x2={W-PR} y2={py(GOAL_WEIGHT)} stroke="#b5838d" strokeWidth="1.5" strokeDasharray="4 3" opacity=".7"/><text x={W-PR+2} y={py(GOAL_WEIGHT)+4} fontSize="8" fill="#b5838d">doel</text></>}
+      {goalWeight>=mn&&goalWeight<=mx&&<><line x1={PL} y1={py(goalWeight)} x2={W-PR} y2={py(goalWeight)} stroke="#b5838d" strokeWidth="1.5" strokeDasharray="4 3" opacity=".7"/><text x={W-PR+2} y={py(goalWeight)+4} fontSize="8" fill="#b5838d">doel</text></>}
       <path d={area} fill="url(#cg)"/>
       <path d={path} fill="none" stroke="#2d6a4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       {xIdx.map(i=><text key={i} x={px(i)} y={H-PB+14} textAnchor="middle" fontSize="9" fill="#9ca3af">{fmt(entries[i].date)}</text>)}
@@ -139,7 +85,8 @@ function Chart({ entries, height=140 }) {
   );
 }
 
-function ChartModal({ entries, onClose }) {
+// ── Fullscreen chart modal ─────────────────────────────────────────────────────
+function ChartModal({ entries, goalWeight, onClose }) {
   const fmt=d=>new Date(d).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"});
   return (
     <div style={{position:"fixed",inset:0,zIndex:500,background:"white",display:"flex",flexDirection:"column"}}>
@@ -148,8 +95,7 @@ function ChartModal({ entries, onClose }) {
         <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"white",borderRadius:"50%",width:34,height:34,cursor:"pointer",fontSize:20}}>×</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"16px 12px 40px"}}>
-        <div style={{fontSize:12,color:"#9ca3af",textAlign:"center",marginBottom:8}}>Tik op een punt voor details</div>
-        <Chart entries={entries} height={200}/>
+        <Chart entries={entries} goalWeight={goalWeight} height={200}/>
         <div style={{marginTop:24,fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Alle {entries.length} metingen</div>
         {[...entries].reverse().map((e,idx)=>{
           const i=entries.findIndex(x=>x.date===e.date);
@@ -170,6 +116,103 @@ function ChartModal({ entries, onClose }) {
   );
 }
 
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+function Onboarding({ onComplete }) {
+  const [step, setStep]   = useState(0);
+  const [name, setName]   = useState("");
+  const [startWeight, setStartWeight] = useState("");
+  const [goalWeight,  setGoalWeight]  = useState("");
+  const [startDate,   setStartDate]   = useState(new Date().toISOString().slice(0,10));
+  const [phase,       setPhase]       = useState(2);
+  const [nextDate,    setNextDate]    = useState("");
+
+  const canNext = [
+    name.trim().length > 0,
+    parseFloat(startWeight.replace(",",".")) > 0,
+    parseFloat(goalWeight.replace(",",".")) > 0,
+    startDate.length > 0,
+    nextDate.length > 0,
+  ];
+
+  const finish = () => {
+    const profile = {
+      name: name.trim(),
+      startWeight: parseFloat(startWeight.replace(",",".")),
+      goalWeight:  parseFloat(goalWeight.replace(",",".")),
+      startDate,
+    };
+    save(KEYS.profile, profile);
+    save(KEYS.phase, phase);
+    save(KEYS.nextDate, nextDate);
+    save(KEYS.entries, [{date: startDate, weight: profile.startWeight, note: "Start! 🎉"}]);
+    onComplete(profile, phase, nextDate);
+  };
+
+  const steps = [
+    // Stap 0: welkom
+    <div style={{textAlign:"center",padding:"40px 24px"}}>
+      <HRIcon size={100}/>
+      <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f",marginTop:24,marginBottom:12}}>Welkom bij Health Reset 3.0</div>
+      <div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor de reset. We stellen het even in op jouw gegevens.</div>
+      <button onClick={()=>setStep(1)} style={btn}>Aan de slag! 🌿</button>
+    </div>,
+
+    // Stap 1: naam
+    <div style={{padding:"32px 24px"}}>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Hoe heet je?</div>
+      <div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div>
+      <input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/>
+      <button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende →</button>
+    </div>,
+
+    // Stap 2: gewichten
+    <div style={{padding:"32px 24px"}}>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Jouw gewichten</div>
+      <div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 2 van 4</div>
+      <div style={{...lbl,marginBottom:6}}>Startgewicht (kg)</div>
+      <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 95.0" value={startWeight} onChange={e=>setStartWeight(e.target.value)}/>
+      <div style={{...lbl,marginTop:16,marginBottom:6}}>Doelgewicht (kg)</div>
+      <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 70.0" value={goalWeight} onChange={e=>setGoalWeight(e.target.value)}/>
+      <div style={{...lbl,marginTop:16,marginBottom:6}}>Startdatum reset</div>
+      <input type="date" style={inp} value={startDate} onChange={e=>setStartDate(e.target.value)}/>
+      <button onClick={()=>setStep(3)} disabled={!canNext[1]||!canNext[2]||!canNext[3]} style={{...btn,marginTop:20,opacity:(canNext[1]&&canNext[2]&&canNext[3])?1:0.4}}>Volgende →</button>
+    </div>,
+
+    // Stap 3: fase
+    <div style={{padding:"32px 24px"}}>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Welke fase zit je in?</div>
+      <div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div>
+      <div style={{display:"flex",gap:10,marginBottom:20}}>
+        {[{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"}].map(p=>(
+          <button key={p.id} onClick={()=>setPhase(p.id)} style={{flex:1,padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:15,background:phase===p.id?"#2d6a4f":"#f4f1eb",color:phase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>
+            {p.label}<br/><span style={{fontSize:12,fontWeight:400}}>{p.desc}</span>
+          </button>
+        ))}
+      </div>
+      <div style={{...lbl,marginBottom:6}}>Wanneer wissel je naar de volgende fase?</div>
+      <input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/>
+      <button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende →</button>
+    </div>,
+
+    // Stap 4: klaar
+    <div style={{textAlign:"center",padding:"40px 24px"}}>
+      <div style={{fontSize:64,marginBottom:16}}>🎉</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,color:"#2d6a4f",marginBottom:12}}>Alles is ingesteld, {name}!</div>
+      <div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke Health Reset dashboard staat klaar. Succes met de reset!</div>
+      <button onClick={finish} style={btn}>Naar mijn dashboard 🌿</button>
+    </div>,
+  ];
+
+  return (
+    <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}>
+      <div style={{...card,margin:20}}>
+        {steps[step]}
+      </div>
+    </div>
+  );
+}
+
+// ── LOG FORM ──────────────────────────────────────────────────────────────────
 function LogForm({ sorted, onSave, onDelete }) {
   const today=new Date().toISOString().slice(0,10);
   const [date,setDate]=useState(today);
@@ -179,7 +222,7 @@ function LogForm({ sorted, onSave, onDelete }) {
   const [delConfirm,setDelConfirm]=useState(null);
   const handleSave=()=>{
     const w=parseFloat(weight.replace(",","."));
-    if(isNaN(w)||w<40||w>250)return;
+    if(isNaN(w)||w<20||w>300)return;
     onSave({date,weight:w,note});
     setWeight("");setNote("");
     setSaved(true);setTimeout(()=>setSaved(false),2200);
@@ -191,7 +234,7 @@ function LogForm({ sorted, onSave, onDelete }) {
         <div style={{...lbl,marginBottom:6}}>Datum</div>
         <input type="date" value={date} onChange={e=>setDate(e.target.value)} style={inp}/>
         <div style={{...lbl,marginTop:16,marginBottom:6}}>Gewicht (kg)</div>
-        <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 118.3" value={weight} onChange={e=>setWeight(e.target.value)}/>
+        <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 85.3" value={weight} onChange={e=>setWeight(e.target.value)}/>
         <div style={{...lbl,marginTop:16,marginBottom:6}}>Notitie (optioneel)</div>
         <input style={inp} autoComplete="off" autoCorrect="off" autoCapitalize="sentences" spellCheck={true} placeholder="bijv. Appeldag, sportdag..." value={note} onChange={e=>setNote(e.target.value)}/>
         <button onClick={handleSave} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"✓ Opgeslagen!":"Opslaan"}</button>
@@ -226,6 +269,7 @@ function LogForm({ sorted, onSave, onDelete }) {
   );
 }
 
+// ── FASES tab ─────────────────────────────────────────────────────────────────
 function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch }) {
   const [localPhase,setLocalPhase]=useState(currentPhase);
   const [localDate,setLocalDate]=useState(nextPhaseDate);
@@ -270,66 +314,80 @@ function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch }) {
   );
 }
 
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const [entries,setEntries]=useState([]);
-  const [currentPhase,setCurrentPhase]=useState(2);
-  const [nextPhaseDate,setNextPhaseDate]=useState("2026-05-20");
-  const [tab,setTab]=useState("home");
-  const [confetti,setConfetti]=useState(false);
-  const [celebration,setCelebration]=useState(null);
-  const [showChart,setShowChart]=useState(false);
+  const [profile,       setProfile]       = useState(null);
+  const [entries,       setEntries]       = useState([]);
+  const [currentPhase,  setCurrentPhase]  = useState(2);
+  const [nextPhaseDate, setNextPhaseDate] = useState("");
+  const [tab,           setTab]           = useState("home");
+  const [confetti,      setConfetti]      = useState(false);
+  const [celebration,   setCelebration]   = useState(null);
+  const [showChart,     setShowChart]     = useState(false);
+  const [ready,         setReady]         = useState(false);
 
   useEffect(()=>{
-    const se=load(KEYS.entries);
-    const sp=load(KEYS.phase);
-    const sd=load(KEYS.nextDate);
-    if(se?.length){
-      const storedDates=new Set(se.map(e=>e.date));
-      const missing=HISTORICAL.filter(e=>!storedDates.has(e.date));
-      const merged=[...se,...missing].sort((a,b)=>a.date.localeCompare(b.date));
-      setEntries(merged);save(KEYS.entries,merged);
-    } else {
-      setEntries(HISTORICAL);save(KEYS.entries,HISTORICAL);
-    }
-    if(sp)setCurrentPhase(sp);
-    if(sd)setNextPhaseDate(sd);
+    const p  = load(KEYS.profile);
+    const e  = load(KEYS.entries);
+    const ph = load(KEYS.phase);
+    const nd = load(KEYS.nextDate);
+    if(p) setProfile(p);
+    if(e) setEntries(e);
+    if(ph) setCurrentPhase(ph);
+    if(nd) setNextPhaseDate(nd);
+    setReady(true);
   },[]);
 
-  const sorted=[...entries].sort((a,b)=>a.date.localeCompare(b.date));
-  const latest=sorted[sorted.length-1];
-  const currentWeight=latest?.weight??START_WEIGHT;
-  const totalLost=+(START_WEIGHT-currentWeight).toFixed(1);
-  const remaining=+(currentWeight-GOAL_WEIGHT).toFixed(1);
-  const progressPct=Math.min(100,(totalLost/TOTAL_LOSS)*100);
-  const phaseLabel=currentPhase===2?"Fase 2 — Vetverbranding":"Fase 3 — Stabilisatie";
-  const daysToPhase=Math.max(0,Math.ceil((new Date(nextPhaseDate)-new Date())/86400000));
+  const handleOnboardingComplete = (p, ph, nd) => {
+    setProfile(p);
+    setCurrentPhase(ph);
+    setNextPhaseDate(nd);
+    setEntries([{date:p.startDate, weight:p.startWeight, note:"Start! 🎉"}]);
+  };
 
-  const checkMilestone=useCallback((newLoss,oldLoss)=>{
+  const sorted        = [...entries].sort((a,b)=>a.date.localeCompare(b.date));
+  const latest        = sorted[sorted.length-1];
+  const startWeight   = profile?.startWeight ?? 0;
+  const goalWeight    = profile?.goalWeight  ?? 0;
+  const currentWeight = latest?.weight ?? startWeight;
+  const totalLost     = +(startWeight - currentWeight).toFixed(1);
+  const remaining     = +(currentWeight - goalWeight).toFixed(1);
+  const totalToLose   = startWeight - goalWeight;
+  const progressPct   = totalToLose > 0 ? Math.min(100,(totalLost/totalToLose)*100) : 0;
+  const phaseLabel    = currentPhase===2 ? "Fase 2 — Vetverbranding" : "Fase 3 — Stabilisatie";
+  const daysToPhase   = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
+
+  const checkMilestone = useCallback((newLoss, oldLoss) => {
     const hit=[...MILESTONES].reverse().find(m=>newLoss>=m.loss&&oldLoss<m.loss);
     if(hit){setCelebration(hit);setConfetti(true);setTimeout(()=>{setConfetti(false);setCelebration(null);},5000);}
   },[]);
 
-  const handleSave=useCallback((entry)=>{
-    const oldLoss=totalLost;
-    const newEntries=[...entries.filter(e=>e.date!==entry.date),entry].sort((a,b)=>a.date.localeCompare(b.date));
-    checkMilestone(+(START_WEIGHT-entry.weight).toFixed(1),oldLoss);
-    setEntries(newEntries);save(KEYS.entries,newEntries);
-  },[entries,totalLost,checkMilestone]);
+  const handleSave = useCallback((entry) => {
+    const oldLoss = totalLost;
+    const newEntries = [...entries.filter(e=>e.date!==entry.date), entry].sort((a,b)=>a.date.localeCompare(b.date));
+    checkMilestone(+(startWeight - entry.weight).toFixed(1), oldLoss);
+    setEntries(newEntries);
+    save(KEYS.entries, newEntries);
+  },[entries, totalLost, startWeight, checkMilestone]);
 
-  const handleDelete=useCallback((date)=>{
-    const newEntries=entries.filter(e=>e.date!==date);
-    setEntries(newEntries);save(KEYS.entries,newEntries);
+  const handleDelete = useCallback((date) => {
+    const newEntries = entries.filter(e=>e.date!==date);
+    setEntries(newEntries);
+    save(KEYS.entries, newEntries);
   },[entries]);
 
-  const handleSwitch=useCallback((phase,date)=>{
-    setCurrentPhase(phase);setNextPhaseDate(date);
-    save(KEYS.phase,phase);save(KEYS.nextDate,date);
+  const handleSwitch = useCallback((phase, date) => {
+    setCurrentPhase(phase); setNextPhaseDate(date);
+    save(KEYS.phase, phase); save(KEYS.nextDate, date);
   },[]);
+
+  if (!ready) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"Georgia,serif",color:"#2d6a4f",fontSize:18}}>Laden… 🌿</div>;
+  if (!profile) return <Onboarding onComplete={handleOnboardingComplete}/>;
 
   return (
     <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
       {confetti&&<Confetti/>}
-      {showChart&&<ChartModal entries={sorted} onClose={()=>setShowChart(false)}/>}
+      {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
       {celebration&&(
         <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:998,background:"rgba(0,0,0,0.4)"}}>
           <div style={{background:"white",borderRadius:24,padding:32,textAlign:"center",margin:24,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
@@ -344,7 +402,11 @@ export default function App() {
         <div>
           <div style={{background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",padding:"24px 20px 32px",position:"relative",overflow:"hidden"}}>
             <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(255,255,255,0.05)"}}/>
-            <div style={{fontSize:12,letterSpacing:3,textTransform:"uppercase",opacity:.7,marginBottom:6}}>Huidig gewicht</div>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
+              <HRIcon size={44}/>
+              <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",opacity:.8}}>Health Reset 3.0</div>
+            </div>
+            <div style={{fontSize:14,opacity:.7,marginBottom:4}}>Hallo {profile.name}! Huidig gewicht</div>
             <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
             <div style={{fontSize:13,opacity:.75}}>{latest?`Gewogen op ${new Date(latest.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}`:"Nog geen metingen"}</div>
             <div style={{marginTop:14,display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"6px 14px"}}>
@@ -352,11 +414,12 @@ export default function App() {
               <span style={{fontSize:13}}>{phaseLabel}</span>
             </div>
           </div>
+
           <div style={{padding:"16px 16px 0"}}>
             <div style={card}>
               <div style={lbl}>Voortgang naar doel</div>
               <div style={{display:"flex",gap:10,marginBottom:14}}>
-                {[{v:`−${totalLost}`,l:"kg afgevallen"},{v:`${remaining}`,l:"kg te gaan"},{v:`${progressPct.toFixed(0)}%`,l:"voltooid"}].map((s,i)=>(
+                {[{v:`−${totalLost}`,l:"kg afgevallen"},{v:`${remaining > 0 ? remaining : 0}`,l:"kg te gaan"},{v:`${progressPct.toFixed(0)}%`,l:"voltooid"}].map((s,i)=>(
                   <div key={i} style={{flex:1,background:"#f4f1eb",borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
                     <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#2d6a4f"}}>{s.v}</div>
                     <div style={{fontSize:11,color:"#9ca3af",marginTop:3}}>{s.l}</div>
@@ -366,9 +429,12 @@ export default function App() {
               <div style={{background:"#d8f3dc",borderRadius:99,height:14,overflow:"hidden"}}>
                 <div style={{height:"100%",borderRadius:99,background:"linear-gradient(90deg,#2d6a4f,#52b788)",width:`${progressPct}%`,transition:"width .8s ease"}}/>
               </div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9ca3af",marginTop:6}}><span>137 kg</span><span>🎯 65 kg</span></div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9ca3af",marginTop:6}}>
+                <span>{startWeight} kg</span><span>🎯 {goalWeight} kg</span>
+              </div>
             </div>
-            <div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0"}}>
+
+            {nextPhaseDate&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0"}}>
               <div style={{display:"flex",alignItems:"center",gap:16}}>
                 <div style={{fontSize:38}}>{currentPhase===2?"🌿":"🔥"}</div>
                 <div>
@@ -377,29 +443,36 @@ export default function App() {
                   <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(nextPhaseDate).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</div>
                 </div>
               </div>
-            </div>
+            </div>}
+
             <div style={{...card,cursor:"pointer"}} onClick={()=>setShowChart(true)}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                 <div style={lbl}>Gewichtsverloop</div>
                 <div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,letterSpacing:1}}>VOLLEDIG ↗</div>
               </div>
-              <Chart entries={sorted.slice(-40)} height={130}/>
+              <Chart entries={sorted.slice(-40)} goalWeight={goalWeight} height={130}/>
               <div style={{fontSize:11,color:"#9ca3af",textAlign:"center",marginTop:6}}>Tik op punt voor details · Tik op kaart voor volledig scherm</div>
             </div>
-            {(()=>{const next=MILESTONES.find(m=>totalLost<m.loss);if(!next)return null;return(
-              <div style={{...card,background:"#f4f1eb"}}>
-                <div style={lbl}>Volgende mijlpaal</div>
-                <div style={{display:"flex",alignItems:"center",gap:12}}>
-                  <div style={{fontSize:32}}>{next.emoji}</div>
-                  <div><div style={{fontSize:15,fontWeight:600,color:"#2d6a4f"}}>{next.msg}</div><div style={{fontSize:13,color:"#9ca3af",marginTop:2}}>Nog {(next.loss-totalLost).toFixed(1)} kg te gaan!</div></div>
+
+            {(()=>{
+              const next=MILESTONES.find(m=>totalLost<m.loss);
+              if(!next)return null;
+              return(
+                <div style={{...card,background:"#f4f1eb"}}>
+                  <div style={lbl}>Volgende mijlpaal</div>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{fontSize:32}}>{next.emoji}</div>
+                    <div><div style={{fontSize:15,fontWeight:600,color:"#2d6a4f"}}>{next.msg}</div><div style={{fontSize:13,color:"#9ca3af",marginTop:2}}>Nog {(next.loss-totalLost).toFixed(1)} kg te gaan!</div></div>
+                  </div>
                 </div>
-              </div>
-            );})()}
+              );
+            })()}
           </div>
         </div>
       )}
-      {tab==="log"&&<LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
-      {tab==="fases"&&<FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} totalLost={totalLost} onSwitch={handleSwitch}/>}
+
+      {tab==="log"   && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
+      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} totalLost={totalLost} onSwitch={handleSwitch}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
         {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
