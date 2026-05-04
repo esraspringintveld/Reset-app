@@ -358,11 +358,79 @@ export default function App() {
     setReady(true);
   },[]);
 
+  const ESRA_ENTRIES = [
+    {date:"2026-02-18",weight:137,  note:"Start! 🎉"},
+    {date:"2026-02-19",weight:135.9,note:""},
+    {date:"2026-02-20",weight:134.8,note:""},
+    {date:"2026-02-21",weight:134.3,note:""},
+    {date:"2026-02-22",weight:133.8,note:""},
+    {date:"2026-02-24",weight:133.6,note:""},
+    {date:"2026-02-25",weight:133.2,note:""},
+    {date:"2026-02-26",weight:133.1,note:""},
+    {date:"2026-02-27",weight:132.5,note:""},
+    {date:"2026-03-01",weight:132.8,note:""},
+    {date:"2026-03-02",weight:132.2,note:""},
+    {date:"2026-03-04",weight:131.9,note:""},
+    {date:"2026-03-06",weight:131.2,note:""},
+    {date:"2026-03-08",weight:131.3,note:""},
+    {date:"2026-03-09",weight:130.7,note:""},
+    {date:"2026-03-10",weight:130.5,note:""},
+    {date:"2026-03-11",weight:130.2,note:""},
+    {date:"2026-03-12",weight:130,  note:""},
+    {date:"2026-03-13",weight:129.5,note:""},
+    {date:"2026-03-14",weight:129.3,note:""},
+    {date:"2026-03-16",weight:128.9,note:""},
+    {date:"2026-03-17",weight:128.5,note:""},
+    {date:"2026-03-19",weight:127.7,note:""},
+    {date:"2026-03-20",weight:127.6,note:""},
+    {date:"2026-03-23",weight:127.3,note:""},
+    {date:"2026-03-24",weight:126.8,note:""},
+    {date:"2026-03-25",weight:126.5,note:""},
+    {date:"2026-03-27",weight:126.4,note:"Start fase 3 🥳"},
+    {date:"2026-03-28",weight:126,  note:""},
+    {date:"2026-03-29",weight:125.8,note:""},
+    {date:"2026-03-30",weight:125.4,note:""},
+    {date:"2026-03-31",weight:125,  note:""},
+    {date:"2026-04-01",weight:124.3,note:""},
+    {date:"2026-04-03",weight:124.3,note:""},
+    {date:"2026-04-04",weight:124.1,note:""},
+    {date:"2026-04-05",weight:124.4,note:""},
+    {date:"2026-04-07",weight:124.1,note:""},
+    {date:"2026-04-08",weight:123.9,note:""},
+    {date:"2026-04-09",weight:124.3,note:""},
+    {date:"2026-04-10",weight:123.4,note:"Start fase 2"},
+    {date:"2026-04-11",weight:123,  note:""},
+    {date:"2026-04-12",weight:122.9,note:""},
+    {date:"2026-04-13",weight:122.7,note:""},
+    {date:"2026-04-14",weight:122.1,note:""},
+    {date:"2026-04-16",weight:121.8,note:""},
+    {date:"2026-04-17",weight:121.5,note:""},
+    {date:"2026-04-18",weight:121.7,note:""},
+    {date:"2026-04-19",weight:121.3,note:""},
+    {date:"2026-04-20",weight:121.5,note:""},
+    {date:"2026-04-21",weight:121.3,note:""},
+    {date:"2026-04-22",weight:120.8,note:""},
+    {date:"2026-04-23",weight:120.5,note:""},
+    {date:"2026-04-24",weight:120.6,note:""},
+    {date:"2026-04-25",weight:120.3,note:""},
+    {date:"2026-04-26",weight:119.7,note:""},
+    {date:"2026-04-27",weight:119.8,note:""},
+    {date:"2026-04-28",weight:120,  note:""},
+    {date:"2026-04-29",weight:119.5,note:""},
+    {date:"2026-05-01",weight:118.6,note:""},
+    {date:"2026-05-02",weight:118.7,note:""},
+    {date:"2026-05-03",weight:118.3,note:"Twee dagen terug 12000 stappen gelopen!"},
+    {date:"2026-05-04",weight:118.5,note:""},
+  ];
+
   const handleOnboardingComplete = (p, ph, nd) => {
     setProfile(p);
     setCurrentPhase(ph);
     setNextPhaseDate(nd);
-    setEntries([{date:p.startDate, weight:p.startWeight, note:"Start! 🎉"}]);
+    const isEsra = p.name.toLowerCase().trim() === "esra" && parseFloat(p.startWeight) === 137;
+    const startEntries = isEsra ? ESRA_ENTRIES : [{date:p.startDate, weight:p.startWeight, note:"Start! 🎉"}];
+    setEntries(startEntries);
+    save(KEYS.entries, startEntries);
   };
 
   const sorted        = [...entries].sort((a,b)=>a.date.localeCompare(b.date));
