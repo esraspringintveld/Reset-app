@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   try {
     // Zoek de subscriber op bij MailerLite
     const response = await fetch(
-      `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
+     `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}?include=groups`,
       {
         headers: {
           'Authorization': `Bearer ${API_KEY}`,
