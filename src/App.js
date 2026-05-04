@@ -5,16 +5,36 @@ const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", p
 function load(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } }
 function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
 
-const MILESTONES = [
-  {loss:5,   emoji:"🌱", msg:"5 kg eraf! De reis begint!"},
-  {loss:10,  emoji:"⭐", msg:"10 kg! Waanzinnig goed bezig!"},
-  {loss:15,  emoji:"🏆", msg:"15 kg! Fantastisch!"},
-  {loss:20,  emoji:"🎯", msg:"20 kg! Ongelooflijk!"},
-  {loss:25,  emoji:"💫", msg:"25 kg! Je bent een kampioen!"},
-  {loss:30,  emoji:"🔥", msg:"30 kg! Halve weg bijna!"},
-  {loss:40,  emoji:"🌟", msg:"40 kg! Fenomenaal!"},
-  {loss:50,  emoji:"👑", msg:"50 kg! Een held!"},
-];
+function generateMilestones(totalToLose) {
+  const milestones = [];
+  const max = Math.round(totalToLose);
+  // Eerste 5 kg: elke kilo
+  const firstEmojis = ["🌱","✨","💪","🌿","⭐"];
+  const firstMsgs = [
+    "1 kg eraf! De eerste stap is gezet!",
+    "2 kg! Je bent op weg!",
+    "3 kg! Geweldig bezig!",
+    "4 kg! Je voelt het al!",
+    "5 kg! Fantastische start!"
+  ];
+  for (let i = 1; i <= Math.min(5, max); i++) {
+    milestones.push({ loss: i, emoji: firstEmojis[i-1], msg: firstMsgs[i-1] });
+  }
+  // Daarna elke 5 kg
+  const laterEmojis = ["🎯","🏆","🔥","💫","🌟","👑","🎉","💎","🦋","🌈"];
+  for (let i = 10; i < max; i += 5) {
+    const idx = Math.floor((i-10)/5) % laterEmojis.length;
+    milestones.push({ loss: i, emoji: laterEmojis[idx], msg: `${i} kg eraf! Ongelooflijk goed bezig!` });
+  }
+  // Halve weg
+  const half = Math.round(totalToLose / 2);
+  if (half > 5 && half % 5 !== 0 && half < max) {
+    milestones.push({ loss: half, emoji: "🏅", msg: `Halverwege! ${half} kg eraf — je bent er bijna!` });
+  }
+  // Doel bereikt
+  if (max > 0) milestones.push({ loss: max, emoji: "🎊", msg: `DOEL BEREIKT! ${max} kg eraf — wat een prestatie!` });
+  return milestones.sort((a, b) => a.loss - b.loss);
+}
 
 const card = { background:"white", borderRadius:20, padding:"20px 18px", margin:"0 0 14px", boxShadow:"0 2px 16px rgba(0,0,0,0.06)" };
 const lbl  = { fontSize:11, letterSpacing:2, textTransform:"uppercase", color:"#9ca3af", marginBottom:8, fontFamily:"Georgia,serif" };
@@ -300,7 +320,7 @@ function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch }) {
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>• Gezonde oliën & vetten toevoegen<br/>• Alle groenten toegestaan<br/>• Alle fruitsoorten (banaan met mate)<br/>• Ongebrande noten, kwark, rode wijn<br/>• Haverzemelen max 3x/week (30g)<br/>• Doel: stabiel blijven</div>
       </div>
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Mijlpalen</div>
-      {MILESTONES.map(m=>{
+      {milestones.map(m=>{
         const done=totalLost>=m.loss;
         return (
           <div key={m.loss} style={{...card,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}>
@@ -357,10 +377,12 @@ export default function App() {
   const phaseLabel    = currentPhase===2 ? "Fase 2 — Vetverbranding" : "Fase 3 — Stabilisatie";
   const daysToPhase   = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
 
+  const milestones = generateMilestones(totalToLose);
   const checkMilestone = useCallback((newLoss, oldLoss) => {
-    const hit=[...MILESTONES].reverse().find(m=>newLoss>=m.loss&&oldLoss<m.loss);
+    const ms = generateMilestones(totalToLose);
+    const hit=[...ms].reverse().find(m=>newLoss>=m.loss&&oldLoss<m.loss);
     if(hit){setCelebration(hit);setConfetti(true);setTimeout(()=>{setConfetti(false);setCelebration(null);},5000);}
-  },[]);
+  },[totalToLose]);
 
   const handleSave = useCallback((entry) => {
     const oldLoss = totalLost;
@@ -455,7 +477,7 @@ export default function App() {
             </div>
 
             {(()=>{
-              const next=MILESTONES.find(m=>totalLost<m.loss);
+              const next=milestones.find(m=>totalLost<m.loss);
               if(!next)return null;
               return(
                 <div style={{...card,background:"#f4f1eb"}}>
