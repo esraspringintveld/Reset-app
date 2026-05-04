@@ -12,30 +12,20 @@ const FASE3_CHECKLIST = ["Gevarieerd gegeten?", "Voldoende water gedronken?", "S
 function generateMilestones(totalToLose) {
   const milestones = [];
   const max = Math.round(totalToLose);
-  // Eerste 5 kg: elke kilo
   const firstEmojis = ["🌱","✨","💪","🌿","⭐"];
-  const firstMsgs = [
-    "1 kg eraf! De eerste stap is gezet!",
-    "2 kg! Je bent op weg!",
-    "3 kg! Geweldig bezig!",
-    "4 kg! Je voelt het al!",
-    "5 kg! Fantastische start!"
-  ];
+  const firstMsgs = ["1 kg eraf! De eerste stap is gezet!","2 kg! Je bent op weg!","3 kg! Geweldig bezig!","4 kg! Je voelt het al!","5 kg! Fantastische start!"];
   for (let i = 1; i <= Math.min(5, max); i++) {
     milestones.push({ loss: i, emoji: firstEmojis[i-1], msg: firstMsgs[i-1] });
   }
-  // Daarna elke 5 kg
   const laterEmojis = ["🎯","🏆","🔥","💫","🌟","👑","🎉","💎","🦋","🌈"];
   for (let i = 10; i < max; i += 5) {
     const idx = Math.floor((i-10)/5) % laterEmojis.length;
     milestones.push({ loss: i, emoji: laterEmojis[idx], msg: `${i} kg eraf! Ongelooflijk goed bezig!` });
   }
-  // Halve weg
   const half = Math.round(totalToLose / 2);
   if (half > 5 && half % 5 !== 0 && half < max) {
     milestones.push({ loss: half, emoji: "🏅", msg: `Halverwege! ${half} kg eraf — je bent er bijna!` });
   }
-  // Doel bereikt
   if (max > 0) milestones.push({ loss: max, emoji: "🎊", msg: `DOEL BEREIKT! ${max} kg eraf — wat een prestatie!` });
   return milestones.sort((a, b) => a.loss - b.loss);
 }
@@ -46,7 +36,6 @@ const inp  = { width:"100%", border:"1.5px solid #e5e7eb", borderRadius:12, padd
 const btn  = { background:"#2d6a4f", color:"white", border:"none", borderRadius:14, padding:"15px 20px", fontSize:15, fontFamily:"Georgia,serif", cursor:"pointer", width:"100%", fontWeight:600 };
 const btnSm= { background:"transparent", color:"#2d6a4f", border:"2px solid #2d6a4f", borderRadius:12, padding:"8px 14px", fontSize:12, fontFamily:"Georgia,serif", cursor:"pointer" };
 
-// ── HR Icon SVG ───────────────────────────────────────────────────────────────
 function HRIcon({ size=60 }) {
   const s = size;
   return (
@@ -60,7 +49,89 @@ function HRIcon({ size=60 }) {
   );
 }
 
-// ── Confetti ──────────────────────────────────────────────────────────────────
+// ── LOGIN SCHERM ──────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | error
+
+  const handleCheck = async () => {
+    if (!email || !email.includes("@")) return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/check-subscriber", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.toegang) {
+        localStorage.setItem("hr-toegang", email);
+        onLogin();
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div style={{
+      fontFamily:"Georgia,serif",
+      background:"linear-gradient(160deg,#1b4332 0%,#2d6a4f 60%,#40916c 100%)",
+      minHeight:"100vh",
+      display:"flex",
+      flexDirection:"column",
+      alignItems:"center",
+      justifyContent:"center",
+      padding:"40px 24px",
+    }}>
+      <HRIcon size={90}/>
+      <div style={{fontSize:11,letterSpacing:4,textTransform:"uppercase",color:"#52b788",marginTop:24,marginBottom:8}}>
+        Health Reset 3.0
+      </div>
+      <div style={{fontSize:28,fontWeight:700,color:"white",marginBottom:8,textAlign:"center"}}>
+        Jouw persoonlijke dashboard
+      </div>
+      <div style={{fontSize:15,color:"rgba(255,255,255,0.7)",marginBottom:36,textAlign:"center",lineHeight:1.6,maxWidth:320}}>
+        Voer je e-mailadres in om toegang te krijgen.
+      </div>
+
+      <div style={{background:"white",borderRadius:24,padding:"32px 28px",width:"100%",maxWidth:380,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
+        <div style={{...lbl,marginBottom:8}}>E-mailadres</div>
+        <input
+          style={{...inp, marginBottom:16}}
+          type="email"
+          placeholder="jouw@email.nl"
+          value={email}
+          onChange={e => { setEmail(e.target.value); setStatus("idle"); }}
+          onKeyDown={e => e.key === "Enter" && handleCheck()}
+          autoCapitalize="off"
+          autoCorrect="off"
+        />
+
+        {status === "error" && (
+          <div style={{background:"#fff0f0",border:"1.5px solid #fca5a5",borderRadius:12,padding:"12px 16px",marginBottom:16,fontSize:13,color:"#e76f51",lineHeight:1.5}}>
+            Dit e-mailadres staat niet in onze lijst. Heb je je al aangemeld via de landingspagina?
+          </div>
+        )}
+
+        <button
+          onClick={handleCheck}
+          disabled={status === "loading" || !email.includes("@")}
+          style={{...btn, opacity: (status === "loading" || !email.includes("@")) ? 0.6 : 1}}
+        >
+          {status === "loading" ? "Controleren… 🌿" : "Toegang aanvragen 🌿"}
+        </button>
+
+        <div style={{fontSize:11,color:"#9ca3af",textAlign:"center",marginTop:16,lineHeight:1.6}}>
+          Nog geen toegang? Meld je aan via de landingspagina.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Confetti() {
   const colors = ["#2d6a4f","#52b788","#b5838d","#ffd166","#06d6a0","#f4a261"];
   return (
@@ -76,7 +147,6 @@ function Confetti() {
   );
 }
 
-// ── Chart ─────────────────────────────────────────────────────────────────────
 function Chart({ entries, goalWeight, height=140 }) {
   const [tooltip, setTooltip] = useState(null);
   if (entries.length < 2) return <div style={{height,display:"flex",alignItems:"center",justifyContent:"center",color:"#9ca3af",fontSize:13}}>Voeg meer metingen toe voor de grafiek</div>;
@@ -109,7 +179,6 @@ function Chart({ entries, goalWeight, height=140 }) {
   );
 }
 
-// ── Fullscreen chart modal ─────────────────────────────────────────────────────
 function ChartModal({ entries, goalWeight, onClose }) {
   const fmt=d=>new Date(d).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"});
   return (
@@ -140,8 +209,6 @@ function ChartModal({ entries, goalWeight, onClose }) {
   );
 }
 
-
-// ── Daily Quote Popup ─────────────────────────────────────────────────────────
 function DailyQuote({ onClose }) {
   const dayIndex = Math.floor(Date.now() / 86400000) % QUOTES.length;
   const quote = QUOTES[dayIndex];
@@ -150,15 +217,12 @@ function DailyQuote({ onClose }) {
       <div style={{background:"white",borderRadius:24,padding:32,textAlign:"center",maxWidth:360,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
         <div style={{fontSize:40,marginBottom:16}}>🌿</div>
         <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#1b4332",lineHeight:1.5,marginBottom:24}}>{quote}</div>
-        <button onClick={onClose} style={{background:"#2d6a4f",color:"white",border:"none",borderRadius:14,padding:"12px 32px",fontSize:15,fontFamily:"Georgia,serif",cursor:"pointer",fontWeight:600}}>
-          Aan de slag! 💪
-        </button>
+        <button onClick={onClose} style={{background:"#2d6a4f",color:"white",border:"none",borderRadius:14,padding:"12px 32px",fontSize:15,fontFamily:"Georgia,serif",cursor:"pointer",fontWeight:600}}>Aan de slag! 💪</button>
       </div>
     </div>
   );
 }
 
-// ── Streak berekening ─────────────────────────────────────────────────────────
 function calcStreak(entries) {
   if (!entries.length) return 0;
   const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
@@ -176,7 +240,6 @@ function calcStreak(entries) {
   return streak;
 }
 
-// ── Mood/Dagboek ──────────────────────────────────────────────────────────────
 function MoodLog({ onClose }) {
   const today = new Date().toISOString().slice(0,10);
   const storageKey = "hr-mood-" + today;
@@ -184,21 +247,12 @@ function MoodLog({ onClose }) {
   const [mood, setMood] = useState(saved?.mood || null);
   const [note, setNote] = useState(saved?.note || "");
   const [done, setDone] = useState(!!saved);
-
-  const moods = [
-    {emoji:"😄", label:"Super!"},
-    {emoji:"😊", label:"Goed"},
-    {emoji:"😐", label:"Oké"},
-    {emoji:"😔", label:"Minder"},
-    {emoji:"😴", label:"Moe"},
-  ];
-
+  const moods = [{emoji:"😄",label:"Super!"},{emoji:"😊",label:"Goed"},{emoji:"😐",label:"Oké"},{emoji:"😔",label:"Minder"},{emoji:"😴",label:"Moe"}];
   const handleSave = () => {
     localStorage.setItem(storageKey, JSON.stringify({mood, note}));
     setDone(true);
     setTimeout(onClose, 800);
   };
-
   return (
     <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:600,background:"rgba(0,0,0,0.5)",padding:24}}>
       <div style={{background:"white",borderRadius:24,padding:28,maxWidth:360,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
@@ -212,47 +266,33 @@ function MoodLog({ onClose }) {
             </button>
           ))}
         </div>
-        <textarea
-          style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"12px 14px",fontSize:14,fontFamily:"Georgia,serif",outline:"none",boxSizing:"border-box",resize:"none",height:80}}
-          placeholder="Wil je nog iets kwijt? (optioneel)"
-          value={note}
-          onChange={e=>setNote(e.target.value)}
-          autoCapitalize="sentences"
-        />
+        <textarea style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"12px 14px",fontSize:14,fontFamily:"Georgia,serif",outline:"none",boxSizing:"border-box",resize:"none",height:80}} placeholder="Wil je nog iets kwijt? (optioneel)" value={note} onChange={e=>setNote(e.target.value)} autoCapitalize="sentences"/>
         <div style={{display:"flex",gap:10,marginTop:14}}>
           <button onClick={onClose} style={{flex:1,background:"#f4f1eb",border:"none",borderRadius:14,padding:"12px",fontSize:14,fontFamily:"Georgia,serif",cursor:"pointer",color:"#6b7280"}}>Overslaan</button>
-          <button onClick={handleSave} disabled={!mood} style={{flex:2,background:done?"#52b788":mood?"#2d6a4f":"#d1d5db",color:"white",border:"none",borderRadius:14,padding:"12px",fontSize:14,fontFamily:"Georgia,serif",cursor:mood?"pointer":"default",fontWeight:600,transition:"background .3s"}}>
-            {done?"✓ Opgeslagen!":"Opslaan"}
-          </button>
+          <button onClick={handleSave} disabled={!mood} style={{flex:2,background:done?"#52b788":mood?"#2d6a4f":"#d1d5db",color:"white",border:"none",borderRadius:14,padding:"12px",fontSize:14,fontFamily:"Georgia,serif",cursor:mood?"pointer":"default",fontWeight:600,transition:"background .3s"}}>{done?"✓ Opgeslagen!":"Opslaan"}</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ── Fase Checklist ────────────────────────────────────────────────────────────
 function FaseChecklist({ phase, onClose }) {
   const today = new Date().toISOString().slice(0,10);
   const storageKey = "hr-check-" + today;
   const saved = localStorage.getItem(storageKey) ? JSON.parse(localStorage.getItem(storageKey)) : {};
   const [checked, setChecked] = useState(saved);
   const list = phase === 2 ? FASE2_CHECKLIST : FASE3_CHECKLIST;
-
   const toggle = (item) => {
     const newChecked = {...checked, [item]: !checked[item]};
     setChecked(newChecked);
     localStorage.setItem(storageKey, JSON.stringify(newChecked));
   };
-
   const doneCount = list.filter(i => checked[i]).length;
-
   return (
     <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:600,background:"rgba(0,0,0,0.5)",padding:24}}>
       <div style={{background:"white",borderRadius:24,padding:28,maxWidth:360,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",maxHeight:"80vh",overflowY:"auto"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#1b4332"}}>
-            {phase === 2 ? "🔥 Fase 2 checklist" : "🌿 Fase 3 checklist"}
-          </div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#1b4332"}}>{phase===2?"🔥 Fase 2 checklist":"🌿 Fase 3 checklist"}</div>
           <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9ca3af"}}>×</button>
         </div>
         <div style={{fontSize:13,color:"#9ca3af",marginBottom:16}}>{doneCount} van {list.length} gedaan vandaag</div>
@@ -267,15 +307,12 @@ function FaseChecklist({ phase, onClose }) {
             <div style={{fontSize:14,color:checked[item]?"#9ca3af":"#374151",textDecoration:checked[item]?"line-through":"none",transition:"all .2s"}}>{item}</div>
           </div>
         ))}
-        {doneCount === list.length && (
-          <div style={{textAlign:"center",padding:"16px 0",fontSize:16,color:"#2d6a4f",fontWeight:600}}>🎉 Alles gedaan vandaag!</div>
-        )}
+        {doneCount===list.length&&<div style={{textAlign:"center",padding:"16px 0",fontSize:16,color:"#2d6a4f",fontWeight:600}}>🎉 Alles gedaan vandaag!</div>}
       </div>
     </div>
   );
 }
 
-// ── ONBOARDING ────────────────────────────────────────────────────────────────
 function Onboarding({ onComplete }) {
   const [step, setStep]   = useState(0);
   const [name, setName]   = useState("");
@@ -285,21 +322,10 @@ function Onboarding({ onComplete }) {
   const [phase,       setPhase]       = useState(2);
   const [nextDate,    setNextDate]    = useState("");
 
-  const canNext = [
-    name.trim().length > 0,
-    parseFloat(startWeight.replace(",",".")) > 0,
-    parseFloat(goalWeight.replace(",",".")) > 0,
-    startDate.length > 0,
-    nextDate.length > 0,
-  ];
+  const canNext = [name.trim().length>0, parseFloat(startWeight.replace(",",".")>0), parseFloat(goalWeight.replace(",",".")>0), startDate.length>0, nextDate.length>0];
 
   const finish = () => {
-    const profile = {
-      name: name.trim(),
-      startWeight: parseFloat(startWeight.replace(",",".")),
-      goalWeight:  parseFloat(goalWeight.replace(",",".")),
-      startDate,
-    };
+    const profile = { name: name.trim(), startWeight: parseFloat(startWeight.replace(",",".")), goalWeight: parseFloat(goalWeight.replace(",",".")), startDate };
     save(KEYS.profile, profile);
     save(KEYS.phase, phase);
     save(KEYS.nextDate, nextDate);
@@ -308,23 +334,18 @@ function Onboarding({ onComplete }) {
   };
 
   const steps = [
-    // Stap 0: welkom
     <div style={{textAlign:"center",padding:"40px 24px"}}>
       <HRIcon size={100}/>
       <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f",marginTop:24,marginBottom:12}}>Welkom bij Health Reset 3.0</div>
       <div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor de reset. We stellen het even in op jouw gegevens.</div>
       <button onClick={()=>setStep(1)} style={btn}>Aan de slag! 🌿</button>
     </div>,
-
-    // Stap 1: naam
     <div style={{padding:"32px 24px"}}>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Hoe heet je?</div>
       <div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div>
       <input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/>
       <button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende →</button>
     </div>,
-
-    // Stap 2: gewichten
     <div style={{padding:"32px 24px"}}>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Jouw gewichten</div>
       <div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 2 van 4</div>
@@ -336,8 +357,6 @@ function Onboarding({ onComplete }) {
       <input type="date" style={inp} value={startDate} onChange={e=>setStartDate(e.target.value)}/>
       <button onClick={()=>setStep(3)} disabled={!canNext[1]||!canNext[2]||!canNext[3]} style={{...btn,marginTop:20,opacity:(canNext[1]&&canNext[2]&&canNext[3])?1:0.4}}>Volgende →</button>
     </div>,
-
-    // Stap 3: fase
     <div style={{padding:"32px 24px"}}>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Welke fase zit je in?</div>
       <div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div>
@@ -352,8 +371,6 @@ function Onboarding({ onComplete }) {
       <input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/>
       <button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende →</button>
     </div>,
-
-    // Stap 4: klaar
     <div style={{textAlign:"center",padding:"40px 24px"}}>
       <div style={{fontSize:64,marginBottom:16}}>🎉</div>
       <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,color:"#2d6a4f",marginBottom:12}}>Alles is ingesteld, {name}!</div>
@@ -364,14 +381,11 @@ function Onboarding({ onComplete }) {
 
   return (
     <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}>
-      <div style={{...card,margin:20}}>
-        {steps[step]}
-      </div>
+      <div style={{...card,margin:20}}>{steps[step]}</div>
     </div>
   );
 }
 
-// ── LOG FORM ──────────────────────────────────────────────────────────────────
 function LogForm({ sorted, onSave, onDelete }) {
   const today=new Date().toISOString().slice(0,10);
   const [date,setDate]=useState(today);
@@ -428,7 +442,6 @@ function LogForm({ sorted, onSave, onDelete }) {
   );
 }
 
-// ── FASES tab ─────────────────────────────────────────────────────────────────
 function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch, milestones }) {
   const [localPhase,setLocalPhase]=useState(currentPhase);
   const [localDate,setLocalDate]=useState(nextPhaseDate);
@@ -475,20 +488,25 @@ function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch, milestones
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const [profile,       setProfile]       = useState(null);
-  const [entries,       setEntries]       = useState([]);
-  const [currentPhase,  setCurrentPhase]  = useState(2);
-  const [nextPhaseDate, setNextPhaseDate] = useState("");
-  const [tab,           setTab]           = useState("home");
-  const [confetti,      setConfetti]      = useState(false);
-  const [celebration,   setCelebration]   = useState(null);
-  const [showChart,     setShowChart]     = useState(false);
-  const [ready,         setReady]         = useState(false);
-  const [showQuote,     setShowQuote]     = useState(false);
-  const [showMood,      setShowMood]      = useState(false);
-  const [showChecklist, setShowChecklist] = useState(false);
+  const [ingelogd,        setIngelogd]      = useState(false);
+  const [profile,         setProfile]       = useState(null);
+  const [entries,         setEntries]       = useState([]);
+  const [currentPhase,    setCurrentPhase]  = useState(2);
+  const [nextPhaseDate,   setNextPhaseDate] = useState("");
+  const [tab,             setTab]           = useState("home");
+  const [confetti,        setConfetti]      = useState(false);
+  const [celebration,     setCelebration]   = useState(null);
+  const [showChart,       setShowChart]     = useState(false);
+  const [ready,           setReady]         = useState(false);
+  const [showQuote,       setShowQuote]     = useState(false);
+  const [showMood,        setShowMood]      = useState(false);
+  const [showChecklist,   setShowChecklist] = useState(false);
 
   useEffect(()=>{
+    // Check of iemand al ingelogd is (opgeslagen in localStorage)
+    const opgeslaanEmail = localStorage.getItem("hr-toegang");
+    if (opgeslaanEmail) setIngelogd(true);
+
     const p  = load(KEYS.profile);
     const e  = load(KEYS.entries);
     const ph = load(KEYS.phase);
@@ -498,7 +516,7 @@ export default function App() {
     if(ph) setCurrentPhase(ph);
     if(nd) setNextPhaseDate(nd);
     setReady(true);
-    // Show quote once per day
+
     const today = new Date().toISOString().slice(0,10);
     const lastQuote = localStorage.getItem("hr-last-quote");
     if (lastQuote !== today) {
@@ -509,67 +527,7 @@ export default function App() {
 
   const ESRA_ENTRIES = [
     {date:"2026-02-18",weight:137,  note:"Start! 🎉"},
-    {date:"2026-02-19",weight:135.9,note:""},
-    {date:"2026-02-20",weight:134.8,note:""},
-    {date:"2026-02-21",weight:134.3,note:""},
-    {date:"2026-02-22",weight:133.8,note:""},
-    {date:"2026-02-24",weight:133.6,note:""},
-    {date:"2026-02-25",weight:133.2,note:""},
-    {date:"2026-02-26",weight:133.1,note:""},
-    {date:"2026-02-27",weight:132.5,note:""},
-    {date:"2026-03-01",weight:132.8,note:""},
-    {date:"2026-03-02",weight:132.2,note:""},
-    {date:"2026-03-04",weight:131.9,note:""},
-    {date:"2026-03-06",weight:131.2,note:""},
-    {date:"2026-03-08",weight:131.3,note:""},
-    {date:"2026-03-09",weight:130.7,note:""},
-    {date:"2026-03-10",weight:130.5,note:""},
-    {date:"2026-03-11",weight:130.2,note:""},
-    {date:"2026-03-12",weight:130,  note:""},
-    {date:"2026-03-13",weight:129.5,note:""},
-    {date:"2026-03-14",weight:129.3,note:""},
-    {date:"2026-03-16",weight:128.9,note:""},
-    {date:"2026-03-17",weight:128.5,note:""},
-    {date:"2026-03-19",weight:127.7,note:""},
-    {date:"2026-03-20",weight:127.6,note:""},
-    {date:"2026-03-23",weight:127.3,note:""},
-    {date:"2026-03-24",weight:126.8,note:""},
-    {date:"2026-03-25",weight:126.5,note:""},
-    {date:"2026-03-27",weight:126.4,note:"Start fase 3 🥳"},
-    {date:"2026-03-28",weight:126,  note:""},
-    {date:"2026-03-29",weight:125.8,note:""},
-    {date:"2026-03-30",weight:125.4,note:""},
-    {date:"2026-03-31",weight:125,  note:""},
-    {date:"2026-04-01",weight:124.3,note:""},
-    {date:"2026-04-03",weight:124.3,note:""},
-    {date:"2026-04-04",weight:124.1,note:""},
-    {date:"2026-04-05",weight:124.4,note:""},
-    {date:"2026-04-07",weight:124.1,note:""},
-    {date:"2026-04-08",weight:123.9,note:""},
-    {date:"2026-04-09",weight:124.3,note:""},
-    {date:"2026-04-10",weight:123.4,note:"Start fase 2"},
-    {date:"2026-04-11",weight:123,  note:""},
-    {date:"2026-04-12",weight:122.9,note:""},
-    {date:"2026-04-13",weight:122.7,note:""},
-    {date:"2026-04-14",weight:122.1,note:""},
-    {date:"2026-04-16",weight:121.8,note:""},
-    {date:"2026-04-17",weight:121.5,note:""},
-    {date:"2026-04-18",weight:121.7,note:""},
-    {date:"2026-04-19",weight:121.3,note:""},
-    {date:"2026-04-20",weight:121.5,note:""},
-    {date:"2026-04-21",weight:121.3,note:""},
-    {date:"2026-04-22",weight:120.8,note:""},
-    {date:"2026-04-23",weight:120.5,note:""},
-    {date:"2026-04-24",weight:120.6,note:""},
-    {date:"2026-04-25",weight:120.3,note:""},
-    {date:"2026-04-26",weight:119.7,note:""},
-    {date:"2026-04-27",weight:119.8,note:""},
-    {date:"2026-04-28",weight:120,  note:""},
-    {date:"2026-04-29",weight:119.5,note:""},
-    {date:"2026-05-01",weight:118.6,note:""},
-    {date:"2026-05-02",weight:118.7,note:""},
-    {date:"2026-05-03",weight:118.3,note:"Twee dagen terug 12000 stappen gelopen!"},
-    {date:"2026-05-04",weight:118.5,note:""},
+    {date:"2026-02-19",weight:135.9,note:""},{date:"2026-02-20",weight:134.8,note:""},{date:"2026-02-21",weight:134.3,note:""},{date:"2026-02-22",weight:133.8,note:""},{date:"2026-02-24",weight:133.6,note:""},{date:"2026-02-25",weight:133.2,note:""},{date:"2026-02-26",weight:133.1,note:""},{date:"2026-02-27",weight:132.5,note:""},{date:"2026-03-01",weight:132.8,note:""},{date:"2026-03-02",weight:132.2,note:""},{date:"2026-03-04",weight:131.9,note:""},{date:"2026-03-06",weight:131.2,note:""},{date:"2026-03-08",weight:131.3,note:""},{date:"2026-03-09",weight:130.7,note:""},{date:"2026-03-10",weight:130.5,note:""},{date:"2026-03-11",weight:130.2,note:""},{date:"2026-03-12",weight:130,  note:""},{date:"2026-03-13",weight:129.5,note:""},{date:"2026-03-14",weight:129.3,note:""},{date:"2026-03-16",weight:128.9,note:""},{date:"2026-03-17",weight:128.5,note:""},{date:"2026-03-19",weight:127.7,note:""},{date:"2026-03-20",weight:127.6,note:""},{date:"2026-03-23",weight:127.3,note:""},{date:"2026-03-24",weight:126.8,note:""},{date:"2026-03-25",weight:126.5,note:""},{date:"2026-03-27",weight:126.4,note:"Start fase 3 🥳"},{date:"2026-03-28",weight:126,  note:""},{date:"2026-03-29",weight:125.8,note:""},{date:"2026-03-30",weight:125.4,note:""},{date:"2026-03-31",weight:125,  note:""},{date:"2026-04-01",weight:124.3,note:""},{date:"2026-04-03",weight:124.3,note:""},{date:"2026-04-04",weight:124.1,note:""},{date:"2026-04-05",weight:124.4,note:""},{date:"2026-04-07",weight:124.1,note:""},{date:"2026-04-08",weight:123.9,note:""},{date:"2026-04-09",weight:124.3,note:""},{date:"2026-04-10",weight:123.4,note:"Start fase 2"},{date:"2026-04-11",weight:123,  note:""},{date:"2026-04-12",weight:122.9,note:""},{date:"2026-04-13",weight:122.7,note:""},{date:"2026-04-14",weight:122.1,note:""},{date:"2026-04-16",weight:121.8,note:""},{date:"2026-04-17",weight:121.5,note:""},{date:"2026-04-18",weight:121.7,note:""},{date:"2026-04-19",weight:121.3,note:""},{date:"2026-04-20",weight:121.5,note:""},{date:"2026-04-21",weight:121.3,note:""},{date:"2026-04-22",weight:120.8,note:""},{date:"2026-04-23",weight:120.5,note:""},{date:"2026-04-24",weight:120.6,note:""},{date:"2026-04-25",weight:120.3,note:""},{date:"2026-04-26",weight:119.7,note:""},{date:"2026-04-27",weight:119.8,note:""},{date:"2026-04-28",weight:120,  note:""},{date:"2026-04-29",weight:119.5,note:""},{date:"2026-05-01",weight:118.6,note:""},{date:"2026-05-02",weight:118.7,note:""},{date:"2026-05-03",weight:118.3,note:"Twee dagen terug 12000 stappen gelopen!"},{date:"2026-05-04",weight:118.5,note:""},
   ];
 
   const handleOnboardingComplete = (p, ph, nd) => {
@@ -594,8 +552,8 @@ export default function App() {
   const phaseLabel    = currentPhase===2 ? "Fase 2 — Vetverbranding" : "Fase 3 — Stabilisatie";
   const streak        = calcStreak(sorted);
   const daysToPhase   = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
+  const milestones    = generateMilestones(totalToLose);
 
-  const milestones = generateMilestones(totalToLose);
   const checkMilestone = useCallback((newLoss, oldLoss) => {
     const ms = generateMilestones(totalToLose);
     const hit=[...ms].reverse().find(m=>newLoss>=m.loss&&oldLoss<m.loss);
@@ -622,6 +580,10 @@ export default function App() {
   },[]);
 
   if (!ready) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"Georgia,serif",color:"#2d6a4f",fontSize:18}}>Laden… 🌿</div>;
+
+  // Toon loginscherm als niet ingelogd
+  if (!ingelogd) return <LoginScreen onLogin={() => setIngelogd(true)} />;
+
   if (!profile) return <Onboarding onComplete={handleOnboardingComplete}/>;
 
   return (
@@ -662,7 +624,7 @@ export default function App() {
             <div style={card}>
               <div style={lbl}>Voortgang naar doel</div>
               <div style={{display:"flex",gap:10,marginBottom:14}}>
-                {[{v:`−${totalLost}`,l:"kg afgevallen"},{v:`${remaining > 0 ? remaining : 0}`,l:"kg te gaan"},{v:`${progressPct.toFixed(0)}%`,l:"voltooid"}].map((s,i)=>(
+                {[{v:`−${totalLost}`,l:"kg afgevallen"},{v:`${remaining>0?remaining:0}`,l:"kg te gaan"},{v:`${progressPct.toFixed(0)}%`,l:"voltooid"}].map((s,i)=>(
                   <div key={i} style={{flex:1,background:"#f4f1eb",borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
                     <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#2d6a4f"}}>{s.v}</div>
                     <div style={{fontSize:11,color:"#9ca3af",marginTop:3}}>{s.l}</div>
@@ -677,8 +639,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Streak */}
-            {streak > 0 && <div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setShowMood(true)}>
+            {streak>0&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setShowMood(true)}>
               <div style={{display:"flex",alignItems:"center",gap:16}}>
                 <div style={{fontSize:38}}>🔥</div>
                 <div>
@@ -689,7 +650,6 @@ export default function App() {
               </div>
             </div>}
 
-            {/* Quick action buttons */}
             <div style={{display:"flex",gap:10,marginBottom:14}}>
               <button onClick={()=>setShowChecklist(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
                 <div style={{fontSize:24}}>✅</div>
