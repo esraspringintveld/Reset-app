@@ -290,7 +290,7 @@ function LogForm({ sorted, onSave, onDelete }) {
 }
 
 // ── FASES tab ─────────────────────────────────────────────────────────────────
-function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch }) {
+function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch, milestones }) {
   const [localPhase,setLocalPhase]=useState(currentPhase);
   const [localDate,setLocalDate]=useState(nextPhaseDate);
   const [saved,setSaved]=useState(false);
@@ -562,7 +562,7 @@ export default function App() {
       )}
 
       {tab==="log"   && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
-      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} totalLost={totalLost} onSwitch={handleSwitch}/>}
+      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
         {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
