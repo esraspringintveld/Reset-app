@@ -11,6 +11,33 @@ const FASE2_CHECKLIST = ["Groenten gegeten (min. 400g)?", "250g proteïne gegete
 const FASE3_CHECKLIST = ["Gevarieerd gegeten?", "Voldoende water gedronken?", "Supplementen ingenomen?", "Gewogen vanochtend?", "Stabiel gebleven (max 500g schommeling)?", "Bewogen vandaag?"];
 const FASE4_CHECKLIST = ["Supplementen ingenomen?", "Voldoende water gedronken (2L)?", "Geen koolhydraten na 19u?", "Gegeten volgens LOGI-piramide?", "Gewogen vanochtend?", "Nieuw voedsel getest en reactie genoteerd?"];
 
+const FASE2_VOEDING = [
+  { categorie: "Rundvlees", items: ["Borst", "Filet", "Steak (mager)", "Tartaar", "Extra mager gehakt"] },
+  { categorie: "Kalfsvlees", items: ["Borst", "Filet", "Schnitzel"] },
+  { categorie: "Gevogelte", items: ["Kipfilet (rauw en ongekruid)", "Kalkoenborst / schnitzel"] },
+  { categorie: "Vis (alle soorten witvis)", items: ["Snoek", "Heilbot", "Kabeljauw", "Dorade"] },
+  { categorie: "Zeevruchten", items: ["Garnalen", "Kreeft", "Krab", "Inktvisringen / calamares", "Mosselen"] },
+  { categorie: "Ei (middelgroot)", items: ["Gekookt of gebakken", "Omelet: 1 dooier met 3 eiwit", "Max. 1 ei(geel) per dag"] },
+  { categorie: "Sla", items: ["IJsberg", "Andijvie", "Kropsla", "Radicchio", "Rucola", "Andere bladsla"] },
+  { categorie: "Koolsoorten", items: ["Bloemkool", "Broccoli", "Paksoi", "Rode kool", "Witte kool", "Savooiekool"] },
+  { categorie: "Andere groenten", items: ["Asperges", "Paprika", "Artisjok", "Witlof", "Venkel", "Lente-uitje", "Komkommers (alle soorten)", "Snijbiet", "Selderij (stengel)", "Spinazie", "Tomaten (alle soorten)", "Radijs", "Courgette", "Uien / prei (alle soorten)"] },
+  { categorie: "Kiemen", items: ["Bamboespruiten", "Sojascheuten / taugé"] },
+  { categorie: "Paddenstoelen", items: ["Champignons / hanekam", "Eekhoorntjesbrood"] },
+  { categorie: "Fruit (2x per dag)", items: ["Appel (zuur)", "Aardbeien", "Grapefruit", "Sinaasappel", "Sinaasappelsap (vers geperst)", "Citroensap (100ml)", "Peren", "Bramen", "Nectarines", "Granaatappel", "Blauwe bessen", "Aalbessen", "Kersen", "Mandarijnen", "Mango", "Passievrucht", "Perzik", "Pruimen", "Cranberries", "Kruisbessen", "Druiven"] },
+  { categorie: "Snacks (2x per dag)", items: ["1 wasa cracker", "1 grissini soepstengel"] },
+  { categorie: "Specerijen & kruiden", items: ["Japanse sojasaus (1 eetlepel)", "Azijn (alle soorten, suikervrij)", "Specerijen gedroogd (1 theelepel)", "Tuinkruiden vers (5 gram)", "Tabasco (100ml)", "Sambal oelek zonder suiker", "Gember", "Knoflook", "Groentebouillon (vetvrij, 100ml)", "Mosterd (alle soorten zonder suiker)", "Mierikswortelsaus / wasabi", "Tomatenpuree"] },
+  { categorie: "Zoetstoffen", items: ["Erythritol", "Sacharine", "Stevia (alleen van de natuurwinkel)"] },
+];
+
+const FASE3_VOEDING = [
+  { categorie: "Vetten & oliën (rustig opbouwen)", items: ["Avocado-olie (om mee te koken)", "Kokosolie (om mee te koken)", "Ghee / geklaarde boter", "Roomboter (grasboter)", "Extra vergine olijfolie (koud)", "Lijnzaadolie (koud)"] },
+  { categorie: "Groenten", items: ["Alle soorten groenten", "Uitzondering: zoete aardappel en maïs met mate", "Peulvruchten alleen met mate"] },
+  { categorie: "Fruit", items: ["Alle fruitsoorten", "Banaan en gedroogd fruit (zoals dadels) met mate"] },
+  { categorie: "Vlees & vis", items: ["Alle soorten vis en vlees"] },
+  { categorie: "Zuivel & noten", items: ["Ongebrande noten", "Magere yoghurt / kwark", "Hüttenkäse", "Een glaasje rode wijn bij het eten"] },
+  { categorie: "Granen (beperkt)", items: ["Haverzemelen max 3x per week (30 gram per dag)"] },
+];
+
 function generateMilestones(totalToLose) {
   const milestones = [];
   const max = Math.round(totalToLose);
@@ -30,6 +57,38 @@ const lbl  = { fontSize:11, letterSpacing:2, textTransform:"uppercase", color:"#
 const inp  = { width:"100%", border:"1.5px solid #e5e7eb", borderRadius:12, padding:"13px 14px", fontSize:17, fontFamily:"Georgia,serif", outline:"none", boxSizing:"border-box", background:"white" };
 const btn  = { background:"#2d6a4f", color:"white", border:"none", borderRadius:14, padding:"15px 20px", fontSize:15, fontFamily:"Georgia,serif", cursor:"pointer", width:"100%", fontWeight:600 };
 const btnSm= { background:"transparent", color:"#2d6a4f", border:"2px solid #2d6a4f", borderRadius:12, padding:"8px 14px", fontSize:12, fontFamily:"Georgia,serif", cursor:"pointer" };
+
+function VoedingsLijst({ voeding, accentColor }) {
+  const [open, setOpen] = useState(false);
+  const [openCat, setOpenCat] = useState(null);
+  return (
+    <div style={{marginTop:10}}>
+      <button onClick={()=>setOpen(!open)} style={{width:"100%",background:open?"#f4f1eb":"transparent",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"Georgia,serif",fontSize:13,color:accentColor,fontWeight:600}}>
+        <span>Toegestane voeding</span>
+        <span style={{fontSize:16,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
+      </button>
+      {open && (
+        <div style={{marginTop:8}}>
+          {voeding.map(cat=>(
+            <div key={cat.categorie} style={{marginBottom:6}}>
+              <button onClick={()=>setOpenCat(openCat===cat.categorie?null:cat.categorie)} style={{width:"100%",background:"#f4f1eb",border:"none",borderRadius:10,padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"Georgia,serif",fontSize:13,color:"#374151",fontWeight:600,textAlign:"left"}}>
+                <span>{cat.categorie}</span>
+                <span style={{fontSize:14,color:"#9ca3af",transition:"transform .2s",display:"inline-block",transform:openCat===cat.categorie?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
+              </button>
+              {openCat===cat.categorie&&(
+                <div style={{padding:"8px 14px 4px",borderLeft:"3px solid #e5e7eb",marginLeft:8,marginTop:4}}>
+                  {cat.items.map(item=>(
+                    <div key={item} style={{fontSize:13,color:"#374151",padding:"4px 0",borderBottom:"1px solid #f4f1eb"}}>{item}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function HRIcon({ size=60 }) {
   return (
@@ -306,10 +365,29 @@ function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch, milestones
         <input type="date" value={localDate} onChange={e=>setLocalDate(e.target.value)} style={inp}/>
         <button onClick={()=>{onSwitch(localPhase,localDate);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
-      <div style={{...card,borderLeft:"4px solid #52b788"}}><div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div></div>
-      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}><div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div></div>
-      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}><div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Stabilisatie (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Gezonde oliën en vetten, alle groenten, alle fruitsoorten, noten, kwark, rode wijn, haverzemelen max 3x/week (30g), doel: stabiel blijven</div></div>
-      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}><div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — LOGISCH leven testfase (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>De belangrijkste fase tegen het jojo-effect. Test stap voor stap koolhydraten — reageert je lichaam? Vermijd dat voedsel en test later opnieuw. Eet volgens de LOGI-piramide, geen koolhydraten na 19u. Blijf 3–6 maanden basisproducten gebruiken.</div></div>
+
+      <div style={{...card,borderLeft:"4px solid #52b788"}}>
+        <div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div>
+      </div>
+
+      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div>
+        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/>
+      </div>
+
+      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Stabilisatie (21 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Gezonde oliën en vetten, alle groenten, alle fruitsoorten, noten, kwark, rode wijn, haverzemelen max 3x/week (30g), doel: stabiel blijven</div>
+        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/>
+      </div>
+
+      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — LOGISCH leven testfase (21 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>De belangrijkste fase tegen het jojo-effect. Test stap voor stap koolhydraten — reageert je lichaam? Vermijd dat voedsel en test later opnieuw. Eet volgens de LOGI-piramide, geen koolhydraten na 19u. Blijf 3–6 maanden basisproducten gebruiken.</div>
+      </div>
+
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Mijlpalen</div>
       {milestones.map(m=>{
         const done=totalLost>=m.loss;
