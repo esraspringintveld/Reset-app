@@ -382,7 +382,14 @@ export default function App() {
     save(KEYS.phase, phase); save(KEYS.nextDate, date);
   },[]);
 
-  const handleLogout = () => { localStorage.removeItem("hr-toegang"); window.location.reload(); };
+  const handleLogout = async () => {
+    localStorage.removeItem("hr-toegang");
+    if (navigator.serviceWorker) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let r of registrations) { await r.unregister(); }
+    }
+    window.location.replace(window.location.pathname + "?uitgelogd=" + Date.now());
+  };
 
   if (!ready) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"Georgia,serif",color:"#2d6a4f",fontSize:18}}>Laden…</div>;
   if (!ingelogd) return <LoginScreen onLogin={() => setIngelogd(true)} />;
