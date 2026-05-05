@@ -322,8 +322,7 @@ function Onboarding({ onComplete }) {
   const [phase,       setPhase]       = useState(2);
   const [nextDate,    setNextDate]    = useState("");
 
-  const canNext = [name.trim().length>0, parseFloat(startWeight.replace(",",".")>0), parseFloat(goalWeight.replace(",",".")>0), startDate.length>0, nextDate.length>0];
-
+ const canNext = [name.trim().length>0, parseFloat(startWeight.replace(",","."))>0, parseFloat(goalWeight.replace(",","."))>0, startDate.length>0, nextDate.length>0];
   const finish = () => {
     const profile = { name: name.trim(), startWeight: parseFloat(startWeight.replace(",",".")), goalWeight: parseFloat(goalWeight.replace(",",".")), startDate };
     save(KEYS.profile, profile);
