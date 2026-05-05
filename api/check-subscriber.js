@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     console.log('Status:', response.status);
     const data = await response.json();
     console.log('Data:', JSON.stringify(data));
-    const gevonden = data.data && data.data.length > 0;
+   const gevonden = data.data && data.data.length > 0;
     return res.status(200).json({ toegang: gevonden });
   } catch (error) {
     console.log('Error:', error.message);
