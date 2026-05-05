@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile" };
+const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase" };
 function load(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } }
 function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
 
@@ -46,6 +46,9 @@ const MOOD_INFO = {
   "😴": { label: "Moe", color: "#b5838d" },
 };
 
+const FASE_LABELS = { 1: "Fase 1 — Laaddagen", 2: "Fase 2 — Vetverbranding", 3: "Fase 3 — Stabilisatie", 4: "Fase 4 — LOGISCH leven" };
+const FASE_ICONS = { 1: "🌱", 2: "🌿", 3: "⚖️", 4: "🔥" };
+
 function generateMilestones(totalToLose) {
   const milestones = [];
   const max = Math.round(totalToLose);
@@ -81,6 +84,9 @@ function getMoodEntries() {
 function DagboekTab() {
   const today = new Date();
   const todayStr = today.toISOString().slice(0,10);
+  const yesterdayStr = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const twoDaysAgoStr = new Date(Date.now()-2*86400000).toISOString().slice(0,10);
+
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState(null);
@@ -106,17 +112,20 @@ function DagboekTab() {
 
   const dateStr = (d) => `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
 
+  const isEditable = (ds) => ds === todayStr || ds === yesterdayStr || ds === twoDaysAgoStr;
+
   const handleDayTap = (d) => {
     const ds = dateStr(d);
     if (selectedDay === d) { setSelectedDay(null); setLogMode(false); return; }
     setSelectedDay(d);
-    setLogMode(false);
-    if (ds === todayStr) {
+    setLogSaved(false);
+    if (isEditable(ds)) {
       const existing = moodEntries[ds];
       setLogMood(existing ? existing.mood : null);
       setLogNote(existing ? existing.note || "" : "");
-      setLogSaved(false);
       setLogMode(true);
+    } else {
+      setLogMode(false);
     }
   };
 
@@ -142,7 +151,8 @@ function DagboekTab() {
   for (let d = 1; d <= totalDays; d++) cells.push(d);
 
   const selectedEntry = selectedDay ? moodEntries[dateStr(selectedDay)] : null;
-  const selectedIsToday = selectedDay ? dateStr(selectedDay) === todayStr : false;
+  const selectedDs = selectedDay ? dateStr(selectedDay) : null;
+  const selectedEditable = selectedDs ? isEditable(selectedDs) : false;
 
   return (
     <div style={{padding:"20px 16px"}}>
@@ -167,13 +177,14 @@ function DagboekTab() {
             const ds = dateStr(d);
             const entry = moodEntries[ds];
             const isToday = ds === todayStr;
+            const editable = isEditable(ds);
             const isSelected = selectedDay === d;
             const isFuture = ds > todayStr;
             return (
-              <div key={i} onClick={()=>!isFuture && handleDayTap(d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:isFuture?"default":"pointer",background:isSelected?"#d8f3dc":isToday?"#f4f1eb":"transparent",border:isSelected?"2px solid #2d6a4f":isToday?"2px solid #52b788":"2px solid transparent",transition:"all .15s",opacity:isFuture?0.3:1}}>
+              <div key={i} onClick={()=>!isFuture && handleDayTap(d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:isFuture?"default":"pointer",background:isSelected?"#d8f3dc":isToday?"#f4f1eb":"transparent",border:isSelected?"2px solid #2d6a4f":isToday?"2px solid #52b788":editable&&!entry?"2px dashed #d8f3dc":"2px solid transparent",transition:"all .15s",opacity:isFuture?0.3:1}}>
                 {entry ? (
                   <div style={{fontSize:20,lineHeight:1}}>{entry.mood}</div>
-                ) : isToday ? (
+                ) : editable ? (
                   <div style={{fontSize:16,lineHeight:1,color:"#52b788"}}>+</div>
                 ) : (
                   <div style={{height:20}}/>
@@ -183,14 +194,16 @@ function DagboekTab() {
             );
           })}
         </div>
-        {!selectedDay && <div style={{fontSize:12,color:"#9ca3af",textAlign:"center",marginTop:12}}>Tik op vandaag om je stemming te loggen</div>}
+        <div style={{fontSize:12,color:"#9ca3af",textAlign:"center",marginTop:12}}>Tik op vandaag of de afgelopen 2 dagen om te loggen</div>
       </div>
 
-      {/* Log invoer voor vandaag */}
-      {logMode && selectedIsToday && (
+      {/* Invoer voor bewerkbare dagen */}
+      {logMode && selectedEditable && (
         <div style={{...card,border:"2px solid #52b788"}}>
-          <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332",marginBottom:4}}>Hoe voel je je vandaag?</div>
-          <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Tik op een gezichtje om je stemming op te slaan</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332",marginBottom:2}}>
+            {selectedDs === todayStr ? "Hoe voel je je vandaag?" : `Hoe voelde je je op ${new Date(selectedDs+"T12:00:00").toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}?`}
+          </div>
+          <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Tik op een gezichtje</div>
           <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:16}}>
             {moods.map(m=>(<button key={m.emoji} onClick={()=>setLogMood(m.emoji)} style={{background:logMood===m.emoji?"#d8f3dc":"#f4f1eb",border:logMood===m.emoji?"2px solid #2d6a4f":"2px solid transparent",borderRadius:14,padding:"10px 6px",cursor:"pointer",textAlign:"center",flex:1}}><div style={{fontSize:26}}>{m.emoji}</div><div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{m.label}</div></button>))}
           </div>
@@ -199,8 +212,8 @@ function DagboekTab() {
         </div>
       )}
 
-      {/* Detail weergave voor een andere dag */}
-      {selectedDay && !selectedIsToday && selectedEntry && (
+      {/* Detail weergave voor niet-bewerkbare dagen */}
+      {selectedDay && !selectedEditable && selectedEntry && (
         <div style={{...card,borderLeft:"4px solid " + (MOOD_INFO[selectedEntry.mood]?.color || "#2d6a4f")}}>
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:selectedEntry.note?12:0}}>
             <div style={{fontSize:36}}>{selectedEntry.mood}</div>
@@ -217,7 +230,7 @@ function DagboekTab() {
         </div>
       )}
 
-      {selectedDay && !selectedIsToday && !selectedEntry && (
+      {selectedDay && !selectedEditable && !selectedEntry && (
         <div style={{...card,textAlign:"center",padding:"20px"}}>
           <div style={{fontSize:32,marginBottom:8}}>📭</div>
           <div style={{fontSize:14,color:"#9ca3af"}}>Geen dagboeknotitie op {new Date(dateStr(selectedDay)+"T12:00:00").toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}.</div>
@@ -525,20 +538,23 @@ function LogForm({ sorted, onSave, onDelete }) {
   );
 }
 
-function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch, milestones }) {
-  const [localPhase,setLocalPhase]=useState(currentPhase);
-  const [localDate,setLocalDate]=useState(nextPhaseDate);
-  const [saved,setSaved]=useState(false);
+function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitch, milestones }) {
+  const [localPhase, setLocalPhase] = useState(currentPhase);
+  const [localDate, setLocalDate] = useState(nextPhaseDate);
+  const [localNextPhase, setLocalNextPhase] = useState(nextPhaseId || null);
+  const [saved, setSaved] = useState(false);
   return (
     <div style={{padding:"20px 16px"}}>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Fase beheer</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20}}>Stel in welke fase je zit en wanneer je wisselt.</div>
       <div style={card}>
         <div style={{...lbl,marginBottom:10}}>Huidige fase</div>
-        <div style={{display:"flex",gap:10}}>{[{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}].map(p=>(<button key={p.id} onClick={()=>setLocalPhase(p.id)} style={{flex:1,padding:"12px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localPhase===p.id?"#2d6a4f":"#f4f1eb",color:localPhase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div>
-        <div style={{...lbl,marginTop:18,marginBottom:6}}>Volgende wissel op</div>
+        <div style={{display:"flex",gap:10,marginBottom:20}}>{[{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}].map(p=>(<button key={p.id} onClick={()=>setLocalPhase(p.id)} style={{flex:1,padding:"12px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localPhase===p.id?"#2d6a4f":"#f4f1eb",color:localPhase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div>
+        <div style={{...lbl,marginBottom:10}}>Volgende fase</div>
+        <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap"}}>{[{id:null,label:"Geen",desc:""},{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}].map(p=>(<button key={String(p.id)} onClick={()=>setLocalNextPhase(p.id)} style={{flex:1,minWidth:"60px",padding:"10px 6px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:12,background:localNextPhase===p.id?"#52b788":"#f4f1eb",color:localNextPhase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>{p.label}{p.desc?<><br/><span style={{fontSize:10,fontWeight:400}}>{p.desc}</span></>:null}</button>))}</div>
+        <div style={{...lbl,marginBottom:6}}>Wisselmoment</div>
         <input type="date" value={localDate} onChange={e=>setLocalDate(e.target.value)} style={inp}/>
-        <button onClick={()=>{onSwitch(localPhase,localDate);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
+        <button onClick={()=>{onSwitch(localPhase,localDate,localNextPhase);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
       <div style={{...card,borderLeft:"4px solid #52b788"}}><div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div></div>
       <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}><div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div><VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/></div>
@@ -559,6 +575,7 @@ export default function App() {
   const [entries, setEntries] = useState([]);
   const [currentPhase, setCurrentPhase] = useState(2);
   const [nextPhaseDate, setNextPhaseDate] = useState("");
+  const [nextPhaseId, setNextPhaseId] = useState(null);
   const [tab, setTab] = useState("home");
   const [confetti, setConfetti] = useState(false);
   const [celebration, setCelebration] = useState(null);
@@ -569,14 +586,14 @@ export default function App() {
 
   useEffect(()=>{
     if (localStorage.getItem("hr-toegang")) setIngelogd(true);
-    const p=load(KEYS.profile); const e=load(KEYS.entries); const ph=load(KEYS.phase); const nd=load(KEYS.nextDate);
-    if(p) setProfile(p); if(e) setEntries(e); if(ph) setCurrentPhase(ph); if(nd) setNextPhaseDate(nd);
+    const p=load(KEYS.profile); const e=load(KEYS.entries); const ph=load(KEYS.phase); const nd=load(KEYS.nextDate); const np=load(KEYS.nextPhase);
+    if(p) setProfile(p); if(e) setEntries(e); if(ph) setCurrentPhase(ph); if(nd) setNextPhaseDate(nd); if(np) setNextPhaseId(np);
     setReady(true);
     const today = new Date().toISOString().slice(0,10);
     if (localStorage.getItem("hr-last-quote") !== today) { setTimeout(() => setShowQuote(true), 500); localStorage.setItem("hr-last-quote", today); }
   },[]);
 
-  const ESRA_ENTRIES = [{date:"2026-02-18",weight:137,note:"Start!"},{date:"2026-02-19",weight:135.9,note:""},{date:"2026-02-20",weight:134.8,note:""},{date:"2026-02-21",weight:134.3,note:""},{date:"2026-02-22",weight:133.8,note:""},{date:"2026-02-24",weight:133.6,note:""},{date:"2026-02-25",weight:133.2,note:""},{date:"2026-02-26",weight:133.1,note:""},{date:"2026-02-27",weight:132.5,note:""},{date:"2026-03-01",weight:132.8,note:""},{date:"2026-03-02",weight:132.2,note:""},{date:"2026-03-04",weight:131.9,note:""},{date:"2026-03-06",weight:131.2,note:""},{date:"2026-03-08",weight:131.3,note:""},{date:"2026-03-09",weight:130.7,note:""},{date:"2026-03-10",weight:130.5,note:""},{date:"2026-03-11",weight:130.2,note:""},{date:"2026-03-12",weight:130,note:""},{date:"2026-03-13",weight:129.5,note:""},{date:"2026-03-14",weight:129.3,note:""},{date:"2026-03-16",weight:128.9,note:""},{date:"2026-03-17",weight:128.5,note:""},{date:"2026-03-19",weight:127.7,note:""},{date:"2026-03-20",weight:127.6,note:""},{date:"2026-03-23",weight:127.3,note:""},{date:"2026-03-24",weight:126.8,note:""},{date:"2026-03-25",weight:126.5,note:""},{date:"2026-03-27",weight:126.4,note:"Start fase 3"},{date:"2026-03-28",weight:126,note:""},{date:"2026-03-29",weight:125.8,note:""},{date:"2026-03-30",weight:125.4,note:""},{date:"2026-03-31",weight:125,note:""},{date:"2026-04-01",weight:124.3,note:""},{date:"2026-04-03",weight:124.3,note:""},{date:"2026-04-04",weight:124.1,note:""},{date:"2026-04-05",weight:124.4,note:""},{date:"2026-04-07",weight:124.1,note:""},{date:"2026-04-08",weight:123.9,note:""},{date:"2026-04-09",weight:124.3,note:""},{date:"2026-04-10",weight:123.4,note:"Start fase 2"},{date:"2026-04-11",weight:123,note:""},{date:"2026-04-12",weight:122.9,note:""},{date:"2026-04-13",weight:122.7,note:""},{date:"2026-04-14",weight:122.1,note:""},{date:"2026-04-16",weight:121.8,note:""},{date:"2026-04-17",weight:121.5,note:""},{date:"2026-04-18",weight:121.7,note:""},{date:"2026-04-19",weight:121.3,note:""},{date:"2026-04-20",weight:121.5,note:""},{date:"2026-04-21",weight:121.3,note:""},{date:"2026-04-22",weight:120.8,note:""},{date:"2026-04-23",weight:120.5,note:""},{date:"2026-04-24",weight:120.6,note:""},{date:"2026-04-25",weight:120.3,note:""},{date:"2026-04-26",weight:119.7,note:""},{date:"2026-04-27",weight:119.8,note:""},{date:"2026-04-28",weight:120,note:""},{date:"2026-04-29",weight:119.5,note:""},{date:"2026-05-01",weight:118.6,note:""},{date:"2026-05-02",weight:118.7,note:""},{date:"2026-05-03",weight:118.3,note:"Twee dagen terug 12000 stappen gelopen!"},{date:"2026-05-04",weight:118.5,note:""}];
+  const ESRA_ENTRIES = [{date:"2026-02-18",weight:137,note:"Start!"},{date:"2026-02-19",weight:135.9,note:""},{date:"2026-02-20",weight:134.8,note:""},{date:"2026-02-21",weight:134.3,note:""},{date:"2026-02-22",weight:133.8,note:""},{date:"2026-02-24",weight:133.6,note:""},{date:"2026-02-25",weight:133.2,note:""},{date:"2026-02-26",weight:133.1,note:""},{date:"2026-02-27",weight:132.5,note:""},{date:"2026-03-01",weight:132.8,note:""},{date:"2026-03-02",weight:132.2,note:""},{date:"2026-03-04",weight:131.9,note:""},{date:"2026-03-06",weight:131.2,note:""},{date:"2026-03-08",weight:131.3,note:""},{date:"2026-03-09",weight:130.7,note:""},{date:"2026-03-10",weight:130.5,note:""},{date:"2026-03-11",weight:130.2,note:""},{date:"2026-03-12",weight:130,note:""},{date:"2026-03-13",weight:129.5,note:""},{date:"2026-03-14",weight:129.3,note:""},{date:"2026-03-16",weight:128.9,note:""},{date:"2026-03-17",weight:128.5,note:""},{date:"2026-03-19",weight:127.7,note:""},{date:"2026-03-20",weight:127.6,note:""},{date:"2026-03-23",weight:127.3,note:""},{date:"2026-03-24",weight:126.8,note:""},{date:"2026-03-25",weight:126.5,note:""},{date:"2026-03-27",weight:126.4,note:"Start fase 3"},{date:"2026-03-28",weight:126,note:""},{date:"2026-03-29",weight:125.8,note:""},{date:"2026-03-30",weight:125.4,note:""},{date:"2026-03-31",weight:125,note:""},{date:"2026-04-01",weight:124.3,note:""},{date:"2026-04-03",weight:124.3,note:""},{date:"2026-04-04",weight:124.1,note:""},{date:"2026-04-05",weight:124.4,note:""},{date:"2026-04-07",weight:124.1,note:""},{date:"2026-04-08",weight:123.9,note:""},{date:"2026-04-09",weight:124.3,note:""},{date:"2026-04-10",weight:123.4,note:"Start fase 2"},{date:"2026-04-11",weight:123,note:""},{date:"2026-04-12",weight:122.9,note:""},{date:"2026-04-13",weight:122.7,note:""},{date:"2026-04-14",weight:122.1,note:""},{date:"2026-04-16",weight:121.8,note:""},{date:"2026-04-17",weight:121.5,note:""},{date:"2026-04-18",weight:121.7,note:""},{date:"2026-04-19",weight:121.3,note:""},{date:"2026-04-20",weight:121.5,note:""},{date:"2026-04-21",weight:121.3,note:""},{date:"2026-04-22",weight:120.8,note:""},{date:"2026-04-23",weight:120.5,note:""},{date:"2026-04-24",weight:120.6,note:""},{date:"2026-04-25",weight:120.3,note:""},{date:"2026-04-26",weight:119.7,note:""},{date:"2026-04-27",weight:119.8,note:""},{date:"2026-04-28",weight:120,note:""},{date:"2026-04-29",weight:119.5,note:""},{date:"2026-05-01",weight:118.6,note:""},{date:"2026-05-02",weight:118.7,note:""},{date:"2026-05-03",weight:118.3,note:"Twee dagen terug 12000 stappen gelopen!"},{date:"2026-05-04",weight:118.5,note:""},{date:"2026-05-05",weight:117.8,note:""}];
 
   const handleOnboardingComplete = (p, ph, nd) => {
     setProfile(p); setCurrentPhase(ph); setNextPhaseDate(nd);
@@ -594,7 +611,7 @@ export default function App() {
   const remaining = +(currentWeight - goalWeight).toFixed(1);
   const totalToLose = startWeight - goalWeight;
   const progressPct = totalToLose > 0 ? Math.min(100,(totalLost/totalToLose)*100) : 0;
-  const phaseLabel = currentPhase===1 ? "Fase 1 — Laaddagen" : currentPhase===2 ? "Fase 2 — Vetverbranding" : currentPhase===3 ? "Fase 3 — Stabilisatie" : "Fase 4 — LOGISCH leven";
+  const phaseLabel = FASE_LABELS[currentPhase] || "Fase 2 — Vetverbranding";
   const streak = calcStreak(sorted);
   const daysToPhase = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
   const milestones = generateMilestones(totalToLose);
@@ -616,9 +633,9 @@ export default function App() {
     setEntries(newEntries); save(KEYS.entries, newEntries);
   },[entries]);
 
-  const handleSwitch = useCallback((phase, date) => {
-    setCurrentPhase(phase); setNextPhaseDate(date);
-    save(KEYS.phase, phase); save(KEYS.nextDate, date);
+  const handleSwitch = useCallback((phase, date, nxtPhase) => {
+    setCurrentPhase(phase); setNextPhaseDate(date); setNextPhaseId(nxtPhase);
+    save(KEYS.phase, phase); save(KEYS.nextDate, date); save(KEYS.nextPhase, nxtPhase);
   },[]);
 
   const handleLogout = async () => {
@@ -665,7 +682,7 @@ export default function App() {
             <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
             <div style={{fontSize:13,opacity:.75}}>{latest?"Gewogen op "+new Date(latest.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):"Nog geen metingen"}</div>
             <div style={{marginTop:14,display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"6px 14px"}}>
-              <div style={{width:8,height:8,borderRadius:"50%",background:currentPhase===3?"#f9a8d4":"#86efac"}}/>
+              <div style={{width:8,height:8,borderRadius:"50%",background:"#86efac"}}/>
               <span style={{fontSize:13}}>{phaseLabel}</span>
             </div>
           </div>
@@ -702,20 +719,21 @@ export default function App() {
 
             <div style={{display:"flex",gap:10,marginBottom:14}}>
               <button onClick={()=>setShowChecklist(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>✅</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Checklist</div></button>
-              <button onClick={()=>setTab("dagboek")} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>😊</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Dagboek</div></button>
               <button onClick={()=>setShowQuote(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>💬</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Quote</div></button>
             </div>
 
-            {nextPhaseDate&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0"}}>
-              <div style={{display:"flex",alignItems:"center",gap:16}}>
-                <div style={{fontSize:38}}>{currentPhase===2?"🌿":"🔥"}</div>
-                <div>
-                  <div style={{fontSize:13,color:"#b5838d",fontWeight:600}}>Volgende: {currentPhase===2?"Fase 3 Stabilisatie":"Fase 2 Vetverbranding"}</div>
-                  <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f"}}>{daysToPhase===0?"Vandaag!":daysToPhase+" dagen"}</div>
-                  <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(nextPhaseDate).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</div>
+            {nextPhaseDate && nextPhaseId && (
+              <div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0"}}>
+                <div style={{display:"flex",alignItems:"center",gap:16}}>
+                  <div style={{fontSize:38}}>{FASE_ICONS[nextPhaseId] || "🌿"}</div>
+                  <div>
+                    <div style={{fontSize:13,color:"#b5838d",fontWeight:600}}>Volgende: {FASE_LABELS[nextPhaseId]}</div>
+                    <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f"}}>{daysToPhase===0?"Vandaag!":daysToPhase+" dagen"}</div>
+                    <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(nextPhaseDate).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</div>
+                  </div>
                 </div>
               </div>
-            </div>}
+            )}
 
             <div style={{...card,cursor:"pointer"}} onClick={()=>setShowChart(true)}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -737,7 +755,7 @@ export default function App() {
 
       {tab==="log" && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
       {tab==="dagboek" && <DagboekTab/>}
-      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
+      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} nextPhaseId={nextPhaseId} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
         {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"dagboek",icon:"😊",label:"Dagboek"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
