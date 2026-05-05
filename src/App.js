@@ -80,31 +80,59 @@ function getMoodEntries() {
 
 function DagboekTab() {
   const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState(null);
   const [moodEntries, setMoodEntries] = useState({});
+  const [logMode, setLogMode] = useState(false);
+  const [logMood, setLogMood] = useState(null);
+  const [logNote, setLogNote] = useState("");
+  const [logSaved, setLogSaved] = useState(false);
 
   useEffect(() => { setMoodEntries(getMoodEntries()); }, []);
 
   const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
   const dagen = ["M","D","W","D","V","Z","Z"];
+  const moods = [{emoji:"😄",label:"Super!"},{emoji:"😊",label:"Goed"},{emoji:"😐",label:"Oké"},{emoji:"😔",label:"Minder"},{emoji:"😴",label:"Moe"}];
 
   const firstDay = new Date(viewYear, viewMonth, 1);
   const lastDay = new Date(viewYear, viewMonth + 1, 0);
   const startDow = (firstDay.getDay() + 6) % 7;
   const totalDays = lastDay.getDate();
 
-  const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y-1); } else setViewMonth(m => m-1); setSelectedDay(null); };
-  const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y+1); } else setViewMonth(m => m+1); setSelectedDay(null); };
+  const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y-1); } else setViewMonth(m => m-1); setSelectedDay(null); setLogMode(false); };
+  const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y+1); } else setViewMonth(m => m+1); setSelectedDay(null); setLogMode(false); };
 
   const dateStr = (d) => `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-  const todayStr = today.toISOString().slice(0,10);
 
-  const monthEntries = Object.entries(moodEntries).filter(([date]) => {
-    return date.startsWith(`${viewYear}-${String(viewMonth+1).padStart(2,"0")}`);
-  });
+  const handleDayTap = (d) => {
+    const ds = dateStr(d);
+    if (selectedDay === d) { setSelectedDay(null); setLogMode(false); return; }
+    setSelectedDay(d);
+    setLogMode(false);
+    if (ds === todayStr) {
+      const existing = moodEntries[ds];
+      setLogMood(existing ? existing.mood : null);
+      setLogNote(existing ? existing.note || "" : "");
+      setLogSaved(false);
+      setLogMode(true);
+    }
+  };
 
+  const handleLogSave = () => {
+    if (!logMood) return;
+    const ds = dateStr(selectedDay);
+    const entry = { mood: logMood, note: logNote };
+    localStorage.setItem("hr-mood-" + ds, JSON.stringify(entry));
+    setMoodEntries(prev => ({ ...prev, [ds]: entry }));
+    setLogSaved(true);
+    setTimeout(() => setLogMode(false), 900);
+  };
+
+  const monthEntries = Object.entries(moodEntries).filter(([date]) =>
+    date.startsWith(`${viewYear}-${String(viewMonth+1).padStart(2,"0")}`)
+  );
   const moodCounts = {};
   monthEntries.forEach(([, val]) => { moodCounts[val.mood] = (moodCounts[val.mood] || 0) + 1; });
   const total = monthEntries.length;
@@ -114,6 +142,7 @@ function DagboekTab() {
   for (let d = 1; d <= totalDays; d++) cells.push(d);
 
   const selectedEntry = selectedDay ? moodEntries[dateStr(selectedDay)] : null;
+  const selectedIsToday = selectedDay ? dateStr(selectedDay) === todayStr : false;
 
   return (
     <div style={{padding:"20px 16px"}}>
@@ -139,10 +168,13 @@ function DagboekTab() {
             const entry = moodEntries[ds];
             const isToday = ds === todayStr;
             const isSelected = selectedDay === d;
+            const isFuture = ds > todayStr;
             return (
-              <div key={i} onClick={()=>setSelectedDay(isSelected ? null : d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:entry?"pointer":"default",background:isSelected?"#d8f3dc":isToday?"#f4f1eb":"transparent",border:isSelected?"2px solid #2d6a4f":isToday?"2px solid #e5e7eb":"2px solid transparent",transition:"all .15s"}}>
+              <div key={i} onClick={()=>!isFuture && handleDayTap(d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:isFuture?"default":"pointer",background:isSelected?"#d8f3dc":isToday?"#f4f1eb":"transparent",border:isSelected?"2px solid #2d6a4f":isToday?"2px solid #52b788":"2px solid transparent",transition:"all .15s",opacity:isFuture?0.3:1}}>
                 {entry ? (
                   <div style={{fontSize:20,lineHeight:1}}>{entry.mood}</div>
+                ) : isToday ? (
+                  <div style={{fontSize:16,lineHeight:1,color:"#52b788"}}>+</div>
                 ) : (
                   <div style={{height:20}}/>
                 )}
@@ -151,9 +183,24 @@ function DagboekTab() {
             );
           })}
         </div>
+        {!selectedDay && <div style={{fontSize:12,color:"#9ca3af",textAlign:"center",marginTop:12}}>Tik op vandaag om je stemming te loggen</div>}
       </div>
 
-      {selectedEntry && (
+      {/* Log invoer voor vandaag */}
+      {logMode && selectedIsToday && (
+        <div style={{...card,border:"2px solid #52b788"}}>
+          <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332",marginBottom:4}}>Hoe voel je je vandaag?</div>
+          <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Tik op een gezichtje om je stemming op te slaan</div>
+          <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:16}}>
+            {moods.map(m=>(<button key={m.emoji} onClick={()=>setLogMood(m.emoji)} style={{background:logMood===m.emoji?"#d8f3dc":"#f4f1eb",border:logMood===m.emoji?"2px solid #2d6a4f":"2px solid transparent",borderRadius:14,padding:"10px 6px",cursor:"pointer",textAlign:"center",flex:1}}><div style={{fontSize:26}}>{m.emoji}</div><div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{m.label}</div></button>))}
+          </div>
+          <textarea style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"12px 14px",fontSize:14,fontFamily:"Georgia,serif",outline:"none",boxSizing:"border-box",resize:"none",height:72}} placeholder="Wil je nog iets kwijt? (optioneel)" value={logNote} onChange={e=>setLogNote(e.target.value)} autoCapitalize="sentences"/>
+          <button onClick={handleLogSave} disabled={!logMood} style={{...btn,marginTop:12,background:logSaved?"#52b788":logMood?"#2d6a4f":"#d1d5db",opacity:logMood?1:0.5,transition:"background .3s"}}>{logSaved?"Opgeslagen! 🌿":"Opslaan"}</button>
+        </div>
+      )}
+
+      {/* Detail weergave voor een andere dag */}
+      {selectedDay && !selectedIsToday && selectedEntry && (
         <div style={{...card,borderLeft:"4px solid " + (MOOD_INFO[selectedEntry.mood]?.color || "#2d6a4f")}}>
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:selectedEntry.note?12:0}}>
             <div style={{fontSize:36}}>{selectedEntry.mood}</div>
@@ -170,7 +217,7 @@ function DagboekTab() {
         </div>
       )}
 
-      {selectedDay && !selectedEntry && (
+      {selectedDay && !selectedIsToday && !selectedEntry && (
         <div style={{...card,textAlign:"center",padding:"20px"}}>
           <div style={{fontSize:32,marginBottom:8}}>📭</div>
           <div style={{fontSize:14,color:"#9ca3af"}}>Geen dagboeknotitie op {new Date(dateStr(selectedDay)+"T12:00:00").toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}.</div>
@@ -205,7 +252,7 @@ function DagboekTab() {
       {total === 0 && (
         <div style={{...card,textAlign:"center",padding:"28px 20px"}}>
           <div style={{fontSize:36,marginBottom:8}}>🌿</div>
-          <div style={{fontSize:14,color:"#9ca3af",lineHeight:1.6}}>Nog geen stemmingen gelogd deze maand. Tik op de 😊 knop op het dashboard om te beginnen.</div>
+          <div style={{fontSize:14,color:"#9ca3af",lineHeight:1.6}}>Nog geen stemmingen gelogd deze maand. Tik op vandaag in de kalender om te beginnen.</div>
         </div>
       )}
     </div>
@@ -384,32 +431,6 @@ function calcStreak(entries) {
   return streak;
 }
 
-function MoodLog({ onClose }) {
-  const storageKey = "hr-mood-" + new Date().toISOString().slice(0,10);
-  const saved = localStorage.getItem(storageKey) ? JSON.parse(localStorage.getItem(storageKey)) : null;
-  const [mood, setMood] = useState(saved&&saved.mood ? saved.mood : null);
-  const [note, setNote] = useState(saved&&saved.note ? saved.note : "");
-  const [done, setDone] = useState(!!saved);
-  const moods = [{emoji:"😄",label:"Super!"},{emoji:"😊",label:"Goed"},{emoji:"😐",label:"Oké"},{emoji:"😔",label:"Minder"},{emoji:"😴",label:"Moe"}];
-  const handleSave = () => { localStorage.setItem(storageKey, JSON.stringify({mood, note})); setDone(true); setTimeout(onClose, 800); };
-  return (
-    <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:600,background:"rgba(0,0,0,0.5)",padding:24}}>
-      <div style={{background:"white",borderRadius:24,padding:28,maxWidth:360,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
-        <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#1b4332",marginBottom:6}}>Hoe voel je je vandaag?</div>
-        <div style={{fontSize:13,color:"#9ca3af",marginBottom:20}}>Optioneel — gewoon voor jezelf</div>
-        <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>
-          {moods.map(m=>(<button key={m.emoji} onClick={()=>setMood(m.emoji)} style={{background:mood===m.emoji?"#d8f3dc":"#f4f1eb",border:mood===m.emoji?"2px solid #2d6a4f":"2px solid transparent",borderRadius:14,padding:"10px 8px",cursor:"pointer",textAlign:"center",flex:1}}><div style={{fontSize:28}}>{m.emoji}</div><div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{m.label}</div></button>))}
-        </div>
-        <textarea style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"12px 14px",fontSize:14,fontFamily:"Georgia,serif",outline:"none",boxSizing:"border-box",resize:"none",height:80}} placeholder="Wil je nog iets kwijt? (optioneel)" value={note} onChange={e=>setNote(e.target.value)} autoCapitalize="sentences"/>
-        <div style={{display:"flex",gap:10,marginTop:14}}>
-          <button onClick={onClose} style={{flex:1,background:"#f4f1eb",border:"none",borderRadius:14,padding:"12px",fontSize:14,fontFamily:"Georgia,serif",cursor:"pointer",color:"#6b7280"}}>Overslaan</button>
-          <button onClick={handleSave} disabled={!mood} style={{flex:2,background:done?"#52b788":mood?"#2d6a4f":"#d1d5db",color:"white",border:"none",borderRadius:14,padding:"12px",fontSize:14,fontFamily:"Georgia,serif",cursor:mood?"pointer":"default",fontWeight:600,transition:"background .3s"}}>{done?"Opgeslagen!":"Opslaan"}</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function FaseChecklist({ phase, onClose }) {
   const storageKey = "hr-check-" + new Date().toISOString().slice(0,10);
   const saved = localStorage.getItem(storageKey) ? JSON.parse(localStorage.getItem(storageKey)) : {};
@@ -544,7 +565,6 @@ export default function App() {
   const [showChart, setShowChart] = useState(false);
   const [ready, setReady] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
-  const [showMood, setShowMood] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
 
   useEffect(()=>{
@@ -618,7 +638,6 @@ export default function App() {
     <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
       {confetti&&<Confetti/>}
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
-      {showMood && <MoodLog onClose={()=>{ setShowMood(false); }}/>}
       {showChecklist && <FaseChecklist phase={currentPhase} onClose={()=>setShowChecklist(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
       {celebration&&(
@@ -670,20 +689,20 @@ export default function App() {
               </div>
             </div>
 
-            {streak>0&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setShowMood(true)}>
+            {streak>0&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setTab("dagboek")}>
               <div style={{display:"flex",alignItems:"center",gap:16}}>
                 <div style={{fontSize:38}}>🔥</div>
                 <div>
                   <div style={{fontSize:13,color:"#b5838d",fontWeight:600}}>Weegstreak</div>
                   <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f"}}>{streak} {streak===1?"dag":"dagen"} op rij!</div>
-                  <div style={{fontSize:12,color:"#9ca3af"}}>Tik om je dag te loggen</div>
+                  <div style={{fontSize:12,color:"#9ca3af"}}>Tik om je dagboek te openen</div>
                 </div>
               </div>
             </div>}
 
             <div style={{display:"flex",gap:10,marginBottom:14}}>
               <button onClick={()=>setShowChecklist(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>✅</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Checklist</div></button>
-              <button onClick={()=>setShowMood(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>😊</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Dagboek</div></button>
+              <button onClick={()=>setTab("dagboek")} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>😊</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Dagboek</div></button>
               <button onClick={()=>setShowQuote(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>💬</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Quote</div></button>
             </div>
 
