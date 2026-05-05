@@ -38,6 +38,14 @@ const FASE3_VOEDING = [
   { categorie: "Granen (beperkt)", items: ["Haverzemelen max 3x per week (30 gram per dag)"] },
 ];
 
+const MOOD_INFO = {
+  "😄": { label: "Super!", color: "#2d6a4f" },
+  "😊": { label: "Goed", color: "#52b788" },
+  "😐": { label: "Oké", color: "#9ca3af" },
+  "😔": { label: "Minder", color: "#f4a261" },
+  "😴": { label: "Moe", color: "#b5838d" },
+};
+
 function generateMilestones(totalToLose) {
   const milestones = [];
   const max = Math.round(totalToLose);
@@ -57,6 +65,152 @@ const lbl  = { fontSize:11, letterSpacing:2, textTransform:"uppercase", color:"#
 const inp  = { width:"100%", border:"1.5px solid #e5e7eb", borderRadius:12, padding:"13px 14px", fontSize:17, fontFamily:"Georgia,serif", outline:"none", boxSizing:"border-box", background:"white" };
 const btn  = { background:"#2d6a4f", color:"white", border:"none", borderRadius:14, padding:"15px 20px", fontSize:15, fontFamily:"Georgia,serif", cursor:"pointer", width:"100%", fontWeight:600 };
 const btnSm= { background:"transparent", color:"#2d6a4f", border:"2px solid #2d6a4f", borderRadius:12, padding:"8px 14px", fontSize:12, fontFamily:"Georgia,serif", cursor:"pointer" };
+
+function getMoodEntries() {
+  const result = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith("hr-mood-")) {
+      const date = key.replace("hr-mood-", "");
+      try { const val = JSON.parse(localStorage.getItem(key)); if (val && val.mood) result[date] = val; } catch {}
+    }
+  }
+  return result;
+}
+
+function DagboekTab() {
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [moodEntries, setMoodEntries] = useState({});
+
+  useEffect(() => { setMoodEntries(getMoodEntries()); }, []);
+
+  const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  const dagen = ["M","D","W","D","V","Z","Z"];
+
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const lastDay = new Date(viewYear, viewMonth + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7;
+  const totalDays = lastDay.getDate();
+
+  const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y-1); } else setViewMonth(m => m-1); setSelectedDay(null); };
+  const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y+1); } else setViewMonth(m => m+1); setSelectedDay(null); };
+
+  const dateStr = (d) => `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  const todayStr = today.toISOString().slice(0,10);
+
+  const monthEntries = Object.entries(moodEntries).filter(([date]) => {
+    return date.startsWith(`${viewYear}-${String(viewMonth+1).padStart(2,"0")}`);
+  });
+
+  const moodCounts = {};
+  monthEntries.forEach(([, val]) => { moodCounts[val.mood] = (moodCounts[val.mood] || 0) + 1; });
+  const total = monthEntries.length;
+
+  const cells = [];
+  for (let i = 0; i < startDow; i++) cells.push(null);
+  for (let d = 1; d <= totalDays; d++) cells.push(d);
+
+  const selectedEntry = selectedDay ? moodEntries[dateStr(selectedDay)] : null;
+
+  return (
+    <div style={{padding:"20px 16px"}}>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:20}}>Dagboek</div>
+
+      <div style={card}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+          <button onClick={prevMonth} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#2d6a4f",padding:"4px 8px"}}>‹</button>
+          <div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#1b4332",textTransform:"capitalize"}}>{maanden[viewMonth]} {viewYear}</div>
+          <button onClick={nextMonth} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#2d6a4f",padding:"4px 8px"}}>›</button>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:8}}>
+          {dagen.map((d,i)=>(
+            <div key={i} style={{textAlign:"center",fontSize:11,color:"#9ca3af",fontWeight:600,padding:"4px 0"}}>{d}</div>
+          ))}
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
+          {cells.map((d,i)=>{
+            if (!d) return <div key={i}/>;
+            const ds = dateStr(d);
+            const entry = moodEntries[ds];
+            const isToday = ds === todayStr;
+            const isSelected = selectedDay === d;
+            return (
+              <div key={i} onClick={()=>setSelectedDay(isSelected ? null : d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:entry?"pointer":"default",background:isSelected?"#d8f3dc":isToday?"#f4f1eb":"transparent",border:isSelected?"2px solid #2d6a4f":isToday?"2px solid #e5e7eb":"2px solid transparent",transition:"all .15s"}}>
+                {entry ? (
+                  <div style={{fontSize:20,lineHeight:1}}>{entry.mood}</div>
+                ) : (
+                  <div style={{height:20}}/>
+                )}
+                <div style={{fontSize:11,color:isToday?"#2d6a4f":"#6b7280",fontWeight:isToday?700:400,marginTop:2}}>{d}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {selectedEntry && (
+        <div style={{...card,borderLeft:"4px solid " + (MOOD_INFO[selectedEntry.mood]?.color || "#2d6a4f")}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:selectedEntry.note?12:0}}>
+            <div style={{fontSize:36}}>{selectedEntry.mood}</div>
+            <div>
+              <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332"}}>{MOOD_INFO[selectedEntry.mood]?.label}</div>
+              <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(dateStr(selectedDay)+"T12:00:00").toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}</div>
+            </div>
+          </div>
+          {selectedEntry.note ? (
+            <div style={{fontSize:14,color:"#374151",lineHeight:1.6,background:"#f4f1eb",borderRadius:12,padding:"12px 14px",marginTop:4}}>{selectedEntry.note}</div>
+          ) : (
+            <div style={{fontSize:13,color:"#9ca3af",fontStyle:"italic",marginTop:4}}>Geen notitie geschreven.</div>
+          )}
+        </div>
+      )}
+
+      {selectedDay && !selectedEntry && (
+        <div style={{...card,textAlign:"center",padding:"20px"}}>
+          <div style={{fontSize:32,marginBottom:8}}>📭</div>
+          <div style={{fontSize:14,color:"#9ca3af"}}>Geen dagboeknotitie op {new Date(dateStr(selectedDay)+"T12:00:00").toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}.</div>
+        </div>
+      )}
+
+      {total > 0 && (
+        <div style={card}>
+          <div style={{...lbl,marginBottom:12}}>Deze maand</div>
+          <div style={{fontSize:13,color:"#9ca3af",marginBottom:12}}>{total} {total===1?"dag":"dagen"} gelogd</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {Object.entries(MOOD_INFO).map(([emoji, info]) => {
+              const count = moodCounts[emoji] || 0;
+              const pct = total > 0 ? Math.round((count/total)*100) : 0;
+              if (count === 0) return null;
+              return (
+                <div key={emoji} style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{fontSize:20,width:28,textAlign:"center"}}>{emoji}</div>
+                  <div style={{flex:1}}>
+                    <div style={{background:"#f4f1eb",borderRadius:99,height:8,overflow:"hidden"}}>
+                      <div style={{height:"100%",borderRadius:99,background:info.color,width:`${pct}%`,transition:"width .5s ease"}}/>
+                    </div>
+                  </div>
+                  <div style={{fontSize:12,color:"#6b7280",width:36,textAlign:"right"}}>{pct}%</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {total === 0 && (
+        <div style={{...card,textAlign:"center",padding:"28px 20px"}}>
+          <div style={{fontSize:36,marginBottom:8}}>🌿</div>
+          <div style={{fontSize:14,color:"#9ca3af",lineHeight:1.6}}>Nog geen stemmingen gelogd deze maand. Tik op de 😊 knop op het dashboard om te beginnen.</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function VoedingsLijst({ voeding, accentColor }) {
   const [open, setOpen] = useState(false);
@@ -365,29 +519,10 @@ function FasesTab({ currentPhase, nextPhaseDate, totalLost, onSwitch, milestones
         <input type="date" value={localDate} onChange={e=>setLocalDate(e.target.value)} style={inp}/>
         <button onClick={()=>{onSwitch(localPhase,localDate);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
-
-      <div style={{...card,borderLeft:"4px solid #52b788"}}>
-        <div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div>
-      </div>
-
-      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div>
-        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/>
-      </div>
-
-      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Stabilisatie (21 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Gezonde oliën en vetten, alle groenten, alle fruitsoorten, noten, kwark, rode wijn, haverzemelen max 3x/week (30g), doel: stabiel blijven</div>
-        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/>
-      </div>
-
-      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — LOGISCH leven testfase (21 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>De belangrijkste fase tegen het jojo-effect. Test stap voor stap koolhydraten — reageert je lichaam? Vermijd dat voedsel en test later opnieuw. Eet volgens de LOGI-piramide, geen koolhydraten na 19u. Blijf 3–6 maanden basisproducten gebruiken.</div>
-      </div>
-
+      <div style={{...card,borderLeft:"4px solid #52b788"}}><div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div></div>
+      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}><div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div><VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/></div>
+      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}><div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Stabilisatie (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Gezonde oliën en vetten, alle groenten, alle fruitsoorten, noten, kwark, rode wijn, haverzemelen max 3x/week (30g), doel: stabiel blijven</div><VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/></div>
+      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}><div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — LOGISCH leven testfase (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>De belangrijkste fase tegen het jojo-effect. Test stap voor stap koolhydraten — reageert je lichaam? Vermijd dat voedsel en test later opnieuw. Eet volgens de LOGI-piramide, geen koolhydraten na 19u. Blijf 3–6 maanden basisproducten gebruiken.</div></div>
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Mijlpalen</div>
       {milestones.map(m=>{
         const done=totalLost>=m.loss;
@@ -483,7 +618,7 @@ export default function App() {
     <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
       {confetti&&<Confetti/>}
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
-      {showMood && <MoodLog onClose={()=>setShowMood(false)}/>}
+      {showMood && <MoodLog onClose={()=>{ setShowMood(false); }}/>}
       {showChecklist && <FaseChecklist phase={currentPhase} onClose={()=>setShowChecklist(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
       {celebration&&(
@@ -582,10 +717,11 @@ export default function App() {
       )}
 
       {tab==="log" && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
+      {tab==="dagboek" && <DagboekTab/>}
       {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
-        {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
+        {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"dagboek",icon:"😊",label:"Dagboek"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"12px 0",border:"none",background:"transparent",cursor:"pointer",fontSize:10,letterSpacing:1,textTransform:"uppercase",fontFamily:"Georgia,serif",color:tab===t.id?"#2d6a4f":"#9ca3af",fontWeight:tab===t.id?700:400,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
             <span style={{fontSize:20}}>{t.icon}</span>{t.label}
           </button>
