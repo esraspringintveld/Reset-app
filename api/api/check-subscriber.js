@@ -9,9 +9,7 @@ export default async function handler(req, res) {
   const API_KEY = process.env.MAILERLITE_API_KEY;
   const GROUP_ID = '186539737344902275';
   try {
-    const url = 'https://connect.mailerlite.com/api/groups/' + GROUP_ID + '/subscribers?filter[email]=' + encodeURIComponent(email);
-    console.log('URL:', url);
-    console.log('API_KEY aanwezig:', !!API_KEY);
+    const url = 'https://connect.mailerlite.com/api/subscribers/' + encodeURIComponent(email);
     const response = await fetch(url, {
       headers: {
         'Authorization': 'Bearer ' + API_KEY,
@@ -20,10 +18,15 @@ export default async function handler(req, res) {
       },
     });
     console.log('Status:', response.status);
+    if (!response.ok) {
+      return res.status(200).json({ toegang: false });
+    }
     const data = await response.json();
     console.log('Data:', JSON.stringify(data));
-    const gevonden = data.data && data.data.length > 0;
-    return res.status(200).json({ toegang: gevonden });
+    const groups = data.data && data.data.groups ? data.data.groups : [];
+    console.log('Groups:', JSON.stringify(groups));
+    const inGroep = groups.some(function(g) { return g.id === GROUP_ID; });
+    return res.status(200).json({ toegang: inGroep });
   } catch (error) {
     console.log('Error:', error.message);
     return res.status(500).json({ error: 'Er ging iets mis.' });
