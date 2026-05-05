@@ -415,7 +415,7 @@ export default function App() {
       {tab==="home"&&(
         <div>
           <div style={{background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",padding:"24px 20px 32px",position:"relative",overflow:"hidden"}}>
-            <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(255,255,255,0.05)"}}/>
+            <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(255,255,255,0.05)",pointerEvents:"none"}}/>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
               <HRIcon size={44}/>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%"}}>
