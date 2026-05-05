@@ -49,6 +49,12 @@ const MOOD_INFO = {
 const FASE_LABELS = { 1: "Fase 1 — Laaddagen", 2: "Fase 2 — Vetverbranding", 3: "Fase 3 — Stabilisatie", 4: "Fase 4 — LOGISCH leven" };
 const FASE_ICONS = { 1: "🌱", 2: "🌿", 3: "⚖️", 4: "🔥" };
 
+const DAGBOEK_INFO_TEKST = `Waarom je stemming bijhouden helpt
+
+Je lichaam en je gevoel vertellen je elke dag iets. Niet altijd luid, maar wel duidelijk als je even stilstaat. Door bij te houden hoe je je voelt, begin je patronen te zien. Op welke dagen gaat het makkelijker? Wat geeft je energie, wat kost je energie? Wanneer heb je meer rust, meer zorg voor jezelf en meer ruimte nodig?
+
+Tijdens een reset verandert er veel in je lichaam. Je stemming is daar onderdeel van. Het is geen bijverschijnsel, maar een signaal. Door je gevoelens bij te houden en te noteren wat er die dag speelt, leer je jezelf beter kennen en kun je zachter en slimmer bijsturen.`;
+
 function generateMilestones(totalToLose) {
   const milestones = [];
   const max = Math.round(totalToLose);
@@ -95,6 +101,7 @@ function DagboekTab() {
   const [logMood, setLogMood] = useState(null);
   const [logNote, setLogNote] = useState("");
   const [logSaved, setLogSaved] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => { setMoodEntries(getMoodEntries()); }, []);
 
@@ -111,7 +118,6 @@ function DagboekTab() {
   const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y+1); } else setViewMonth(m => m+1); setSelectedDay(null); setLogMode(false); };
 
   const dateStr = (d) => `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-
   const isEditable = (ds) => ds === todayStr || ds === yesterdayStr || ds === twoDaysAgoStr;
 
   const handleDayTap = (d) => {
@@ -156,7 +162,26 @@ function DagboekTab() {
 
   return (
     <div style={{padding:"20px 16px"}}>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:20}}>Dagboek</div>
+
+      {/* Header met i-knop */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
+        <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f"}}>Dagboek</div>
+        <button onClick={()=>setShowInfo(!showInfo)} style={{width:32,height:32,borderRadius:"50%",border:"2px solid #2d6a4f",background:showInfo?"#2d6a4f":"white",color:showInfo?"white":"#2d6a4f",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",flexShrink:0}}>i</button>
+      </div>
+
+      {/* Info tekstvak */}
+      {showInfo && (
+        <div style={{...card,borderLeft:"4px solid #52b788",marginBottom:16,position:"relative"}}>
+          <button onClick={()=>setShowInfo(false)} style={{position:"absolute",top:12,right:14,background:"none",border:"none",fontSize:18,cursor:"pointer",color:"#9ca3af",lineHeight:1}}>×</button>
+          <div style={{fontFamily:"Georgia,serif",fontSize:15,fontWeight:700,color:"#1b4332",marginBottom:10,paddingRight:24}}>Waarom je stemming bijhouden helpt</div>
+          <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
+            Je lichaam en je gevoel vertellen je elke dag iets. Niet altijd luid, maar wel duidelijk als je even stilstaat. Door bij te houden hoe je je voelt, begin je patronen te zien. Op welke dagen gaat het makkelijker? Wat geeft je energie, wat kost je energie? Wanneer heb je meer rust, meer zorg voor jezelf en meer ruimte nodig?
+          </div>
+          <div style={{fontSize:13,color:"#374151",lineHeight:1.7,marginTop:10}}>
+            Tijdens een reset verandert er veel in je lichaam. Je stemming is daar onderdeel van. Het is geen bijverschijnsel, maar een signaal. Door je gevoelens bij te houden en te noteren wat er die dag speelt, leer je jezelf beter kennen en kun je zachter en slimmer bijsturen.
+          </div>
+        </div>
+      )}
 
       <div style={card}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
@@ -197,7 +222,6 @@ function DagboekTab() {
         <div style={{fontSize:12,color:"#9ca3af",textAlign:"center",marginTop:12}}>Tik op vandaag of de afgelopen 2 dagen om te loggen</div>
       </div>
 
-      {/* Invoer voor bewerkbare dagen */}
       {logMode && selectedEditable && (
         <div style={{...card,border:"2px solid #52b788"}}>
           <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332",marginBottom:2}}>
@@ -212,7 +236,6 @@ function DagboekTab() {
         </div>
       )}
 
-      {/* Detail weergave voor niet-bewerkbare dagen */}
       {selectedDay && !selectedEditable && selectedEntry && (
         <div style={{...card,borderLeft:"4px solid " + (MOOD_INFO[selectedEntry.mood]?.color || "#2d6a4f")}}>
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:selectedEntry.note?12:0}}>
@@ -393,7 +416,7 @@ function ChartModal({ entries, goalWeight, onClose }) {
     <div style={{position:"fixed",inset:0,zIndex:500,background:"white",display:"flex",flexDirection:"column"}}>
       <div style={{background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700}}>Volledig gewichtsverloop</div>
-        <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"white",borderRadius:"50%",width:34,height:34,cursor:"pointer",fontSize:20}}>x</button>
+        <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"white",borderRadius:"50%",width:34,height:34,cursor:"pointer",fontSize:20}}>×</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"16px 12px 40px"}}>
         <Chart entries={entries} goalWeight={goalWeight} height={200}/>
@@ -457,13 +480,13 @@ function FaseChecklist({ phase, onClose }) {
       <div style={{background:"white",borderRadius:24,padding:28,maxWidth:360,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",maxHeight:"80vh",overflowY:"auto"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
           <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#1b4332"}}>{title}</div>
-          <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9ca3af"}}>x</button>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9ca3af"}}>×</button>
         </div>
         <div style={{fontSize:13,color:"#9ca3af",marginBottom:16}}>{doneCount} van {list.length} gedaan vandaag</div>
         <div style={{background:"#d8f3dc",borderRadius:99,height:8,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#2d6a4f",borderRadius:99,width:`${(doneCount/list.length)*100}%`,transition:"width .3s"}}/></div>
         {list.map(item=>(
           <div key={item} onClick={()=>toggle(item)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:"1px solid #f4f1eb",cursor:"pointer"}}>
-            <div style={{width:24,height:24,borderRadius:6,border:checked[item]?"none":"2px solid #d1d5db",background:checked[item]?"#2d6a4f":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{checked[item]&&<div style={{color:"white",fontSize:14}}>v</div>}</div>
+            <div style={{width:24,height:24,borderRadius:6,border:checked[item]?"none":"2px solid #d1d5db",background:checked[item]?"#2d6a4f":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{checked[item]&&<div style={{color:"white",fontSize:14}}>✓</div>}</div>
             <div style={{fontSize:14,color:checked[item]?"#9ca3af":"#374151",textDecoration:checked[item]?"line-through":"none",transition:"all .2s"}}>{item}</div>
           </div>
         ))}
@@ -488,11 +511,12 @@ function Onboarding({ onComplete }) {
     save(KEYS.entries, [{date: startDate, weight: profile.startWeight, note: "Start!"}]);
     onComplete(profile, phase, nextDate);
   };
+  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}];
   const steps = [
     <div style={{textAlign:"center",padding:"40px 24px"}}><HRIcon size={100}/><div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f",marginTop:24,marginBottom:12}}>Welkom bij Health Reset 3.0</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor de reset.</div><button onClick={()=>setStep(1)} style={btn}>Aan de slag!</button></div>,
     <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Hoe heet je?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div><input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/><button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende</button></div>,
     <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Jouw gewichten</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 2 van 4</div><div style={{...lbl,marginBottom:6}}>Startgewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 95.0" value={startWeight} onChange={e=>setStartWeight(e.target.value)}/><div style={{...lbl,marginTop:16,marginBottom:6}}>Doelgewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 70.0" value={goalWeight} onChange={e=>setGoalWeight(e.target.value)}/><div style={{...lbl,marginTop:16,marginBottom:6}}>Startdatum reset</div><input type="date" style={inp} value={startDate} onChange={e=>setStartDate(e.target.value)}/><button onClick={()=>setStep(3)} disabled={!canNext[1]||!canNext[2]||!canNext[3]} style={{...btn,marginTop:20,opacity:(canNext[1]&&canNext[2]&&canNext[3])?1:0.4}}>Volgende</button></div>,
-    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Welke fase zit je in?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div><div style={{display:"flex",gap:10,marginBottom:20}}>{[{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}].map(p=>(<button key={p.id} onClick={()=>setPhase(p.id)} style={{flex:1,padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:15,background:phase===p.id?"#2d6a4f":"#f4f1eb",color:phase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>{p.label}<br/><span style={{fontSize:12,fontWeight:400}}>{p.desc}</span></button>))}</div><div style={{...lbl,marginBottom:6}}>Wanneer wissel je naar de volgende fase?</div><input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/><button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende</button></div>,
+    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Welke fase zit je in?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>{faseKnoppen.map(p=>(<button key={p.id} onClick={()=>setPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:phase===p.id?"#2d6a4f":"#f4f1eb",color:phase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div><div style={{...lbl,marginBottom:6}}>Wanneer wissel je naar de volgende fase?</div><input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/><button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende</button></div>,
     <div style={{textAlign:"center",padding:"40px 24px"}}><div style={{fontSize:64,marginBottom:16}}>🎉</div><div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,color:"#2d6a4f",marginBottom:12}}>Alles is ingesteld, {name}!</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke Health Reset dashboard staat klaar.</div><button onClick={finish} style={btn}>Naar mijn dashboard</button></div>,
   ];
   return (<div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}><div style={{...card,margin:20}}>{steps[step]}</div></div>);
@@ -527,10 +551,10 @@ function LogForm({ sorted, onSave, onDelete }) {
           <div key={e.date} style={{...card,padding:"13px 16px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
             <div style={{flex:1}}>
               <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(e.date).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"})}</div>
-              <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#2d6a4f"}}>{e.weight} kg{prev&&<span style={{fontSize:13,marginLeft:8,color:diff<0?"#2d6a4f":"#e76f51",fontWeight:400}}>{diff<0?"v":"^"}{Math.abs(diff).toFixed(1)}</span>}</div>
+              <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#2d6a4f"}}>{e.weight} kg{prev&&<span style={{fontSize:13,marginLeft:8,color:diff<0?"#2d6a4f":"#e76f51",fontWeight:400}}>{diff<0?"▾":"▴"}{Math.abs(diff).toFixed(1)}</span>}</div>
               {e.note?<div style={{fontSize:12,color:"#9ca3af",marginTop:2}}>{e.note}</div>:null}
             </div>
-            {delConfirm===e.date?(<div style={{display:"flex",gap:6}}><button onClick={()=>{onDelete(e.date);setDelConfirm(null);}} style={{...btnSm,color:"#e76f51",borderColor:"#e76f51"}}>Ja</button><button onClick={()=>setDelConfirm(null)} style={btnSm}>Nee</button></div>):(<button onClick={()=>setDelConfirm(e.date)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:"#d1d5db",padding:4}}>x</button>)}
+            {delConfirm===e.date?(<div style={{display:"flex",gap:6}}><button onClick={()=>{onDelete(e.date);setDelConfirm(null);}} style={{...btnSm,color:"#e76f51",borderColor:"#e76f51"}}>Ja</button><button onClick={()=>setDelConfirm(null)} style={btnSm}>Nee</button></div>):(<button onClick={()=>setDelConfirm(e.date)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:"#d1d5db",padding:4}}>×</button>)}
           </div>
         );
       })}
@@ -543,27 +567,45 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
   const [localDate, setLocalDate] = useState(nextPhaseDate);
   const [localNextPhase, setLocalNextPhase] = useState(nextPhaseId || null);
   const [saved, setSaved] = useState(false);
+  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}];
+
   return (
     <div style={{padding:"20px 16px"}}>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Fase beheer</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20}}>Stel in welke fase je zit en wanneer je wisselt.</div>
       <div style={card}>
         <div style={{...lbl,marginBottom:10}}>Huidige fase</div>
-        <div style={{display:"flex",gap:10,marginBottom:20}}>{[{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}].map(p=>(<button key={p.id} onClick={()=>setLocalPhase(p.id)} style={{flex:1,padding:"12px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localPhase===p.id?"#2d6a4f":"#f4f1eb",color:localPhase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+          {faseKnoppen.map(p=>(
+            <button key={p.id} onClick={()=>setLocalPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localPhase===p.id?"#2d6a4f":"#f4f1eb",color:localPhase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>
+              {p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span>
+            </button>
+          ))}
+        </div>
+
         <div style={{...lbl,marginBottom:10}}>Volgende fase</div>
-        <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap"}}>{[{id:null,label:"Geen",desc:""},{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}].map(p=>(<button key={String(p.id)} onClick={()=>setLocalNextPhase(p.id)} style={{flex:1,minWidth:"60px",padding:"10px 6px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:12,background:localNextPhase===p.id?"#52b788":"#f4f1eb",color:localNextPhase===p.id?"white":"#6b7280",transition:"all 0.2s"}}>{p.label}{p.desc?<><br/><span style={{fontSize:10,fontWeight:400}}>{p.desc}</span></>:null}</button>))}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+          {faseKnoppen.map(p=>(
+            <button key={p.id} onClick={()=>setLocalNextPhase(localNextPhase===p.id?null:p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localNextPhase===p.id?"#52b788":"#f4f1eb",color:localNextPhase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>
+              {p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span>
+            </button>
+          ))}
+        </div>
+
         <div style={{...lbl,marginBottom:6}}>Wisselmoment</div>
         <input type="date" value={localDate} onChange={e=>setLocalDate(e.target.value)} style={inp}/>
         <button onClick={()=>{onSwitch(localPhase,localDate,localNextPhase);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
+
       <div style={{...card,borderLeft:"4px solid #52b788"}}><div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div></div>
       <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}><div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div><VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/></div>
       <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}><div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Stabilisatie (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Gezonde oliën en vetten, alle groenten, alle fruitsoorten, noten, kwark, rode wijn, haverzemelen max 3x/week (30g), doel: stabiel blijven</div><VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/></div>
       <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}><div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — LOGISCH leven testfase (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>De belangrijkste fase tegen het jojo-effect. Test stap voor stap koolhydraten — reageert je lichaam? Vermijd dat voedsel en test later opnieuw. Eet volgens de LOGI-piramide, geen koolhydraten na 19u. Blijf 3–6 maanden basisproducten gebruiken.</div></div>
+
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Mijlpalen</div>
       {milestones.map(m=>{
         const done=totalLost>=m.loss;
-        return (<div key={m.loss} style={{...card,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}><div style={{fontSize:24}}>{m.emoji}</div><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:done?"#2d6a4f":"#9ca3af"}}>{"−"+m.loss+" kg"}</div><div style={{fontSize:12,color:"#9ca3af"}}>{m.msg}</div></div>{done&&<div style={{color:"#2d6a4f",fontSize:18}}>v</div>}</div>);
+        return (<div key={m.loss} style={{...card,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}><div style={{fontSize:24}}>{m.emoji}</div><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:done?"#2d6a4f":"#9ca3af"}}>{"−"+m.loss+" kg"}</div><div style={{fontSize:12,color:"#9ca3af"}}>{m.msg}</div></div>{done&&<div style={{color:"#2d6a4f",fontSize:18}}>✓</div>}</div>);
       })}
     </div>
   );
