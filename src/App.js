@@ -1,6 +1,33 @@
 import { useState, useEffect, useCallback } from "react";
 
-const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase" };
+const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase", energie:"hr-energie" };
+const ACTIVITEITEN = [
+  { label:"Weinig beweging",  factor:1.2 },
+  { label:"Licht actief",     factor:1.375 },
+  { label:"Matig actief",     factor:1.55 },
+  { label:"Zeer actief",      factor:1.725 },
+  { label:"Extreem actief",   factor:1.9 },
+];
+function scoreNaarActiviteit(score) {
+  if (score<=0) return ACTIVITEITEN[0];
+  if (score===1) return ACTIVITEITEN[1];
+  if (score===2) return ACTIVITEITEN[2];
+  if (score<=4) return ACTIVITEITEN[3];
+  return ACTIVITEITEN[4];
+}
+const DAGELIJKS_OPTIES = [
+  { id:"zittend", label:"Vooral zittend",    desc:"Bureauwerk, veel autorijden, weinig lopen", score:0 },
+  { id:"matig",   label:"Matig in beweging", desc:"Huishouden, staand werk, af en toe fietsen of wandelen", score:1 },
+  { id:"fysiek",  label:"Fysiek actief",     desc:"Fysiek beroep, veel lopen, tillen, tuinieren", score:2 },
+];
+const SPORT_OPTIES = [
+  { id:"geen",      label:"Niet of nauwelijks", score:0 },
+  { id:"1-2",       label:"1–2x per week",      score:1 },
+  { id:"3-4",       label:"3–4x per week",      score:2 },
+  { id:"5-6",       label:"5–6x per week",      score:3 },
+  { id:"dagelijks", label:"Bijna dagelijks",    score:4 },
+];
+const KCAL_PER_KG = 7700;
 function load(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } }
 function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
 
@@ -410,6 +437,23 @@ function Chart({ entries, goalWeight, height=140 }) {
   );
 }
 
+function GoalEditModal({ goalWeight, onSave, onClose }) {
+  const [value, setValue] = useState(String(goalWeight).replace(".", ","));
+  return (
+    <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:998,background:"rgba(0,0,0,0.4)"}} onClick={onClose}>
+      <div style={{background:"white",borderRadius:24,padding:28,margin:24,maxWidth:340,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}} onClick={e=>e.stopPropagation()}>
+        <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",marginBottom:16}}>Streefgewicht aanpassen</div>
+        <div style={{...lbl,marginBottom:6}}>Nieuw streefgewicht (kg)</div>
+        <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 70" value={value} onChange={e=>setValue(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){ const n=parseFloat(value.replace(",",".")); if(n>0) onSave(n); } }}/>
+        <div style={{display:"flex",gap:10,marginTop:20}}>
+          <button onClick={onClose} style={{flex:1,background:"#f4f1eb",border:"none",borderRadius:14,padding:"13px 0",fontFamily:"Georgia,serif",fontSize:14,color:"#2d6a4f",cursor:"pointer"}}>Annuleren</button>
+          <button onClick={()=>{ const n=parseFloat(value.replace(",",".")); if(n>0) onSave(n); }} style={{flex:1,background:"#2d6a4f",border:"none",borderRadius:14,padding:"13px 0",fontFamily:"Georgia,serif",fontSize:14,color:"white",cursor:"pointer",fontWeight:600}}>Opslaan</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ChartModal({ entries, goalWeight, onClose }) {
   const fmt=d=>new Date(d).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"});
   return (
@@ -611,6 +655,191 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
   );
 }
 
+function InfoModal({ title, children, onClose }) {
+  return (
+    <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,background:"rgba(0,0,0,0.5)",padding:24}} onClick={onClose}>
+      <div style={{background:"white",borderRadius:24,padding:26,maxWidth:360,width:"100%",maxHeight:"75vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+          <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#1b4332"}}>{title}</div>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9ca3af"}}>×</button>
+        </div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function KeuzeRij({ opties, waarde, onKies, metDesc }) {
+  return opties.map(o=>(
+    <div key={o.id} onClick={()=>onKies(o.id)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 10px",borderRadius:14,marginBottom:8,cursor:"pointer",border:waarde===o.id?"2px solid #2d6a4f":"2px solid #f4f1eb",background:waarde===o.id?"#f4f1eb":"white",transition:"all .15s"}}>
+      <div style={{width:20,height:20,borderRadius:"50%",border:waarde===o.id?"none":"2px solid #d1d5db",background:waarde===o.id?"#2d6a4f":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{waarde===o.id&&<div style={{width:8,height:8,borderRadius:"50%",background:"white"}}/>}</div>
+      <div><div style={{fontSize:14,fontWeight:600,color:"#374151"}}>{o.label}</div>{metDesc&&<div style={{fontSize:12,color:"#9ca3af"}}>{o.desc}</div>}</div>
+    </div>
+  ));
+}
+
+function EnergieTab({ currentWeight }) {
+  const stored = load(KEYS.energie) || {};
+  const [step, setStep] = useState(stored.bmr ? 6 : 0);
+  const [geslacht, setGeslacht] = useState(stored.geslacht || "vrouw");
+  const [leeftijd, setLeeftijd] = useState(stored.leeftijd ? String(stored.leeftijd) : "");
+  const [lengte, setLengte] = useState(stored.lengte ? String(stored.lengte) : "");
+  const [gewicht, setGewicht] = useState(stored.gewicht ? String(stored.gewicht) : (currentWeight ? String(currentWeight) : ""));
+  const [dagBeweging, setDagBeweging] = useState(stored.dagBeweging || null);
+  const [sportFreq, setSportFreq] = useState(stored.sportFreq || null);
+  const [result, setResult] = useState(stored.bmr ? stored : null);
+  const [kcalInname, setKcalInname] = useState(stored.kcalInname ? String(stored.kcalInname) : "");
+  const [infoOpen, setInfoOpen] = useState(null);
+
+  const canStep = [
+    true,
+    parseFloat(String(leeftijd).replace(",",".")) > 0,
+    parseFloat(String(lengte).replace(",",".")) > 0,
+    parseFloat(String(gewicht).replace(",",".")) > 0,
+    dagBeweging != null,
+    sportFreq != null,
+  ];
+
+  const berekenen = () => {
+    const l = parseFloat(String(leeftijd).replace(",","."));
+    const h = parseFloat(String(lengte).replace(",","."));
+    const w = parseFloat(String(gewicht).replace(",","."));
+    if (!(l>0 && h>0 && w>0) || dagBeweging==null || sportFreq==null) return;
+    const dOpt = DAGELIJKS_OPTIES.find(o=>o.id===dagBeweging);
+    const sOpt = SPORT_OPTIES.find(o=>o.id===sportFreq);
+    const activiteit = scoreNaarActiviteit(dOpt.score + sOpt.score);
+    const bmr = geslacht==="man" ? (10*w + 6.25*h - 5*l + 5) : (10*w + 6.25*h - 5*l - 161);
+    const tdee = bmr * activiteit.factor;
+    const data = { geslacht, leeftijd:l, lengte:h, gewicht:w, dagBeweging, sportFreq, activiteitLabel:activiteit.label, bmr:Math.round(bmr), tdee:Math.round(tdee), kcalInname: stored.kcalInname || null };
+    save(KEYS.energie, data);
+    setResult(data);
+    setStep(6);
+  };
+
+  const berekenInname = () => {
+    if (!result) return;
+    const k = parseFloat(String(kcalInname).replace(",","."));
+    const updated = {...result, kcalInname: k>0 ? k : null};
+    save(KEYS.energie, updated);
+    setResult(updated);
+  };
+
+  const vragen = [
+    <div>
+      <div style={{...lbl,marginBottom:10}}>Ben je man of vrouw?</div>
+      <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Dit hebben we nodig voor de berekening.</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        {[{id:"vrouw",label:"Vrouw"},{id:"man",label:"Man"}].map(g=>(
+          <button key={g.id} onClick={()=>setGeslacht(g.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:geslacht===g.id?"#2d6a4f":"#f4f1eb",color:geslacht===g.id?"white":"#6b7280"}}>{g.label}</button>
+        ))}
+      </div>
+    </div>,
+    <div>
+      <div style={{...lbl,marginBottom:10}}>Wat is je leeftijd?</div>
+      <input style={inp} inputMode="numeric" autoComplete="off" placeholder="jaar" value={leeftijd} onChange={e=>setLeeftijd(e.target.value)}/>
+    </div>,
+    <div>
+      <div style={{...lbl,marginBottom:10}}>Wat is je lengte?</div>
+      <input style={inp} inputMode="numeric" autoComplete="off" placeholder="cm" value={lengte} onChange={e=>setLengte(e.target.value)}/>
+    </div>,
+    <div>
+      <div style={{...lbl,marginBottom:10}}>Wat is je huidige gewicht?</div>
+      <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="kg" value={gewicht} onChange={e=>setGewicht(e.target.value)}/>
+    </div>,
+    <div>
+      <div style={{...lbl,marginBottom:10}}>Hoe zou je je dagelijkse beweging omschrijven, los van sporten?</div>
+      <KeuzeRij opties={DAGELIJKS_OPTIES} waarde={dagBeweging} onKies={setDagBeweging} metDesc/>
+    </div>,
+    <div>
+      <div style={{...lbl,marginBottom:10}}>Hoe vaak doe je bewuste sport of training per week?</div>
+      <KeuzeRij opties={SPORT_OPTIES} waarde={sportFreq} onKies={setSportFreq}/>
+    </div>,
+  ];
+
+  if (step < 6) {
+    return (
+      <div style={{padding:"20px 16px"}}>
+        <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:4}}>Jouw energiebehoefte</div>
+        <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Vraag {step+1} van 6</div>
+        <div style={{background:"#d8f3dc",borderRadius:99,height:6,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#2d6a4f",borderRadius:99,width:`${((step+1)/6)*100}%`,transition:"width .3s"}}/></div>
+        <div style={card}>
+          {vragen[step]}
+          <div style={{display:"flex",gap:10,marginTop:20}}>
+            {step>0 && <button onClick={()=>setStep(s=>s-1)} style={{...btnSm,flex:1}}>Terug</button>}
+            {step<5
+              ? <button onClick={()=>setStep(s=>s+1)} disabled={!canStep[step]} style={{...btn,flex:2,opacity:canStep[step]?1:0.4}}>Volgende</button>
+              : <button onClick={berekenen} disabled={!canStep[5]} style={{...btn,flex:2,opacity:canStep[5]?1:0.4}}>Bereken</button>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const ingevuldeKcal = parseFloat(String(kcalInname).replace(",","."));
+  const heeftInname = result && ingevuldeKcal > 0;
+  const verschilPerDag = heeftInname ? result.tdee - ingevuldeKcal : null;
+  const verschilPerWeek = verschilPerDag!=null ? verschilPerDag*7 : null;
+  const kgPerWeek = verschilPerWeek!=null ? verschilPerWeek/KCAL_PER_KG : null;
+
+  return (
+    <div style={{padding:"20px 16px"}}>
+      {infoOpen==="bmr" && (
+        <InfoModal title="Wat is je rusttoestand?" onClose={()=>setInfoOpen(null)}>
+          Je rusttoestand — ook wel BMR genoemd — is de energie die je lichaam nodig heeft om te blijven functioneren, zelfs als je de hele dag in bed zou liggen. Hier vallen onder andere onder: je ademhaling en hartslag, het op temperatuur houden van je lichaam, de werking van je organen zoals hersenen, lever en nieren, en celvernieuwing en herstel. Dit is dus geen keuze — het is simpelweg wat je lichaam sowieso verbruikt, wat je ook doet.
+        </InfoModal>
+      )}
+      {infoOpen==="tdee" && (
+        <InfoModal title="Wat is je TDEE?" onClose={()=>setInfoOpen(null)}>
+          Je TDEE (Total Daily Energy Expenditure) is je totale energieverbruik op een dag. Dit is je rusttoestand plus alles wat je daarbovenop verbruikt: je dagelijkse beweging zoals lopen en huishouden, sport en training, en de energie die je lichaam gebruikt om je eten te verteren. Dit getal geeft een indicatie van hoeveel je op een gemiddelde dag verbruikt.
+        </InfoModal>
+      )}
+
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Jouw energiebehoefte</div>
+      <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Jouw activiteitsniveau: {result.activiteitLabel}. Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
+
+      <div style={{...card,background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white"}}>
+        <div style={{display:"flex",gap:10}}>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700}}>{result.bmr}</div>
+            <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>kcal — rusttoestand
+              <span onClick={()=>setInfoOpen("bmr")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
+            </div>
+          </div>
+          <div style={{width:1,background:"rgba(255,255,255,0.2)"}}/>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700}}>{result.tdee}</div>
+            <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>kcal — TDEE
+              <span onClick={()=>setInfoOpen("tdee")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={{...lbl,marginBottom:6}}>Wat eet je gemiddeld per dag?</div>
+        <div style={{fontSize:12,color:"#9ca3af",marginBottom:12,lineHeight:1.6}}>Optioneel — vul dit in om te zien hoe je inname zich verhoudt tot je verbruik.</div>
+        <input style={inp} inputMode="numeric" autoComplete="off" placeholder="kcal per dag" value={kcalInname} onChange={e=>setKcalInname(e.target.value)}/>
+        <button onClick={berekenInname} style={{...btn,marginTop:14}}>Bekijk verschil</button>
+
+        {heeftInname && (
+          <div style={{marginTop:18,padding:"14px 16px",background:"#f4f1eb",borderRadius:14}}>
+            <div style={{fontSize:14,color:"#2d6a4f",fontWeight:600,lineHeight:1.6}}>
+              {verschilPerDag>=0
+                ? `Je zit gemiddeld op een tekort van ${Math.round(verschilPerDag)} kcal per dag.`
+                : `Je zit gemiddeld op een overschot van ${Math.round(Math.abs(verschilPerDag))} kcal per dag.`}
+            </div>
+            <div style={{fontSize:13,color:"#6b7280",marginTop:6,lineHeight:1.6}}>
+              Op een week is dat ongeveer {Math.round(Math.abs(verschilPerWeek))} kcal — in theorie zo'n {Math.abs(kgPerWeek).toFixed(2)} kg {verschilPerDag>=0?"verlies":"toename"} per week (uitgaande van {KCAL_PER_KG} kcal per kg). Dit is een grove schatting — vocht, zout, spieropbouw en herstel spelen ook mee, en dit tempo houdt meestal geen weken achter elkaar hetzelfde tempo aan doordat je lichaam zich aanpast.
+            </div>
+          </div>
+        )}
+      </div>
+
+      <button onClick={()=>setStep(0)} style={{...btnSm,width:"100%",textAlign:"center",padding:"13px 0",marginTop:4}}>Opnieuw invullen</button>
+    </div>
+  );
+}
+
 export default function App() {
   const [ingelogd, setIngelogd] = useState(false);
   const [profile, setProfile] = useState(null);
@@ -625,6 +854,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [showGoalEdit, setShowGoalEdit] = useState(false);
 
   useEffect(()=>{
     if (localStorage.getItem("hr-toegang")) setIngelogd(true);
@@ -680,6 +910,11 @@ export default function App() {
     save(KEYS.phase, phase); save(KEYS.nextDate, date); save(KEYS.nextPhase, nxtPhase);
   },[]);
 
+  const handleGoalSave = useCallback((newGoal) => {
+    const updated = {...profile, goalWeight: newGoal};
+    setProfile(updated); save(KEYS.profile, updated); setShowGoalEdit(false);
+  },[profile]);
+
   const handleLogout = async () => {
     localStorage.removeItem("hr-toegang");
     if (navigator.serviceWorker) {
@@ -699,6 +934,7 @@ export default function App() {
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
       {showChecklist && <FaseChecklist phase={currentPhase} onClose={()=>setShowChecklist(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
+      {showGoalEdit&&<GoalEditModal goalWeight={goalWeight} onSave={handleGoalSave} onClose={()=>setShowGoalEdit(false)}/>}
       {celebration&&(
         <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:998,background:"rgba(0,0,0,0.4)"}}>
           <div style={{background:"white",borderRadius:24,padding:32,textAlign:"center",margin:24,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
@@ -744,17 +980,17 @@ export default function App() {
                 <div style={{height:"100%",borderRadius:99,background:"linear-gradient(90deg,#2d6a4f,#52b788)",width:`${progressPct}%`,transition:"width .8s ease"}}/>
               </div>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9ca3af",marginTop:6}}>
-                <span>{startWeight} kg</span><span>Doel: {goalWeight} kg</span>
+                <span>{startWeight} kg</span><span onClick={()=>setShowGoalEdit(true)} style={{cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:3}}>Doel: {goalWeight} kg ✏️</span>
               </div>
             </div>
 
-            {streak>0&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setTab("dagboek")}>
+            {streak>0&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setTab("log")}>
               <div style={{display:"flex",alignItems:"center",gap:16}}>
                 <div style={{fontSize:38}}>🔥</div>
                 <div>
                   <div style={{fontSize:13,color:"#b5838d",fontWeight:600}}>Weegstreak</div>
                   <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f"}}>{streak} {streak===1?"dag":"dagen"} op rij!</div>
-                  <div style={{fontSize:12,color:"#9ca3af"}}>Tik om je dagboek te openen</div>
+                  <div style={{fontSize:12,color:"#9ca3af"}}>Tik om je weging te openen</div>
                 </div>
               </div>
             </div>}
@@ -796,11 +1032,11 @@ export default function App() {
       )}
 
       {tab==="log" && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
-      {tab==="dagboek" && <DagboekTab/>}
+      {tab==="energie" && <EnergieTab currentWeight={currentWeight}/>}
       {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} nextPhaseId={nextPhaseId} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
-        {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"dagboek",icon:"😊",label:"Dagboek"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
+        {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"energie",icon:"⚡",label:"Energie"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"12px 0",border:"none",background:"transparent",cursor:"pointer",fontSize:10,letterSpacing:1,textTransform:"uppercase",fontFamily:"Georgia,serif",color:tab===t.id?"#2d6a4f":"#9ca3af",fontWeight:tab===t.id?700:400,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
             <span style={{fontSize:20}}>{t.icon}</span>{t.label}
           </button>
