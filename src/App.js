@@ -1003,9 +1003,18 @@ function BuikomtrekCalculator({ onTerug }) {
     <div style={{padding:"20px 16px"}}>
       {infoOpen==="whtr" && (
         <InfoModal title="Wat is de middel/lengte-ratio?" onClose={()=>setInfoOpen(null)}>
-          Deze ratio vergelijkt je buikomtrek met je lengte, en zegt iets over waar je vet zit — niet over hoeveel je in totaal weegt. Buikvet ligt rond je organen en is metabolisch actiever dan vet op bijvoorbeeld je heupen of benen, en houdt daardoor sterker verband met risico's zoals type 2 diabetes en hart- en vaatziekten.
+          Deze ratio vergelijkt je middelomtrek met je lengte. Zo krijg je een indruk van hoeveel vet zich rond je middel bevindt, onafhankelijk van je totale gewicht.
           <br/><br/>
-          Onder de 0,50 is gezond, 0,50 tot 0,59 is verhoogd risico, 0,60 of hoger is hoog risico. Vuistregel: je buikomtrek zou minder dan de helft van je lengte moeten zijn. Voor sommige bevolkingsgroepen (bijvoorbeeld Aziatische of Afrikaanse afkomst) ligt de gezonde grens iets lager, rond 0,46.
+          Een grotere middelomtrek hangt vaker samen met meer visceraal vet: vet dat dieper in de buik rond de organen ligt. Dit vet is actiever betrokken bij de stofwisseling dan vet dat vooral onder de huid zit. Een grotere hoeveelheid visceraal vet hangt samen met een hoger risico op onder andere type 2 diabetes en hart- en vaatziekten.
+          <br/><br/>
+          <div style={{fontWeight:700,color:"#1b4332",marginBottom:4}}>Als algemene richtlijn geldt</div>
+          <div style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>Onder 0,50</span><span>gezond bereik</span></div>
+          <div style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>0,50 tot 0,59</span><span>verhoogd risico</span></div>
+          <div style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>0,60 of hoger</span><span>hoog risico</span></div>
+          <br/>
+          Een handige vuistregel is dat je middelomtrek bij voorkeur kleiner is dan de helft van je lengte.
+          <br/><br/>
+          De middel/lengte-ratio is een eenvoudige richtlijn en geen diagnose. Leeftijd, lichaamsbouw en afkomst kunnen invloed hebben op hoe de uitkomst het best geïnterpreteerd wordt.
         </InfoModal>
       )}
       {infoOpen==="rfm" && (
