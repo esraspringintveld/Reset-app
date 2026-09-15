@@ -842,11 +842,16 @@ function EnergieCalculator({ currentWeight, onTerug }) {
   );
 }
 
-const EIWIT_MARGE_KG = 20;
+const EIWIT_AANGEPAST_FACTOR = 0.25; // klinische correctiefactor voor "aangepast lichaamsgewicht" bij mensen die niet trainen en boven hun streefgewicht zitten
 function bereikEiwit(score) {
   if (score <= 0) return { laag: 1.0, hoog: 1.2 };
   if (score <= 2) return { laag: 1.6, hoog: 1.8 };
   return { laag: 1.8, hoog: 2.2 };
+}
+function berekenEiwitBasis(gewicht, streefgewicht, traintScore) {
+  if (!(streefgewicht > 0) || gewicht <= streefgewicht) return gewicht;
+  if (traintScore > 0) return gewicht; // traint regelmatig: gewoon volledig huidig gewicht
+  return streefgewicht + EIWIT_AANGEPAST_FACTOR * (gewicht - streefgewicht);
 }
 
 function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
@@ -859,9 +864,8 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
   const berekenen = () => {
     const w = parseFloat(String(gewicht).replace(",","."));
     if (!(w>0) || kracht==null) return;
-    let basis = w;
-    if (goalWeight>0 && (w - goalWeight) > EIWIT_MARGE_KG) basis = goalWeight + EIWIT_MARGE_KG;
     const kOpt = SPORT_OPTIES.find(o=>o.id===kracht);
+    const basis = berekenEiwitBasis(w, goalWeight, kOpt.score);
     const bereik = bereikEiwit(kOpt.score);
     const data = { gewicht:w, kracht, krachtLabel:kOpt.label, laag:Math.round(basis*bereik.laag), hoog:Math.round(basis*bereik.hoog) };
     save(KEYS.eiwit, data);
@@ -875,6 +879,8 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
           Hoeveel eiwit je nodig hebt, hangt vooral af van hoeveel je aan krachttraining doet. Krachttraining geeft je spieren een prikkel om te herstellen en op te bouwen, en juist tijdens het afvallen helpt extra eiwit om die spiermassa te beschermen terwijl je vet verliest — zonder genoeg eiwit verlies je namelijk niet alleen vet, maar ook spieren. Eiwit houdt je bovendien langer verzadigd dan koolhydraten of vet, wat het makkelijker maakt om bij je keuzes te blijven.
           <br/><br/>
           Wandelen of andere dagelijkse beweging telt hier niet apart in mee — dat verhoogt vooral je energieverbruik (zie de energiecalculator), maar niet je eiwitbehoefte. Doe je niet of nauwelijks aan krachttraining, dan is 1,0 tot 1,2 gram per kilo voldoende. Train je 1 tot 4 keer per week, dan past 1,6 tot 1,8 gram per kilo. Train je 5 keer per week of vaker, dan kan 1,8 tot 2,2 gram per kilo passender zijn — dat is de bovengrens uit onderzoek, die vooral geldt bij intensief en frequent trainen, vaak in combinatie met een stevig calorietekort.
+          <br/><br/>
+          Zit je flink boven je streefgewicht en doe je niet of nauwelijks aan krachttraining, dan rekenen we niet met je volledige gewicht, maar met een deel van het verschil met je streefgewicht — een deel van fors overgewicht is vetweefsel dat geen extra eiwit nodig heeft. Train je wel regelmatig, dan gebruiken we gewoon je volledige huidige gewicht, want dat wijst er juist op dat er spiermassa is die bescherming verdient.
           <br/><br/>
           Die bovengrens van 2,2 ligt wel dicht bij het punt waarboven voorzichtigheid wordt geadviseerd bij langdurig gebruik. Heb je een nier- of leveraandoening, overleg dan met je arts of diëtist wat voor jou een passende hoeveelheid is.
         </InfoModal>
