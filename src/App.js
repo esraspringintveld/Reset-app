@@ -73,7 +73,7 @@ const MOOD_INFO = {
   "😴": { label: "Moe", color: "#b5838d" },
 };
 
-const FASE_LABELS = { 1: "Fase 1 — Laaddagen", 2: "Fase 2 — Vetverbranding", 3: "Fase 3 — Stabilisatie", 4: "Fase 4 — LOGISCH leven" };
+const FASE_LABELS = { 1: "Fase 1 — Bewust worden", 2: "Fase 2 — Vereenvoudigen", 3: "Fase 3 — Verbreden & stabiliseren", 4: "Fase 4 — Persoonlijk maken" };
 const FASE_ICONS = { 1: "🌱", 2: "🌿", 3: "⚖️", 4: "🔥" };
 
 const DAGBOEK_INFO_TEKST = `Waarom je stemming bijhouden helpt
@@ -555,7 +555,7 @@ function Onboarding({ onComplete }) {
     save(KEYS.entries, [{date: startDate, weight: profile.startWeight, note: "Start!"}]);
     onComplete(profile, phase, nextDate);
   };
-  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}];
+  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Verbreden & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
   const steps = [
     <div style={{textAlign:"center",padding:"40px 24px"}}><HRIcon size={100}/><div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f",marginTop:24,marginBottom:12}}>Welkom bij Health Reset 3.0</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor de reset.</div><button onClick={()=>setStep(1)} style={btn}>Aan de slag!</button></div>,
     <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Hoe heet je?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div><input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/><button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende</button></div>,
@@ -611,7 +611,7 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
   const [localDate, setLocalDate] = useState(nextPhaseDate);
   const [localNextPhase, setLocalNextPhase] = useState(nextPhaseId || null);
   const [saved, setSaved] = useState(false);
-  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Laaddagen"},{id:2,label:"Fase 2",desc:"Vetverbranding"},{id:3,label:"Fase 3",desc:"Stabilisatie"},{id:4,label:"Fase 4",desc:"LOGISCH leven"}];
+  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Verbreden & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
 
   return (
     <div style={{padding:"20px 16px"}}>
@@ -641,10 +641,48 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
         <button onClick={()=>{onSwitch(localPhase,localDate,localNextPhase);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
 
-      <div style={{...card,borderLeft:"4px solid #52b788"}}><div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Laaddagen (2 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Start supplementen: Enerxan, Daily Biobasics, Proanthenols, MSM-plus, Omegold. Eet zoveel mogelijk gezond vet voedsel (3500–5000 calorieën). Je lichaam neemt dit als ijkpunt voor de vetverbranding. Gebruik de FatSecret-app om calorieën te tellen.</div></div>
-      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}><div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vetverbranding (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Groenten onbeperkt (min. 400g), 250g proteïne, 2x fruit, 2x grissini of wasa, geen koolhydraten, geen suiker, alleen krachtsport op 60%</div><VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/></div>
-      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}><div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Stabilisatie (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>Gezonde oliën en vetten, alle groenten, alle fruitsoorten, noten, kwark, rode wijn, haverzemelen max 3x/week (30g), doel: stabiel blijven</div><VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/></div>
-      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}><div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — LOGISCH leven testfase (21 dagen)</div><div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>De belangrijkste fase tegen het jojo-effect. Test stap voor stap koolhydraten — reageert je lichaam? Vermijd dat voedsel en test later opnieuw. Eet volgens de LOGI-piramide, geen koolhydraten na 19u. Blijf 3–6 maanden basisproducten gebruiken.</div></div>
+      <div style={{...card,borderLeft:"4px solid #52b788"}}>
+        <div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Bewust worden (2 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
+          In deze twee dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret, inclusief calorieën en voedingswaarden. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
+          <br/><br/>
+          Tegelijk bereid je je praktisch voor op fase 2: bekijk de voedingslijsten, maak je boodschappenlijst en zorg dat je de juiste producten in huis hebt. Zo start je fase 2 goed voorbereid.
+        </div>
+      </div>
+      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vereenvoudigen (21–40 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
+          In fase 2 maak je je voeding tijdelijk eenvoudig en overzichtelijk. Je kiest vooral voor veel groenten, magere eiwitbronnen en fruit en laat toegevoegde vetten en de meeste zetmeelrijke koolhydraatbronnen tijdelijk weg. Zo ontstaat rust en duidelijkheid in je eetpatroon.
+          <br/><br/>
+          Brood, pasta, rijst, aardappelen en vergelijkbare producten bewaren we voor een latere fase.
+          <br/><br/>
+          Na de avondmaaltijd eet je niet meer. Houd bij voorkeur ongeveer drie uur tussen je laatste maaltijd en het slapen. Dat geeft een duidelijke dagstructuur en voorkomt dat de avond ongemerkt een extra eetmoment wordt.
+        </div>
+        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/>
+      </div>
+      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Verbreden & stabiliseren (21 dagen)</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
+          In fase 3 ga je je voeding stap voor stap verbreden. Na de tijdelijk zeer vetarme periode van fase 2 voegen we gezonde vetten bewust weer toe. Je lichaam heeft vetten nodig en een langdurig zeer vetarm voedingspatroon is niet het doel van BOEM.
+          <br/><br/>
+          Je voegt nieuwe producten één voor één toe, zoals gezonde oliën en vetten, noten en zaden, avocado, vettere vis, kaas en andere zuivelproducten. Je blijft werken vanuit de basis van veel groenten en voldoende eiwitten.
+          <br/><br/>
+          Deze fase is bedoeld om je lichaam en je voedingspatroon te laten stabiliseren. Het is normaal als het afvallen in deze periode minder snel gaat of je gewicht een tijd stabiel blijft. Voeg nieuwe producten rustig toe en kijk wat ze doen met je verzadiging, energie, spijsvertering en eetlust.
+        </div>
+        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/>
+      </div>
+      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — Persoonlijk maken</div>
+        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
+          In fase 4 ga je verder ontdekken wat bij jouw lichaam en leven past. Je voegt stap voor stap zetmeelrijke koolhydraatbronnen en andere producten toe die in de eerdere fases nog niet aan bod kwamen.
+          <br/><br/>
+          Je kijkt niet naar "goed" of "fout", maar naar wat een product doet met jouw verzadiging, energie, trek, spijsvertering en eetpatroon. Een tijdelijke stijging op de weegschaal betekent niet automatisch dat een product niet bij je past; extra koolhydraten kunnen bijvoorbeeld ook tijdelijk meer vocht vasthouden.
+          <br/><br/>
+          Zo bouw je toe naar een manier van eten die niet alleen tijdelijk werkt, maar die past bij jouw dagelijks leven.
+          <br/><br/>
+          De voedingslijsten worden ook aangepast, maar dat komt later.
+        </div>
+      </div>
 
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Mijlpalen</div>
       {milestones.map(m=>{
@@ -965,6 +1003,8 @@ function BuikomtrekCalculator({ onTerug }) {
           Relative Fat Mass (RFM) is een schatting van je totale vetpercentage, berekend met je lengte en buikomtrek. Dit is preciezer dan wat BMI kan schatten, omdat spiermassa er niet in meetelt als risico — bij BMI wordt spiermassa al snel verward met overgewicht.
           <br/><br/>
           Dit percentage verbetert als je buikomtrek afneemt, ook als je gewicht op de weegschaal minder hard daalt doordat je spieren opbouwt. Het zegt niets over hoeveel je zou moeten wegen, alleen over hoeveel van je gewicht vet is.
+          <br/><br/>
+          Ter referentie (ACE-richtlijnen): bij vrouwen geldt 10-13% als essentieel vet, 14-20% als sportief/atletisch, 21-24% als fit, 25-31% als gemiddeld, en 32% of hoger als verhoogd risico. Bij mannen liggen deze grenzen lager: 2-5% essentieel, 6-13% atletisch, 14-17% fit, 18-24% gemiddeld, 25% of hoger verhoogd risico. Deze bandbreedtes worden met het ouder worden iets ruimer, dus zie het als een richting, niet als een hard doel.
         </InfoModal>
       )}
       <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
