@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase", energie:"hr-energie" };
+const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase", energie:"hr-energie", eiwit:"hr-eiwit" };
 const ACTIVITEITEN = [
   { label:"Weinig beweging",  factor:1.2 },
   { label:"Licht actief",     factor:1.375 },
@@ -678,7 +678,7 @@ function KeuzeRij({ opties, waarde, onKies, metDesc }) {
   ));
 }
 
-function EnergieTab({ currentWeight }) {
+function EnergieCalculator({ currentWeight, onTerug }) {
   const stored = load(KEYS.energie) || {};
   const [step, setStep] = useState(stored.bmr ? 6 : 0);
   const [geslacht, setGeslacht] = useState(stored.geslacht || "vrouw");
@@ -759,6 +759,7 @@ function EnergieTab({ currentWeight }) {
   if (step < 6) {
     return (
       <div style={{padding:"20px 16px"}}>
+        <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
         <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:4}}>Jouw energiebehoefte</div>
         <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Vraag {step+1} van 6</div>
         <div style={{background:"#d8f3dc",borderRadius:99,height:6,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#2d6a4f",borderRadius:99,width:`${((step+1)/6)*100}%`,transition:"width .3s"}}/></div>
@@ -794,6 +795,7 @@ function EnergieTab({ currentWeight }) {
         </InfoModal>
       )}
 
+      <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Jouw energiebehoefte</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Jouw activiteitsniveau: {result.activiteitLabel}. Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
 
@@ -838,6 +840,79 @@ function EnergieTab({ currentWeight }) {
       <button onClick={()=>setStep(0)} style={{...btnSm,width:"100%",textAlign:"center",padding:"13px 0",marginTop:4}}>Opnieuw invullen</button>
     </div>
   );
+}
+
+const EIWIT_MARGE_KG = 20;
+
+function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
+  const stored = load(KEYS.eiwit) || {};
+  const [gewicht, setGewicht] = useState(stored.gewicht ? String(stored.gewicht) : (currentWeight ? String(currentWeight) : ""));
+  const [result, setResult] = useState(stored.laag ? stored : null);
+  const [infoOpen, setInfoOpen] = useState(false);
+
+  const berekenen = () => {
+    const w = parseFloat(String(gewicht).replace(",","."));
+    if (!(w>0)) return;
+    let basis = w;
+    if (goalWeight>0 && (w - goalWeight) > EIWIT_MARGE_KG) basis = goalWeight + EIWIT_MARGE_KG;
+    const data = { gewicht:w, laag:Math.round(basis*1.6), hoog:Math.round(basis*2.2) };
+    save(KEYS.eiwit, data);
+    setResult(data);
+  };
+
+  return (
+    <div style={{padding:"20px 16px"}}>
+      {infoOpen && (
+        <InfoModal title="Waarom eiwit?" onClose={()=>setInfoOpen(false)}>
+          Eiwit helpt je spieren te behouden terwijl je afvalt — zonder genoeg eiwit verlies je bij gewichtsverlies niet alleen vet, maar ook spiermassa. Daarnaast houdt eiwit je langer verzadigd dan koolhydraten of vet, wat het makkelijker maakt om bij je keuzes te blijven. Deze richtlijn (1,6 tot 2,2 gram per kilo) is de range die ook voor mensen met krachttraining wordt aangehouden.
+        </InfoModal>
+      )}
+      <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Jouw eiwitbehoefte</div>
+      <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
+
+      <div style={card}>
+        <div style={{...lbl,marginBottom:6}}>Huidig gewicht (kg)</div>
+        <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 75.0" value={gewicht} onChange={e=>setGewicht(e.target.value)}/>
+        <button onClick={berekenen} disabled={!(parseFloat(String(gewicht).replace(",","."))>0)} style={{...btn,marginTop:14}}>Bereken</button>
+      </div>
+
+      {result && (
+        <div style={{...card,background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",textAlign:"center"}}>
+          <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700}}>{result.laag}–{result.hoog}</div>
+          <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>gram eiwit per dag
+            <span onClick={()=>setInfoOpen(true)} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BerekeningMenu({ onKies }) {
+  const opties = [
+    { id:"energie", titel:"Energieverbruik", desc:"Je rusttoestand en TDEE — hoeveel je lichaam verbruikt" },
+    { id:"eiwit",   titel:"Eiwitbehoefte",    desc:"Hoeveel eiwit je lichaam ongeveer nodig heeft" },
+  ];
+  return (
+    <div style={{padding:"20px 16px"}}>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Berekening</div>
+      <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Kies wat je wilt uitrekenen.</div>
+      {opties.map(o=>(
+        <div key={o.id} onClick={()=>onKies(o.id)} style={{...card,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div><div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#2d6a4f"}}>{o.titel}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{o.desc}</div></div>
+          <div style={{fontSize:18,color:"#2d6a4f"}}>›</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EnergieTab({ currentWeight, goalWeight }) {
+  const [keuze, setKeuze] = useState(null);
+  if (keuze===null) return <BerekeningMenu onKies={setKeuze}/>;
+  if (keuze==="eiwit") return <EiwitCalculator currentWeight={currentWeight} goalWeight={goalWeight} onTerug={()=>setKeuze(null)}/>;
+  return <EnergieCalculator currentWeight={currentWeight} onTerug={()=>setKeuze(null)}/>;
 }
 
 export default function App() {
@@ -1032,7 +1107,7 @@ export default function App() {
       )}
 
       {tab==="log" && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
-      {tab==="energie" && <EnergieTab currentWeight={currentWeight}/>}
+      {tab==="energie" && <EnergieTab currentWeight={currentWeight} goalWeight={goalWeight}/>}
       {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} nextPhaseId={nextPhaseId} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
