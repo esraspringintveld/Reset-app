@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase", energie:"hr-energie", eiwit:"hr-eiwit" };
+const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase", energie:"hr-energie", eiwit:"hr-eiwit", buikomtrek:"hr-buikomtrek" };
 const ACTIVITEITEN = [
   { label:"Weinig beweging",  factor:1.2 },
   { label:"Licht actief",     factor:1.375 },
@@ -912,10 +912,128 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
   );
 }
 
+function whtrCategorie(ratio) {
+  if (ratio < 0.5) return { label: "Gezond", kleur: "#2d6a4f" };
+  if (ratio < 0.6) return { label: "Verhoogd risico", kleur: "#f4a261" };
+  return { label: "Hoog risico", kleur: "#e76f51" };
+}
+function berekenRFM(lengte, buik, geslacht) {
+  const ratio = lengte / buik;
+  return geslacht === "man" ? 64 - 20*ratio : 76 - 20*ratio;
+}
+
+function BuikomtrekCalculator({ onTerug }) {
+  const storedEnergie = load(KEYS.energie) || {};
+  const stored = load(KEYS.buikomtrek) || {};
+  const [geslacht, setGeslacht] = useState(stored.geslacht || storedEnergie.geslacht || "vrouw");
+  const [lengte, setLengte] = useState(stored.lengte ? String(stored.lengte) : (storedEnergie.lengte ? String(storedEnergie.lengte) : ""));
+  const [buik, setBuik] = useState(stored.buik ? String(stored.buik) : "");
+  const [result, setResult] = useState(stored.whtr ? stored : null);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [vergelijkBuik, setVergelijkBuik] = useState("");
+  const [vergelijkResult, setVergelijkResult] = useState(null);
+
+  const berekenen = () => {
+    const l = parseFloat(String(lengte).replace(",","."));
+    const b = parseFloat(String(buik).replace(",","."));
+    if (!(l>0 && b>0)) return;
+    const data = { geslacht, lengte:l, buik:b, whtr: b/l, rfm: berekenRFM(l,b,geslacht) };
+    save(KEYS.buikomtrek, data);
+    setResult(data);
+    setVergelijkResult(null);
+    setVergelijkBuik("");
+  };
+
+  const vergelijk = () => {
+    if (!result) return;
+    const b = parseFloat(String(vergelijkBuik).replace(",","."));
+    if (!(b>0)) return;
+    setVergelijkResult({ buik:b, whtr: b/result.lengte, rfm: berekenRFM(result.lengte, b, result.geslacht) });
+  };
+
+  return (
+    <div style={{padding:"20px 16px"}}>
+      {infoOpen && (
+        <InfoModal title="Wat betekent dit?" onClose={()=>setInfoOpen(false)}>
+          Buikvet ligt rond je organen en is metabolisch actiever dan vet op bijvoorbeeld je heupen of benen — het houdt sterker verband met risico's zoals type 2 diabetes en hart- en vaatziekten. Daarom zeggen deze metingen iets anders dan je gewicht op de weegschaal: ze kijken naar hoe je vet verdeeld is, niet naar hoeveel je in totaal weegt.
+          <br/><br/>
+          Middelomtrek-tot-lengte-ratio: onder de 0,50 is gezond, 0,50 tot 0,59 is verhoogd risico, 0,60 of hoger is hoog risico. Vuistregel: je buikomtrek zou minder dan de helft van je lengte moeten zijn. Voor sommige bevolkingsgroepen (bijvoorbeeld Aziatische of Afrikaanse afkomst) ligt de gezonde grens iets lager, rond 0,46.
+          <br/><br/>
+          Relative Fat Mass: een schatting van je totale vetpercentage op basis van lengte en buikomtrek, preciezer dan wat BMI kan schatten omdat spiermassa er niet in meetelt als risico.
+          <br/><br/>
+          Beide getallen verbeteren als je buikomtrek afneemt — ook als je gewicht op de weegschaal minder hard daalt door spieropbouw. Ze zeggen niets over hoeveel je zou moeten wegen, alleen over hoe gezond je vetverdeling is.
+        </InfoModal>
+      )}
+      <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Buikomtrek</div>
+      <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
+
+      <div style={card}>
+        <div style={{...lbl,marginBottom:10}}>Ben je man of vrouw?</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:18}}>
+          {[{id:"vrouw",label:"Vrouw"},{id:"man",label:"Man"}].map(g=>(
+            <button key={g.id} onClick={()=>setGeslacht(g.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:geslacht===g.id?"#2d6a4f":"#f4f1eb",color:geslacht===g.id?"white":"#6b7280"}}>{g.label}</button>
+          ))}
+        </div>
+
+        <div style={{...lbl,marginBottom:6}}>Lengte (cm)</div>
+        <input style={inp} inputMode="numeric" autoComplete="off" placeholder="bijv. 163" value={lengte} onChange={e=>setLengte(e.target.value)}/>
+
+        <div style={{...lbl,marginTop:16,marginBottom:6}}>Buikomtrek (cm)</div>
+        <div style={{fontSize:12,color:"#9ca3af",marginBottom:8,lineHeight:1.6}}>Gemeten op navelhoogte, het liefst 's ochtends voor het eten.</div>
+        <input style={inp} inputMode="numeric" autoComplete="off" placeholder="bijv. 90" value={buik} onChange={e=>setBuik(e.target.value)}/>
+
+        <button onClick={berekenen} disabled={!(parseFloat(String(lengte).replace(",","."))>0 && parseFloat(String(buik).replace(",","."))>0)} style={{...btn,marginTop:16}}>Bereken</button>
+      </div>
+
+      {result && (()=>{
+        const cat = whtrCategorie(result.whtr);
+        return (
+        <>
+          <div style={{...card,background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white"}}>
+            <div style={{display:"flex",gap:10}}>
+              <div style={{flex:1,textAlign:"center"}}>
+                <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.whtr.toFixed(2)}</div>
+                <div style={{fontSize:11,opacity:.85,marginTop:4}}>middel/lengte-ratio</div>
+                <div style={{marginTop:8,display:"inline-block",background:cat.kleur,borderRadius:99,padding:"4px 12px",fontSize:11,fontWeight:600}}>{cat.label}</div>
+              </div>
+              <div style={{width:1,background:"rgba(255,255,255,0.2)"}}/>
+              <div style={{flex:1,textAlign:"center"}}>
+                <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.rfm.toFixed(0)}%</div>
+                <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>geschat vetpercentage
+                  <span onClick={()=>setInfoOpen(true)} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={card}>
+            <div style={{...lbl,marginBottom:6}}>Vergelijk met een andere buikomtrek</div>
+            <div style={{fontSize:12,color:"#9ca3af",marginBottom:10,lineHeight:1.6}}>Nieuwsgierig wat een kleinere (of grotere) omtrek zou betekenen? Vul een getal in.</div>
+            <input style={inp} inputMode="numeric" autoComplete="off" placeholder="bijv. 80" value={vergelijkBuik} onChange={e=>setVergelijkBuik(e.target.value)}/>
+            <button onClick={vergelijk} disabled={!(parseFloat(String(vergelijkBuik).replace(",","."))>0)} style={{...btn,marginTop:12}}>Vergelijk</button>
+
+            {vergelijkResult && (()=>{
+              const vcat = whtrCategorie(vergelijkResult.whtr);
+              return (
+                <div style={{marginTop:16,padding:"14px 16px",background:"#f4f1eb",borderRadius:14}}>
+                  <div style={{fontSize:14,color:"#2d6a4f",fontWeight:600,lineHeight:1.6}}>Bij {vergelijkResult.buik} cm: ratio {vergelijkResult.whtr.toFixed(2)} ({vcat.label}), geschat vetpercentage {vergelijkResult.rfm.toFixed(0)}%.</div>
+                </div>
+              );
+            })()}
+          </div>
+        </>
+        );
+      })()}
+    </div>
+  );
+}
+
 function BerekeningMenu({ onKies }) {
   const opties = [
-    { id:"energie", titel:"Energieverbruik", desc:"Je rusttoestand en TDEE — hoeveel je lichaam verbruikt" },
-    { id:"eiwit",   titel:"Eiwitbehoefte",    desc:"Hoeveel eiwit je lichaam ongeveer nodig heeft" },
+    { id:"energie",     titel:"Energieverbruik", desc:"Je rusttoestand en TDEE — hoeveel je lichaam verbruikt" },
+    { id:"eiwit",       titel:"Eiwitbehoefte",    desc:"Hoeveel eiwit je lichaam ongeveer nodig heeft" },
+    { id:"buikomtrek",  titel:"Buikomtrek",       desc:"Wat je buikomtrek zegt over je vetverdeling — preciezer dan alleen gewicht" },
   ];
   return (
     <div style={{padding:"20px 16px"}}>
@@ -935,6 +1053,7 @@ function EnergieTab({ currentWeight, goalWeight }) {
   const [keuze, setKeuze] = useState(null);
   if (keuze===null) return <BerekeningMenu onKies={setKeuze}/>;
   if (keuze==="eiwit") return <EiwitCalculator currentWeight={currentWeight} goalWeight={goalWeight} onTerug={()=>setKeuze(null)}/>;
+  if (keuze==="buikomtrek") return <BuikomtrekCalculator onTerug={()=>setKeuze(null)}/>;
   return <EnergieCalculator currentWeight={currentWeight} onTerug={()=>setKeuze(null)}/>;
 }
 
@@ -951,7 +1070,6 @@ export default function App() {
   const [showChart, setShowChart] = useState(false);
   const [ready, setReady] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
-  const [showChecklist, setShowChecklist] = useState(false);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
 
   useEffect(()=>{
@@ -982,7 +1100,6 @@ export default function App() {
   const totalToLose = startWeight - goalWeight;
   const progressPct = totalToLose > 0 ? Math.min(100,(totalLost/totalToLose)*100) : 0;
   const phaseLabel = FASE_LABELS[currentPhase] || "Fase 2 — Vetverbranding";
-  const streak = calcStreak(sorted);
   const daysToPhase = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
   const milestones = generateMilestones(totalToLose);
 
@@ -1030,7 +1147,6 @@ export default function App() {
     <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
       {confetti&&<Confetti/>}
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
-      {showChecklist && <FaseChecklist phase={currentPhase} onClose={()=>setShowChecklist(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
       {showGoalEdit&&<GoalEditModal goalWeight={goalWeight} onSave={handleGoalSave} onClose={()=>setShowGoalEdit(false)}/>}
       {celebration&&(
@@ -1080,22 +1196,6 @@ export default function App() {
               <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9ca3af",marginTop:6}}>
                 <span>{startWeight} kg</span><span onClick={()=>setShowGoalEdit(true)} style={{cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:3}}>Doel: {goalWeight} kg ✏️</span>
               </div>
-            </div>
-
-            {streak>0&&<div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0",cursor:"pointer"}} onClick={()=>setTab("log")}>
-              <div style={{display:"flex",alignItems:"center",gap:16}}>
-                <div style={{fontSize:38}}>🔥</div>
-                <div>
-                  <div style={{fontSize:13,color:"#b5838d",fontWeight:600}}>Weegstreak</div>
-                  <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f"}}>{streak} {streak===1?"dag":"dagen"} op rij!</div>
-                  <div style={{fontSize:12,color:"#9ca3af"}}>Tik om je weging te openen</div>
-                </div>
-              </div>
-            </div>}
-
-            <div style={{display:"flex",gap:10,marginBottom:14}}>
-              <button onClick={()=>setShowChecklist(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>✅</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Checklist</div></button>
-              <button onClick={()=>setShowQuote(true)} style={{flex:1,background:"white",border:"1.5px solid #e5e7eb",borderRadius:16,padding:"14px 8px",cursor:"pointer",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}><div style={{fontSize:24}}>💬</div><div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,marginTop:4}}>Quote</div></button>
             </div>
 
             {nextPhaseDate && nextPhaseId && (
