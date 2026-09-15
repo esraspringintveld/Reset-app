@@ -358,10 +358,8 @@ function BoemIcon({ size=60 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
       <rect width="200" height="200" rx="100" fill="#1e2d5a"/>
-      <path d="M100,153 C64,153 41,122 41,84 C41,46 68,19 100,53 C132,19 159,46 159,84 C159,122 136,153 100,153 Z" fill="#6a9c5f"/>
-      <path d="M100,53 C100,90 100,122 100,150" stroke="#1e2d5a" strokeWidth="4" strokeLinecap="round" fill="none"/>
-      <path d="M100,78 L120,66 M100,100 L124,90 M100,122 L118,113" stroke="#1e2d5a" strokeWidth="3" strokeLinecap="round" fill="none"/>
-      <path d="M151,42 L157,56 L171,62 L157,68 L151,82 L145,68 L131,62 L145,56 Z" fill="#be8b63"/>
+      <circle cx="100" cy="100" r="88" fill="none" stroke="#6a9c5f" strokeWidth="4"/>
+      <text x="100" y="112" textAnchor="middle" fontFamily="Georgia,serif" fontSize="34" fontWeight="500" letterSpacing="1.5" fill="#f5f0e8">BOEM</text>
     </svg>
   );
 }
