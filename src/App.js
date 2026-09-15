@@ -959,6 +959,20 @@ function berekenRFM(lengte, buik, geslacht) {
   const ratio = lengte / buik;
   return geslacht === "man" ? 64 - 20*ratio : 76 - 20*ratio;
 }
+const VETPERCENTAGE_VROUW = [
+  { range:"10–13%", label:"essentieel vet" },
+  { range:"14–20%", label:"sportief / atletisch" },
+  { range:"21–24%", label:"fit" },
+  { range:"25–31%", label:"gemiddeld" },
+  { range:"32%+",   label:"verhoogd risico" },
+];
+const VETPERCENTAGE_MAN = [
+  { range:"2–5%",   label:"essentieel vet" },
+  { range:"6–13%",  label:"sportief / atletisch" },
+  { range:"14–17%", label:"fit" },
+  { range:"18–24%", label:"gemiddeld" },
+  { range:"25%+",   label:"verhoogd risico" },
+];
 
 function BuikomtrekCalculator({ onTerug }) {
   const storedEnergie = load(KEYS.energie) || {};
@@ -969,7 +983,6 @@ function BuikomtrekCalculator({ onTerug }) {
   const [result, setResult] = useState(stored.whtr ? stored : null);
   const [infoOpen, setInfoOpen] = useState(false);
   const [vergelijkBuik, setVergelijkBuik] = useState("");
-  const [vergelijkResult, setVergelijkResult] = useState(null);
 
   const berekenen = () => {
     const l = parseFloat(String(lengte).replace(",","."));
@@ -978,16 +991,13 @@ function BuikomtrekCalculator({ onTerug }) {
     const data = { geslacht, lengte:l, buik:b, whtr: b/l, rfm: berekenRFM(l,b,geslacht) };
     save(KEYS.buikomtrek, data);
     setResult(data);
-    setVergelijkResult(null);
     setVergelijkBuik("");
   };
 
-  const vergelijk = () => {
-    if (!result) return;
-    const b = parseFloat(String(vergelijkBuik).replace(",","."));
-    if (!(b>0)) return;
-    setVergelijkResult({ buik:b, whtr: b/result.lengte, rfm: berekenRFM(result.lengte, b, result.geslacht) });
-  };
+  const vergelijkWaarde = parseFloat(String(vergelijkBuik).replace(",","."));
+  const vergelijkResult = (result && vergelijkWaarde>0)
+    ? { buik: vergelijkWaarde, whtr: vergelijkWaarde/result.lengte, rfm: berekenRFM(result.lengte, vergelijkWaarde, result.geslacht) }
+    : null;
 
   return (
     <div style={{padding:"20px 16px"}}>
@@ -1004,7 +1014,15 @@ function BuikomtrekCalculator({ onTerug }) {
           <br/><br/>
           Dit percentage verbetert als je buikomtrek afneemt, ook als je gewicht op de weegschaal minder hard daalt doordat je spieren opbouwt. Het zegt niets over hoeveel je zou moeten wegen, alleen over hoeveel van je gewicht vet is.
           <br/><br/>
-          Ter referentie (ACE-richtlijnen): bij vrouwen geldt 10-13% als essentieel vet, 14-20% als sportief/atletisch, 21-24% als fit, 25-31% als gemiddeld, en 32% of hoger als verhoogd risico. Bij mannen liggen deze grenzen lager: 2-5% essentieel, 6-13% atletisch, 14-17% fit, 18-24% gemiddeld, 25% of hoger verhoogd risico. Deze bandbreedtes worden met het ouder worden iets ruimer, dus zie het als een richting, niet als een hard doel.
+          <div style={{fontWeight:700,color:"#1b4332",marginBottom:4}}>Ter referentie — vrouwen (ACE-richtlijnen)</div>
+          {VETPERCENTAGE_VROUW.map(r=>(
+            <div key={r.range} style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>{r.range}</span><span>{r.label}</span></div>
+          ))}
+          <div style={{fontWeight:700,color:"#1b4332",marginTop:14,marginBottom:4}}>Ter referentie — mannen (ACE-richtlijnen)</div>
+          {VETPERCENTAGE_MAN.map(r=>(
+            <div key={r.range} style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>{r.range}</span><span>{r.label}</span></div>
+          ))}
+          <div style={{marginTop:12,fontSize:12,color:"#6b7280"}}>Deze bandbreedtes worden met het ouder worden iets ruimer, dus zie het als een richting, niet als een hard doel.</div>
         </InfoModal>
       )}
       <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
@@ -1056,7 +1074,6 @@ function BuikomtrekCalculator({ onTerug }) {
             <div style={{...lbl,marginBottom:6}}>Vergelijk met een andere buikomtrek</div>
             <div style={{fontSize:12,color:"#9ca3af",marginBottom:10,lineHeight:1.6}}>Nieuwsgierig wat een kleinere (of grotere) omtrek zou betekenen? Vul een getal in.</div>
             <input style={inp} inputMode="numeric" autoComplete="off" placeholder="bijv. 80" value={vergelijkBuik} onChange={e=>setVergelijkBuik(e.target.value)}/>
-            <button onClick={vergelijk} disabled={!(parseFloat(String(vergelijkBuik).replace(",","."))>0)} style={{...btn,marginTop:12}}>Vergelijk</button>
 
             {vergelijkResult && (()=>{
               const vcat = whtrCategorie(vergelijkResult.whtr);
