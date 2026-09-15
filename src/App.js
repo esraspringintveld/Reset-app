@@ -843,19 +843,27 @@ function EnergieCalculator({ currentWeight, onTerug }) {
 }
 
 const EIWIT_MARGE_KG = 20;
+function bereikEiwit(score) {
+  if (score <= 0) return { laag: 1.0, hoog: 1.2 };
+  if (score <= 2) return { laag: 1.6, hoog: 1.8 };
+  return { laag: 1.8, hoog: 2.2 };
+}
 
 function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
   const stored = load(KEYS.eiwit) || {};
   const [gewicht, setGewicht] = useState(stored.gewicht ? String(stored.gewicht) : (currentWeight ? String(currentWeight) : ""));
+  const [kracht, setKracht] = useState(stored.kracht || null);
   const [result, setResult] = useState(stored.laag ? stored : null);
   const [infoOpen, setInfoOpen] = useState(false);
 
   const berekenen = () => {
     const w = parseFloat(String(gewicht).replace(",","."));
-    if (!(w>0)) return;
+    if (!(w>0) || kracht==null) return;
     let basis = w;
     if (goalWeight>0 && (w - goalWeight) > EIWIT_MARGE_KG) basis = goalWeight + EIWIT_MARGE_KG;
-    const data = { gewicht:w, laag:Math.round(basis*1.6), hoog:Math.round(basis*2.2) };
+    const kOpt = SPORT_OPTIES.find(o=>o.id===kracht);
+    const bereik = bereikEiwit(kOpt.score);
+    const data = { gewicht:w, kracht, krachtLabel:kOpt.label, laag:Math.round(basis*bereik.laag), hoog:Math.round(basis*bereik.hoog) };
     save(KEYS.eiwit, data);
     setResult(data);
   };
@@ -864,7 +872,11 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
     <div style={{padding:"20px 16px"}}>
       {infoOpen && (
         <InfoModal title="Waarom eiwit?" onClose={()=>setInfoOpen(false)}>
-          Eiwit helpt je spieren te behouden terwijl je afvalt — zonder genoeg eiwit verlies je bij gewichtsverlies niet alleen vet, maar ook spiermassa. Daarnaast houdt eiwit je langer verzadigd dan koolhydraten of vet, wat het makkelijker maakt om bij je keuzes te blijven. Deze richtlijn (1,6 tot 2,2 gram per kilo) is de range die ook voor mensen met krachttraining wordt aangehouden.
+          Hoeveel eiwit je nodig hebt, hangt vooral af van hoeveel je aan krachttraining doet. Krachttraining geeft je spieren een prikkel om te herstellen en op te bouwen, en juist tijdens het afvallen helpt extra eiwit om die spiermassa te beschermen terwijl je vet verliest — zonder genoeg eiwit verlies je namelijk niet alleen vet, maar ook spieren. Eiwit houdt je bovendien langer verzadigd dan koolhydraten of vet, wat het makkelijker maakt om bij je keuzes te blijven.
+          <br/><br/>
+          Wandelen of andere dagelijkse beweging telt hier niet apart in mee — dat verhoogt vooral je energieverbruik (zie de energiecalculator), maar niet je eiwitbehoefte. Doe je niet of nauwelijks aan krachttraining, dan is 1,0 tot 1,2 gram per kilo voldoende. Train je 1 tot 4 keer per week, dan past 1,6 tot 1,8 gram per kilo. Train je 5 keer per week of vaker, dan kan 1,8 tot 2,2 gram per kilo passender zijn — dat is de bovengrens uit onderzoek, die vooral geldt bij intensief en frequent trainen, vaak in combinatie met een stevig calorietekort.
+          <br/><br/>
+          Die bovengrens van 2,2 ligt wel dicht bij het punt waarboven voorzichtigheid wordt geadviseerd bij langdurig gebruik. Heb je een nier- of leveraandoening, overleg dan met je arts of diëtist wat voor jou een passende hoeveelheid is.
         </InfoModal>
       )}
       <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
@@ -874,7 +886,12 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
       <div style={card}>
         <div style={{...lbl,marginBottom:6}}>Huidig gewicht (kg)</div>
         <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 75.0" value={gewicht} onChange={e=>setGewicht(e.target.value)}/>
-        <button onClick={berekenen} disabled={!(parseFloat(String(gewicht).replace(",","."))>0)} style={{...btn,marginTop:14}}>Bereken</button>
+
+        <div style={{...lbl,marginTop:18,marginBottom:6}}>Hoe vaak doe je aan krachttraining?</div>
+        <div style={{fontSize:12,color:"#9ca3af",marginBottom:10}}>Los van wandelen of andere beweging.</div>
+        <KeuzeRij opties={SPORT_OPTIES} waarde={kracht} onKies={setKracht}/>
+
+        <button onClick={berekenen} disabled={!(parseFloat(String(gewicht).replace(",","."))>0) || kracht==null} style={{...btn,marginTop:14}}>Bereken</button>
       </div>
 
       {result && (
