@@ -953,15 +953,18 @@ function BuikomtrekCalculator({ onTerug }) {
 
   return (
     <div style={{padding:"20px 16px"}}>
-      {infoOpen && (
-        <InfoModal title="Wat betekent dit?" onClose={()=>setInfoOpen(false)}>
-          Buikvet ligt rond je organen en is metabolisch actiever dan vet op bijvoorbeeld je heupen of benen — het houdt sterker verband met risico's zoals type 2 diabetes en hart- en vaatziekten. Daarom zeggen deze metingen iets anders dan je gewicht op de weegschaal: ze kijken naar hoe je vet verdeeld is, niet naar hoeveel je in totaal weegt.
+      {infoOpen==="whtr" && (
+        <InfoModal title="Wat is de middel/lengte-ratio?" onClose={()=>setInfoOpen(null)}>
+          Deze ratio vergelijkt je buikomtrek met je lengte, en zegt iets over waar je vet zit — niet over hoeveel je in totaal weegt. Buikvet ligt rond je organen en is metabolisch actiever dan vet op bijvoorbeeld je heupen of benen, en houdt daardoor sterker verband met risico's zoals type 2 diabetes en hart- en vaatziekten.
           <br/><br/>
-          Middelomtrek-tot-lengte-ratio: onder de 0,50 is gezond, 0,50 tot 0,59 is verhoogd risico, 0,60 of hoger is hoog risico. Vuistregel: je buikomtrek zou minder dan de helft van je lengte moeten zijn. Voor sommige bevolkingsgroepen (bijvoorbeeld Aziatische of Afrikaanse afkomst) ligt de gezonde grens iets lager, rond 0,46.
+          Onder de 0,50 is gezond, 0,50 tot 0,59 is verhoogd risico, 0,60 of hoger is hoog risico. Vuistregel: je buikomtrek zou minder dan de helft van je lengte moeten zijn. Voor sommige bevolkingsgroepen (bijvoorbeeld Aziatische of Afrikaanse afkomst) ligt de gezonde grens iets lager, rond 0,46.
+        </InfoModal>
+      )}
+      {infoOpen==="rfm" && (
+        <InfoModal title="Wat is het geschatte vetpercentage?" onClose={()=>setInfoOpen(null)}>
+          Relative Fat Mass (RFM) is een schatting van je totale vetpercentage, berekend met je lengte en buikomtrek. Dit is preciezer dan wat BMI kan schatten, omdat spiermassa er niet in meetelt als risico — bij BMI wordt spiermassa al snel verward met overgewicht.
           <br/><br/>
-          Relative Fat Mass: een schatting van je totale vetpercentage op basis van lengte en buikomtrek, preciezer dan wat BMI kan schatten omdat spiermassa er niet in meetelt als risico.
-          <br/><br/>
-          Beide getallen verbeteren als je buikomtrek afneemt — ook als je gewicht op de weegschaal minder hard daalt door spieropbouw. Ze zeggen niets over hoeveel je zou moeten wegen, alleen over hoe gezond je vetverdeling is.
+          Dit percentage verbetert als je buikomtrek afneemt, ook als je gewicht op de weegschaal minder hard daalt doordat je spieren opbouwt. Het zegt niets over hoeveel je zou moeten wegen, alleen over hoeveel van je gewicht vet is.
         </InfoModal>
       )}
       <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
@@ -994,14 +997,16 @@ function BuikomtrekCalculator({ onTerug }) {
             <div style={{display:"flex",gap:10}}>
               <div style={{flex:1,textAlign:"center"}}>
                 <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.whtr.toFixed(2)}</div>
-                <div style={{fontSize:11,opacity:.85,marginTop:4}}>middel/lengte-ratio</div>
+                <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>middel/lengte-ratio
+                  <span onClick={()=>setInfoOpen("whtr")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
+                </div>
                 <div style={{marginTop:8,display:"inline-block",background:cat.kleur,borderRadius:99,padding:"4px 12px",fontSize:11,fontWeight:600}}>{cat.label}</div>
               </div>
               <div style={{width:1,background:"rgba(255,255,255,0.2)"}}/>
               <div style={{flex:1,textAlign:"center"}}>
                 <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.rfm.toFixed(0)}%</div>
                 <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>geschat vetpercentage
-                  <span onClick={()=>setInfoOpen(true)} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
+                  <span onClick={()=>setInfoOpen("rfm")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
                 </div>
               </div>
             </div>
