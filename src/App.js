@@ -1156,11 +1156,13 @@ export default function App() {
 
   const handleExport = () => {
     try {
-      const backup = { geexporteerdOp: new Date().toISOString() };
-      Object.entries(KEYS).forEach(([naam, key]) => {
+      const backup = { geexporteerdOp: new Date().toISOString(), data: {} };
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith("hr-") || key === "hr-toegang" || key === "hr-last-quote") continue;
         const raw = localStorage.getItem(key);
-        if (raw) { try { backup[naam] = JSON.parse(raw); } catch { backup[naam] = raw; } }
-      });
+        if (raw) { try { backup.data[key] = JSON.parse(raw); } catch { backup.data[key] = raw; } }
+      }
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
