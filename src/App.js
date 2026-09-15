@@ -1154,6 +1154,25 @@ export default function App() {
     setProfile(updated); save(KEYS.profile, updated); setShowGoalEdit(false);
   },[profile]);
 
+  const handleExport = () => {
+    try {
+      const backup = { geexporteerdOp: new Date().toISOString() };
+      Object.entries(KEYS).forEach(([naam, key]) => {
+        const raw = localStorage.getItem(key);
+        if (raw) { try { backup[naam] = JSON.parse(raw); } catch { backup[naam] = raw; } }
+      });
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `boem-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {}
+  };
+
   const handleLogout = async () => {
     localStorage.removeItem("hr-toegang");
     if (navigator.serviceWorker) {
@@ -1191,7 +1210,10 @@ export default function App() {
               <BoemIcon size={44}/>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%"}}>
                 <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",opacity:.8}}>BOEM</div>
-                <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Uitloggen</button>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={handleExport} title="Download een back-up van je gegevens" style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Back-up</button>
+                  <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Uitloggen</button>
+                </div>
               </div>
             </div>
             <div style={{fontSize:14,opacity:.7,marginBottom:4}}>Hallo {profile.name}! Huidig gewicht</div>
