@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const KEYS = { entries:"hr-entries", phase:"hr-phase", nextDate:"hr-nextdate", profile:"hr-profile", nextPhase:"hr-nextphase", energie:"hr-energie", eiwit:"hr-eiwit", buikomtrek:"hr-buikomtrek" };
 const ACTIVITEITEN = [
@@ -1175,6 +1175,31 @@ export default function App() {
     } catch {}
   };
 
+  const importInputRef = useRef(null);
+  const handleImportClick = () => { importInputRef.current && importInputRef.current.click(); };
+  const handleImportFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      let parsed;
+      try { parsed = JSON.parse(ev.target.result); } catch { alert("Kon dit bestand niet lezen. Is het een back-upbestand van deze app?"); return; }
+      const data = parsed && parsed.data ? parsed.data : parsed;
+      if (!data || typeof data !== "object" || Array.isArray(data)) { alert("Dit lijkt geen geldig back-upbestand."); return; }
+      const keys = Object.keys(data).filter(k => k.startsWith("hr-"));
+      if (keys.length === 0) { alert("Dit bestand bevat geen herkenbare BOEM-gegevens."); return; }
+      if (!window.confirm(`Weet je zeker dat je deze back-up wilt terugzetten? Dit overschrijft je huidige gegevens in de app (${keys.length} onderdelen).`)) return;
+      keys.forEach((key) => {
+        const value = data[key];
+        localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
+      });
+      alert("Back-up teruggezet! De app wordt opnieuw geladen.");
+      window.location.reload();
+    };
+    reader.readAsText(file);
+  };
+
   const handleLogout = async () => {
     localStorage.removeItem("hr-toegang");
     if (navigator.serviceWorker) {
@@ -1212,8 +1237,10 @@ export default function App() {
               <BoemIcon size={44}/>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%"}}>
                 <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",opacity:.8}}>BOEM</div>
-                <div style={{display:"flex",gap:8}}>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"flex-end"}}>
+                  <input type="file" accept="application/json,.json" ref={importInputRef} onChange={handleImportFile} style={{display:"none"}}/>
                   <button onClick={handleExport} title="Download een back-up van je gegevens" style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Back-up</button>
+                  <button onClick={handleImportClick} title="Zet een eerder gedownload back-upbestand terug" style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Herstel</button>
                   <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Uitloggen</button>
                 </div>
               </div>
