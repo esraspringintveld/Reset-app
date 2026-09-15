@@ -66,11 +66,11 @@ const FASE3_VOEDING = [
 ];
 
 const MOOD_INFO = {
-  "😄": { label: "Super!", color: "#2d6a4f" },
-  "😊": { label: "Goed", color: "#52b788" },
+  "😄": { label: "Super!", color: "#5b78c9" },
+  "😊": { label: "Goed", color: "#6a9c5f" },
   "😐": { label: "Oké", color: "#9ca3af" },
-  "😔": { label: "Minder", color: "#f4a261" },
-  "😴": { label: "Moe", color: "#b5838d" },
+  "😔": { label: "Minder", color: "#be8b63" },
+  "😴": { label: "Moe", color: "#be8b63" },
 };
 
 const FASE_LABELS = { 1: "Fase 1 — Bewust worden", 2: "Fase 2 — Vereenvoudigen", 3: "Fase 3 — Verbreden & stabiliseren", 4: "Fase 4 — Persoonlijk maken" };
@@ -99,8 +99,8 @@ function generateMilestones(totalToLose) {
 const card = { background:"white", borderRadius:20, padding:"20px 18px", margin:"0 0 14px", boxShadow:"0 2px 16px rgba(0,0,0,0.06)" };
 const lbl  = { fontSize:11, letterSpacing:2, textTransform:"uppercase", color:"#9ca3af", marginBottom:8, fontFamily:"Georgia,serif" };
 const inp  = { width:"100%", border:"1.5px solid #e5e7eb", borderRadius:12, padding:"13px 14px", fontSize:17, fontFamily:"Georgia,serif", outline:"none", boxSizing:"border-box", background:"white" };
-const btn  = { background:"#2d6a4f", color:"white", border:"none", borderRadius:14, padding:"15px 20px", fontSize:15, fontFamily:"Georgia,serif", cursor:"pointer", width:"100%", fontWeight:600 };
-const btnSm= { background:"transparent", color:"#2d6a4f", border:"2px solid #2d6a4f", borderRadius:12, padding:"8px 14px", fontSize:12, fontFamily:"Georgia,serif", cursor:"pointer" };
+const btn  = { background:"#5b78c9", color:"white", border:"none", borderRadius:14, padding:"15px 20px", fontSize:15, fontFamily:"Georgia,serif", cursor:"pointer", width:"100%", fontWeight:600 };
+const btnSm= { background:"transparent", color:"#5b78c9", border:"2px solid #5b78c9", borderRadius:12, padding:"8px 14px", fontSize:12, fontFamily:"Georgia,serif", cursor:"pointer" };
 
 function getMoodEntries() {
   const result = {};
@@ -192,15 +192,15 @@ function DagboekTab() {
 
       {/* Header met i-knop */}
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
-        <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f"}}>Dagboek</div>
-        <button onClick={()=>setShowInfo(!showInfo)} style={{width:32,height:32,borderRadius:"50%",border:"2px solid #2d6a4f",background:showInfo?"#2d6a4f":"white",color:showInfo?"white":"#2d6a4f",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",flexShrink:0}}>i</button>
+        <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9"}}>Dagboek</div>
+        <button onClick={()=>setShowInfo(!showInfo)} style={{width:32,height:32,borderRadius:"50%",border:"2px solid #5b78c9",background:showInfo?"#5b78c9":"white",color:showInfo?"white":"#5b78c9",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",flexShrink:0}}>i</button>
       </div>
 
       {/* Info tekstvak */}
       {showInfo && (
-        <div style={{...card,borderLeft:"4px solid #52b788",marginBottom:16,position:"relative"}}>
+        <div style={{...card,borderLeft:"4px solid #6a9c5f",marginBottom:16,position:"relative"}}>
           <button onClick={()=>setShowInfo(false)} style={{position:"absolute",top:12,right:14,background:"none",border:"none",fontSize:18,cursor:"pointer",color:"#9ca3af",lineHeight:1}}>×</button>
-          <div style={{fontFamily:"Georgia,serif",fontSize:15,fontWeight:700,color:"#1b4332",marginBottom:10,paddingRight:24}}>Waarom je stemming bijhouden helpt</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:15,fontWeight:700,color:"#1e2d5a",marginBottom:10,paddingRight:24}}>Waarom je stemming bijhouden helpt</div>
           <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
             Je lichaam en je gevoel vertellen je elke dag iets. Niet altijd luid, maar wel duidelijk als je even stilstaat. Door bij te houden hoe je je voelt, begin je patronen te zien. Op welke dagen gaat het makkelijker? Wat geeft je energie, wat kost je energie? Wanneer heb je meer rust, meer zorg voor jezelf en meer ruimte nodig?
           </div>
@@ -212,9 +212,9 @@ function DagboekTab() {
 
       <div style={card}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-          <button onClick={prevMonth} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#2d6a4f",padding:"4px 8px"}}>‹</button>
-          <div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#1b4332",textTransform:"capitalize"}}>{maanden[viewMonth]} {viewYear}</div>
-          <button onClick={nextMonth} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#2d6a4f",padding:"4px 8px"}}>›</button>
+          <button onClick={prevMonth} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#5b78c9",padding:"4px 8px"}}>‹</button>
+          <div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#1e2d5a",textTransform:"capitalize"}}>{maanden[viewMonth]} {viewYear}</div>
+          <button onClick={nextMonth} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#5b78c9",padding:"4px 8px"}}>›</button>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:8}}>
@@ -233,15 +233,15 @@ function DagboekTab() {
             const isSelected = selectedDay === d;
             const isFuture = ds > todayStr;
             return (
-              <div key={i} onClick={()=>!isFuture && handleDayTap(d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:isFuture?"default":"pointer",background:isSelected?"#d8f3dc":isToday?"#f4f1eb":"transparent",border:isSelected?"2px solid #2d6a4f":isToday?"2px solid #52b788":editable&&!entry?"2px dashed #d8f3dc":"2px solid transparent",transition:"all .15s",opacity:isFuture?0.3:1}}>
+              <div key={i} onClick={()=>!isFuture && handleDayTap(d)} style={{textAlign:"center",padding:"6px 2px",borderRadius:10,cursor:isFuture?"default":"pointer",background:isSelected?"#dde3f5":isToday?"#f5f0e8":"transparent",border:isSelected?"2px solid #5b78c9":isToday?"2px solid #6a9c5f":editable&&!entry?"2px dashed #dde3f5":"2px solid transparent",transition:"all .15s",opacity:isFuture?0.3:1}}>
                 {entry ? (
                   <div style={{fontSize:20,lineHeight:1}}>{entry.mood}</div>
                 ) : editable ? (
-                  <div style={{fontSize:16,lineHeight:1,color:"#52b788"}}>+</div>
+                  <div style={{fontSize:16,lineHeight:1,color:"#6a9c5f"}}>+</div>
                 ) : (
                   <div style={{height:20}}/>
                 )}
-                <div style={{fontSize:11,color:isToday?"#2d6a4f":"#6b7280",fontWeight:isToday?700:400,marginTop:2}}>{d}</div>
+                <div style={{fontSize:11,color:isToday?"#5b78c9":"#6b7280",fontWeight:isToday?700:400,marginTop:2}}>{d}</div>
               </div>
             );
           })}
@@ -250,30 +250,30 @@ function DagboekTab() {
       </div>
 
       {logMode && selectedEditable && (
-        <div style={{...card,border:"2px solid #52b788"}}>
-          <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332",marginBottom:2}}>
+        <div style={{...card,border:"2px solid #6a9c5f"}}>
+          <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1e2d5a",marginBottom:2}}>
             {selectedDs === todayStr ? "Hoe voel je je vandaag?" : `Hoe voelde je je op ${new Date(selectedDs+"T12:00:00").toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}?`}
           </div>
           <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Tik op een gezichtje</div>
           <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:16}}>
-            {moods.map(m=>(<button key={m.emoji} onClick={()=>setLogMood(m.emoji)} style={{background:logMood===m.emoji?"#d8f3dc":"#f4f1eb",border:logMood===m.emoji?"2px solid #2d6a4f":"2px solid transparent",borderRadius:14,padding:"10px 6px",cursor:"pointer",textAlign:"center",flex:1}}><div style={{fontSize:26}}>{m.emoji}</div><div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{m.label}</div></button>))}
+            {moods.map(m=>(<button key={m.emoji} onClick={()=>setLogMood(m.emoji)} style={{background:logMood===m.emoji?"#dde3f5":"#f5f0e8",border:logMood===m.emoji?"2px solid #5b78c9":"2px solid transparent",borderRadius:14,padding:"10px 6px",cursor:"pointer",textAlign:"center",flex:1}}><div style={{fontSize:26}}>{m.emoji}</div><div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{m.label}</div></button>))}
           </div>
           <textarea style={{width:"100%",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"12px 14px",fontSize:14,fontFamily:"Georgia,serif",outline:"none",boxSizing:"border-box",resize:"none",height:72}} placeholder="Wil je nog iets kwijt? (optioneel)" value={logNote} onChange={e=>setLogNote(e.target.value)} autoCapitalize="sentences"/>
-          <button onClick={handleLogSave} disabled={!logMood} style={{...btn,marginTop:12,background:logSaved?"#52b788":logMood?"#2d6a4f":"#d1d5db",opacity:logMood?1:0.5,transition:"background .3s"}}>{logSaved?"Opgeslagen! 🌿":"Opslaan"}</button>
+          <button onClick={handleLogSave} disabled={!logMood} style={{...btn,marginTop:12,background:logSaved?"#6a9c5f":logMood?"#5b78c9":"#d1d5db",opacity:logMood?1:0.5,transition:"background .3s"}}>{logSaved?"Opgeslagen! 🌿":"Opslaan"}</button>
         </div>
       )}
 
       {selectedDay && !selectedEditable && selectedEntry && (
-        <div style={{...card,borderLeft:"4px solid " + (MOOD_INFO[selectedEntry.mood]?.color || "#2d6a4f")}}>
+        <div style={{...card,borderLeft:"4px solid " + (MOOD_INFO[selectedEntry.mood]?.color || "#5b78c9")}}>
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:selectedEntry.note?12:0}}>
             <div style={{fontSize:36}}>{selectedEntry.mood}</div>
             <div>
-              <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1b4332"}}>{MOOD_INFO[selectedEntry.mood]?.label}</div>
+              <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:"#1e2d5a"}}>{MOOD_INFO[selectedEntry.mood]?.label}</div>
               <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(dateStr(selectedDay)+"T12:00:00").toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}</div>
             </div>
           </div>
           {selectedEntry.note ? (
-            <div style={{fontSize:14,color:"#374151",lineHeight:1.6,background:"#f4f1eb",borderRadius:12,padding:"12px 14px",marginTop:4}}>{selectedEntry.note}</div>
+            <div style={{fontSize:14,color:"#374151",lineHeight:1.6,background:"#f5f0e8",borderRadius:12,padding:"12px 14px",marginTop:4}}>{selectedEntry.note}</div>
           ) : (
             <div style={{fontSize:13,color:"#9ca3af",fontStyle:"italic",marginTop:4}}>Geen notitie geschreven.</div>
           )}
@@ -300,7 +300,7 @@ function DagboekTab() {
                 <div key={emoji} style={{display:"flex",alignItems:"center",gap:10}}>
                   <div style={{fontSize:20,width:28,textAlign:"center"}}>{emoji}</div>
                   <div style={{flex:1}}>
-                    <div style={{background:"#f4f1eb",borderRadius:99,height:8,overflow:"hidden"}}>
+                    <div style={{background:"#f5f0e8",borderRadius:99,height:8,overflow:"hidden"}}>
                       <div style={{height:"100%",borderRadius:99,background:info.color,width:`${pct}%`,transition:"width .5s ease"}}/>
                     </div>
                   </div>
@@ -327,7 +327,7 @@ function VoedingsLijst({ voeding, accentColor }) {
   const [openCat, setOpenCat] = useState(null);
   return (
     <div style={{marginTop:10}}>
-      <button onClick={()=>setOpen(!open)} style={{width:"100%",background:open?"#f4f1eb":"transparent",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"Georgia,serif",fontSize:13,color:accentColor,fontWeight:600}}>
+      <button onClick={()=>setOpen(!open)} style={{width:"100%",background:open?"#f5f0e8":"transparent",border:"1.5px solid #e5e7eb",borderRadius:12,padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"Georgia,serif",fontSize:13,color:accentColor,fontWeight:600}}>
         <span>Toegestane voeding</span>
         <span style={{fontSize:16,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
       </button>
@@ -335,14 +335,14 @@ function VoedingsLijst({ voeding, accentColor }) {
         <div style={{marginTop:8}}>
           {voeding.map(cat=>(
             <div key={cat.categorie} style={{marginBottom:6}}>
-              <button onClick={()=>setOpenCat(openCat===cat.categorie?null:cat.categorie)} style={{width:"100%",background:"#f4f1eb",border:"none",borderRadius:10,padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"Georgia,serif",fontSize:13,color:"#374151",fontWeight:600,textAlign:"left"}}>
+              <button onClick={()=>setOpenCat(openCat===cat.categorie?null:cat.categorie)} style={{width:"100%",background:"#f5f0e8",border:"none",borderRadius:10,padding:"10px 14px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"Georgia,serif",fontSize:13,color:"#374151",fontWeight:600,textAlign:"left"}}>
                 <span>{cat.categorie}</span>
                 <span style={{fontSize:14,color:"#9ca3af",transition:"transform .2s",display:"inline-block",transform:openCat===cat.categorie?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
               </button>
               {openCat===cat.categorie&&(
                 <div style={{padding:"8px 14px 4px",borderLeft:"3px solid #e5e7eb",marginLeft:8,marginTop:4}}>
                   {cat.items.map(item=>(
-                    <div key={item} style={{fontSize:13,color:"#374151",padding:"4px 0",borderBottom:"1px solid #f4f1eb"}}>{item}</div>
+                    <div key={item} style={{fontSize:13,color:"#374151",padding:"4px 0",borderBottom:"1px solid #f5f0e8"}}>{item}</div>
                   ))}
                 </div>
               )}
@@ -354,14 +354,14 @@ function VoedingsLijst({ voeding, accentColor }) {
   );
 }
 
-function HRIcon({ size=60 }) {
+function BoemIcon({ size=60 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
-      <rect width="200" height="200" rx="100" fill="#1b4332"/>
-      <circle cx="100" cy="100" r="78" fill="none" stroke="#52b788" strokeWidth="5"/>
-      <text x="100" y="128" textAnchor="middle" fontFamily="Georgia,serif" fontSize="80" fontWeight="700" fill="white">HR</text>
-      <ellipse cx="163" cy="32" rx="18" ry="10" fill="#52b788" transform="rotate(-35 163 32)"/>
-      <line x1="161" y1="22" x2="148" y2="48" stroke="#1b4332" strokeWidth="3" strokeLinecap="round"/>
+      <rect width="200" height="200" rx="100" fill="#1e2d5a"/>
+      <path d="M100,153 C64,153 41,122 41,84 C41,46 68,19 100,53 C132,19 159,46 159,84 C159,122 136,153 100,153 Z" fill="#6a9c5f"/>
+      <path d="M100,53 C100,90 100,122 100,150" stroke="#1e2d5a" strokeWidth="4" strokeLinecap="round" fill="none"/>
+      <path d="M100,78 L120,66 M100,100 L124,90 M100,122 L118,113" stroke="#1e2d5a" strokeWidth="3" strokeLinecap="round" fill="none"/>
+      <path d="M151,42 L157,56 L171,62 L157,68 L151,82 L145,68 L131,62 L145,56 Z" fill="#be8b63"/>
     </svg>
   );
 }
@@ -379,9 +379,9 @@ function LoginScreen({ onLogin }) {
     } catch { setStatus("error"); }
   };
   return (
-    <div style={{fontFamily:"Georgia,serif",background:"linear-gradient(160deg,#1b4332 0%,#2d6a4f 60%,#40916c 100%)",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 24px"}}>
-      <HRIcon size={90}/>
-      <div style={{fontSize:11,letterSpacing:4,textTransform:"uppercase",color:"#52b788",marginTop:24,marginBottom:8}}>Health Reset 3.0</div>
+    <div style={{fontFamily:"Georgia,serif",background:"linear-gradient(160deg,#1e2d5a 0%,#5b78c9 60%,#3c529f 100%)",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 24px"}}>
+      <BoemIcon size={90}/>
+      <div style={{fontSize:11,letterSpacing:4,textTransform:"uppercase",color:"#6a9c5f",marginTop:24,marginBottom:8}}>BOEM</div>
       <div style={{fontSize:28,fontWeight:700,color:"white",marginBottom:8,textAlign:"center"}}>Jouw persoonlijke dashboard</div>
       <div style={{fontSize:15,color:"rgba(255,255,255,0.7)",marginBottom:36,textAlign:"center",lineHeight:1.6,maxWidth:320}}>Voer je e-mailadres in om toegang te krijgen.</div>
       <div style={{background:"white",borderRadius:24,padding:"32px 28px",width:"100%",maxWidth:380,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
@@ -396,7 +396,7 @@ function LoginScreen({ onLogin }) {
 }
 
 function Confetti() {
-  const colors = ["#2d6a4f","#52b788","#b5838d","#ffd166","#06d6a0","#f4a261"];
+  const colors = ["#5b78c9","#6a9c5f","#be8b63","#1e2d5a","#f5d59a","#e76f51"];
   return (
     <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:999,overflow:"hidden"}}>
       {Array.from({length:40},(_,i)=>(<div key={i} style={{position:"absolute",left:`${Math.random()*100}%`,top:"-20px",width:8+Math.random()*8,height:8+Math.random()*8,background:colors[i%colors.length],borderRadius:Math.random()>.5?"50%":"2px",animation:`cffall ${2.5+Math.random()*1.5}s ${Math.random()*1.2}s linear forwards`}}/>))}
@@ -420,19 +420,19 @@ function Chart({ entries, goalWeight, height=140 }) {
   const fmt=d=>{const dt=new Date(d);return dt.getDate()+" "+["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][dt.getMonth()];};
   return (
     <svg width="100%" viewBox={"0 0 "+W+" "+H} style={{overflow:"visible"}} onMouseLeave={()=>setTooltip(null)}>
-      <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#52b788" stopOpacity=".25"/><stop offset="100%" stopColor="#52b788" stopOpacity="0"/></linearGradient></defs>
+      <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6a9c5f" stopOpacity=".25"/><stop offset="100%" stopColor="#6a9c5f" stopOpacity="0"/></linearGradient></defs>
       {yLabels.map(y=><g key={y}><line x1={PL} y1={py(y)} x2={W-PR} y2={py(y)} stroke="#f3f4f6" strokeWidth="1"/><text x={PL-4} y={py(y)+4} textAnchor="end" fontSize="9" fill="#9ca3af">{y}</text></g>)}
-      {goalWeight>=mn&&goalWeight<=mx&&<><line x1={PL} y1={py(goalWeight)} x2={W-PR} y2={py(goalWeight)} stroke="#b5838d" strokeWidth="1.5" strokeDasharray="4 3" opacity=".7"/><text x={W-PR+2} y={py(goalWeight)+4} fontSize="8" fill="#b5838d">doel</text></>}
+      {goalWeight>=mn&&goalWeight<=mx&&<><line x1={PL} y1={py(goalWeight)} x2={W-PR} y2={py(goalWeight)} stroke="#be8b63" strokeWidth="1.5" strokeDasharray="4 3" opacity=".7"/><text x={W-PR+2} y={py(goalWeight)+4} fontSize="8" fill="#be8b63">doel</text></>}
       <path d={area} fill="url(#cg)"/>
-      <path d={path} fill="none" stroke="#2d6a4f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d={path} fill="none" stroke="#5b78c9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       {xIdx.map(i=><text key={i} x={px(i)} y={H-PB+14} textAnchor="middle" fontSize="9" fill="#9ca3af">{fmt(entries[i].date)}</text>)}
       {entries.map((e,i)=>(
         <g key={i} style={{cursor:"pointer"}} onClick={()=>setTooltip(tooltip&&tooltip.i===i?null:{i,x:px(i),y:py(e.weight),e})} onMouseEnter={()=>setTooltip({i,x:px(i),y:py(e.weight),e})}>
           <circle cx={px(i)} cy={py(e.weight)} r="16" fill="transparent"/>
-          <circle cx={px(i)} cy={py(e.weight)} r={tooltip&&tooltip.i===i?5:3} fill={tooltip&&tooltip.i===i?"#1b4332":"#2d6a4f"} stroke={tooltip&&tooltip.i===i?"white":"none"} strokeWidth="1.5"/>
+          <circle cx={px(i)} cy={py(e.weight)} r={tooltip&&tooltip.i===i?5:3} fill={tooltip&&tooltip.i===i?"#1e2d5a":"#5b78c9"} stroke={tooltip&&tooltip.i===i?"white":"none"} strokeWidth="1.5"/>
         </g>
       ))}
-      {tooltip&&(()=>{const tx=Math.min(Math.max(tooltip.x,PL+36),W-PR-36),ty=tooltip.y<50?tooltip.y+12:tooltip.y-42;return(<g><rect x={tx-36} y={ty} width="72" height="30" rx="8" fill="#1b4332"/><text x={tx} y={ty+13} textAnchor="middle" fontSize="11" fill="white" fontWeight="bold">{tooltip.e.weight} kg</text><text x={tx} y={ty+25} textAnchor="middle" fontSize="9" fill="#86efac">{fmt(tooltip.e.date)}</text></g>);})()}
+      {tooltip&&(()=>{const tx=Math.min(Math.max(tooltip.x,PL+36),W-PR-36),ty=tooltip.y<50?tooltip.y+12:tooltip.y-42;return(<g><rect x={tx-36} y={ty} width="72" height="30" rx="8" fill="#1e2d5a"/><text x={tx} y={ty+13} textAnchor="middle" fontSize="11" fill="white" fontWeight="bold">{tooltip.e.weight} kg</text><text x={tx} y={ty+25} textAnchor="middle" fontSize="9" fill="#b7c6f0">{fmt(tooltip.e.date)}</text></g>);})()}
     </svg>
   );
 }
@@ -442,12 +442,12 @@ function GoalEditModal({ goalWeight, onSave, onClose }) {
   return (
     <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:998,background:"rgba(0,0,0,0.4)"}} onClick={onClose}>
       <div style={{background:"white",borderRadius:24,padding:28,margin:24,maxWidth:340,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}} onClick={e=>e.stopPropagation()}>
-        <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",marginBottom:16}}>Streefgewicht aanpassen</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9",marginBottom:16}}>Streefgewicht aanpassen</div>
         <div style={{...lbl,marginBottom:6}}>Nieuw streefgewicht (kg)</div>
         <input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 70" value={value} onChange={e=>setValue(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){ const n=parseFloat(value.replace(",",".")); if(n>0) onSave(n); } }}/>
         <div style={{display:"flex",gap:10,marginTop:20}}>
-          <button onClick={onClose} style={{flex:1,background:"#f4f1eb",border:"none",borderRadius:14,padding:"13px 0",fontFamily:"Georgia,serif",fontSize:14,color:"#2d6a4f",cursor:"pointer"}}>Annuleren</button>
-          <button onClick={()=>{ const n=parseFloat(value.replace(",",".")); if(n>0) onSave(n); }} style={{flex:1,background:"#2d6a4f",border:"none",borderRadius:14,padding:"13px 0",fontFamily:"Georgia,serif",fontSize:14,color:"white",cursor:"pointer",fontWeight:600}}>Opslaan</button>
+          <button onClick={onClose} style={{flex:1,background:"#f5f0e8",border:"none",borderRadius:14,padding:"13px 0",fontFamily:"Georgia,serif",fontSize:14,color:"#5b78c9",cursor:"pointer"}}>Annuleren</button>
+          <button onClick={()=>{ const n=parseFloat(value.replace(",",".")); if(n>0) onSave(n); }} style={{flex:1,background:"#5b78c9",border:"none",borderRadius:14,padding:"13px 0",fontFamily:"Georgia,serif",fontSize:14,color:"white",cursor:"pointer",fontWeight:600}}>Opslaan</button>
         </div>
       </div>
     </div>
@@ -458,23 +458,23 @@ function ChartModal({ entries, goalWeight, onClose }) {
   const fmt=d=>new Date(d).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"});
   return (
     <div style={{position:"fixed",inset:0,zIndex:500,background:"white",display:"flex",flexDirection:"column"}}>
-      <div style={{background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+      <div style={{background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white",padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700}}>Volledig gewichtsverloop</div>
         <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"white",borderRadius:"50%",width:34,height:34,cursor:"pointer",fontSize:20}}>×</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"16px 12px 40px"}}>
         <Chart entries={entries} goalWeight={goalWeight} height={200}/>
-        <div style={{marginTop:24,fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Alle {entries.length} metingen</div>
+        <div style={{marginTop:24,fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#5b78c9",marginBottom:8}}>Alle {entries.length} metingen</div>
         {[...entries].reverse().map((e,idx)=>{
           const i=entries.findIndex(x=>x.date===e.date);
           const prev=entries[i-1];
           const diff=prev?e.weight-prev.weight:0;
           return (
-            <div key={idx} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 4px",borderBottom:"1px solid #f4f1eb"}}>
-              <div><div style={{fontSize:13,color:"#9ca3af"}}>{fmt(e.date)}</div>{e.note?<div style={{fontSize:11,color:"#b5838d",marginTop:1}}>{e.note}</div>:null}</div>
-              <div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#2d6a4f",textAlign:"right"}}>
+            <div key={idx} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 4px",borderBottom:"1px solid #f5f0e8"}}>
+              <div><div style={{fontSize:13,color:"#9ca3af"}}>{fmt(e.date)}</div>{e.note?<div style={{fontSize:11,color:"#be8b63",marginTop:1}}>{e.note}</div>:null}</div>
+              <div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#5b78c9",textAlign:"right"}}>
                 {e.weight} kg
-                {prev&&<div style={{fontSize:12,color:diff<0?"#2d6a4f":"#e76f51",fontWeight:400}}>{diff<0?"v":"^"}{Math.abs(diff).toFixed(1)}</div>}
+                {prev&&<div style={{fontSize:12,color:diff<0?"#5b78c9":"#e76f51",fontWeight:400}}>{diff<0?"v":"^"}{Math.abs(diff).toFixed(1)}</div>}
               </div>
             </div>
           );
@@ -490,8 +490,8 @@ function DailyQuote({ onClose }) {
     <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:600,background:"rgba(27,67,50,0.85)",padding:24}}>
       <div style={{background:"white",borderRadius:24,padding:32,textAlign:"center",maxWidth:360,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
         <div style={{fontSize:40,marginBottom:16}}>🌿</div>
-        <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#1b4332",lineHeight:1.5,marginBottom:24}}>{quote}</div>
-        <button onClick={onClose} style={{background:"#2d6a4f",color:"white",border:"none",borderRadius:14,padding:"12px 32px",fontSize:15,fontFamily:"Georgia,serif",cursor:"pointer",fontWeight:600}}>Aan de slag! 💪</button>
+        <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#1e2d5a",lineHeight:1.5,marginBottom:24}}>{quote}</div>
+        <button onClick={onClose} style={{background:"#5b78c9",color:"white",border:"none",borderRadius:14,padding:"12px 32px",fontSize:15,fontFamily:"Georgia,serif",cursor:"pointer",fontWeight:600}}>Aan de slag! 💪</button>
       </div>
     </div>
   );
@@ -523,18 +523,18 @@ function FaseChecklist({ phase, onClose }) {
     <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:600,background:"rgba(0,0,0,0.5)",padding:24}}>
       <div style={{background:"white",borderRadius:24,padding:28,maxWidth:360,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",maxHeight:"80vh",overflowY:"auto"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#1b4332"}}>{title}</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#1e2d5a"}}>{title}</div>
           <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9ca3af"}}>×</button>
         </div>
         <div style={{fontSize:13,color:"#9ca3af",marginBottom:16}}>{doneCount} van {list.length} gedaan vandaag</div>
-        <div style={{background:"#d8f3dc",borderRadius:99,height:8,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#2d6a4f",borderRadius:99,width:`${(doneCount/list.length)*100}%`,transition:"width .3s"}}/></div>
+        <div style={{background:"#dde3f5",borderRadius:99,height:8,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#5b78c9",borderRadius:99,width:`${(doneCount/list.length)*100}%`,transition:"width .3s"}}/></div>
         {list.map(item=>(
-          <div key={item} onClick={()=>toggle(item)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:"1px solid #f4f1eb",cursor:"pointer"}}>
-            <div style={{width:24,height:24,borderRadius:6,border:checked[item]?"none":"2px solid #d1d5db",background:checked[item]?"#2d6a4f":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{checked[item]&&<div style={{color:"white",fontSize:14}}>✓</div>}</div>
+          <div key={item} onClick={()=>toggle(item)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:"1px solid #f5f0e8",cursor:"pointer"}}>
+            <div style={{width:24,height:24,borderRadius:6,border:checked[item]?"none":"2px solid #d1d5db",background:checked[item]?"#5b78c9":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{checked[item]&&<div style={{color:"white",fontSize:14}}>✓</div>}</div>
             <div style={{fontSize:14,color:checked[item]?"#9ca3af":"#374151",textDecoration:checked[item]?"line-through":"none",transition:"all .2s"}}>{item}</div>
           </div>
         ))}
-        {doneCount===list.length&&<div style={{textAlign:"center",padding:"16px 0",fontSize:16,color:"#2d6a4f",fontWeight:600}}>Alles gedaan vandaag! 🌿</div>}
+        {doneCount===list.length&&<div style={{textAlign:"center",padding:"16px 0",fontSize:16,color:"#5b78c9",fontWeight:600}}>Alles gedaan vandaag! 🌿</div>}
       </div>
     </div>
   );
@@ -557,13 +557,13 @@ function Onboarding({ onComplete }) {
   };
   const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Verbreden & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
   const steps = [
-    <div style={{textAlign:"center",padding:"40px 24px"}}><HRIcon size={100}/><div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f",marginTop:24,marginBottom:12}}>Welkom bij Health Reset 3.0</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor de reset.</div><button onClick={()=>setStep(1)} style={btn}>Aan de slag!</button></div>,
-    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Hoe heet je?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div><input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/><button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende</button></div>,
-    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Jouw gewichten</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 2 van 4</div><div style={{...lbl,marginBottom:6}}>Startgewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 95.0" value={startWeight} onChange={e=>setStartWeight(e.target.value)}/><div style={{...lbl,marginTop:16,marginBottom:6}}>Doelgewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 70.0" value={goalWeight} onChange={e=>setGoalWeight(e.target.value)}/><div style={{...lbl,marginTop:16,marginBottom:6}}>Startdatum reset</div><input type="date" style={inp} value={startDate} onChange={e=>setStartDate(e.target.value)}/><button onClick={()=>setStep(3)} disabled={!canNext[1]||!canNext[2]||!canNext[3]} style={{...btn,marginTop:20,opacity:(canNext[1]&&canNext[2]&&canNext[3])?1:0.4}}>Volgende</button></div>,
-    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Welke fase zit je in?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>{faseKnoppen.map(p=>(<button key={p.id} onClick={()=>setPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:phase===p.id?"#2d6a4f":"#f4f1eb",color:phase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div><div style={{...lbl,marginBottom:6}}>Wanneer wissel je naar de volgende fase?</div><input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/><button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende</button></div>,
-    <div style={{textAlign:"center",padding:"40px 24px"}}><div style={{fontSize:64,marginBottom:16}}>🎉</div><div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,color:"#2d6a4f",marginBottom:12}}>Alles is ingesteld, {name}!</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke Health Reset dashboard staat klaar.</div><button onClick={finish} style={btn}>Naar mijn dashboard</button></div>,
+    <div style={{textAlign:"center",padding:"40px 24px"}}><BoemIcon size={100}/><div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#5b78c9",marginTop:24,marginBottom:12}}>Welkom bij BOEM</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor bewust omgaan met eten en je mindset.</div><button onClick={()=>setStep(1)} style={btn}>Aan de slag!</button></div>,
+    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:8}}>Hoe heet je?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div><input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/><button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende</button></div>,
+    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:8}}>Jouw gewichten</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 2 van 4</div><div style={{...lbl,marginBottom:6}}>Startgewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 95.0" value={startWeight} onChange={e=>setStartWeight(e.target.value)}/><div style={{...lbl,marginTop:16,marginBottom:6}}>Doelgewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 70.0" value={goalWeight} onChange={e=>setGoalWeight(e.target.value)}/><div style={{...lbl,marginTop:16,marginBottom:6}}>Startdatum reset</div><input type="date" style={inp} value={startDate} onChange={e=>setStartDate(e.target.value)}/><button onClick={()=>setStep(3)} disabled={!canNext[1]||!canNext[2]||!canNext[3]} style={{...btn,marginTop:20,opacity:(canNext[1]&&canNext[2]&&canNext[3])?1:0.4}}>Volgende</button></div>,
+    <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:8}}>Welke fase zit je in?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>{faseKnoppen.map(p=>(<button key={p.id} onClick={()=>setPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:phase===p.id?"#5b78c9":"#f5f0e8",color:phase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div><div style={{...lbl,marginBottom:6}}>Wanneer wissel je naar de volgende fase?</div><input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/><button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende</button></div>,
+    <div style={{textAlign:"center",padding:"40px 24px"}}><div style={{fontSize:64,marginBottom:16}}>🎉</div><div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,color:"#5b78c9",marginBottom:12}}>Alles is ingesteld, {name}!</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke BOEM dashboard staat klaar.</div><button onClick={finish} style={btn}>Naar mijn dashboard</button></div>,
   ];
-  return (<div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}><div style={{...card,margin:20}}>{steps[step]}</div></div>);
+  return (<div style={{fontFamily:"Georgia,serif",background:"#f5f0e8",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}><div style={{...card,margin:20}}>{steps[step]}</div></div>);
 }
 
 function LogForm({ sorted, onSave, onDelete }) {
@@ -581,21 +581,21 @@ function LogForm({ sorted, onSave, onDelete }) {
   };
   return (
     <div style={{padding:"20px 16px"}}>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:16}}>Weging invoeren</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:16}}>Weging invoeren</div>
       <div style={card}>
         <div style={{...lbl,marginBottom:6}}>Datum</div><input type="date" value={date} onChange={e=>setDate(e.target.value)} style={inp}/>
         <div style={{...lbl,marginTop:16,marginBottom:6}}>Gewicht (kg)</div><input style={inp} inputMode="decimal" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} placeholder="bijv. 85.3" value={weight} onChange={e=>setWeight(e.target.value)}/>
         <div style={{...lbl,marginTop:16,marginBottom:6}}>Notitie (optioneel)</div><input style={inp} autoComplete="off" autoCorrect="off" autoCapitalize="sentences" spellCheck={true} placeholder="bijv. Appeldag, sportdag..." value={note} onChange={e=>setNote(e.target.value)}/>
-        <button onClick={handleSave} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
+        <button onClick={handleSave} style={{...btn,marginTop:14,background:saved?"#6a9c5f":"#5b78c9",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
-      <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Recente wegingen</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9",margin:"20px 0 12px"}}>Recente wegingen</div>
       {[...sorted].reverse().slice(0,30).map(e=>{
         const idx=sorted.findIndex(x=>x.date===e.date); const prev=sorted[idx-1]; const diff=prev?e.weight-prev.weight:0;
         return (
           <div key={e.date} style={{...card,padding:"13px 16px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
             <div style={{flex:1}}>
               <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(e.date).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"})}</div>
-              <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#2d6a4f"}}>{e.weight} kg{prev&&<span style={{fontSize:13,marginLeft:8,color:diff<0?"#2d6a4f":"#e76f51",fontWeight:400}}>{diff<0?"▾":"▴"}{Math.abs(diff).toFixed(1)}</span>}</div>
+              <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#5b78c9"}}>{e.weight} kg{prev&&<span style={{fontSize:13,marginLeft:8,color:diff<0?"#5b78c9":"#e76f51",fontWeight:400}}>{diff<0?"▾":"▴"}{Math.abs(diff).toFixed(1)}</span>}</div>
               {e.note?<div style={{fontSize:12,color:"#9ca3af",marginTop:2}}>{e.note}</div>:null}
             </div>
             {delConfirm===e.date?(<div style={{display:"flex",gap:6}}><button onClick={()=>{onDelete(e.date);setDelConfirm(null);}} style={{...btnSm,color:"#e76f51",borderColor:"#e76f51"}}>Ja</button><button onClick={()=>setDelConfirm(null)} style={btnSm}>Nee</button></div>):(<button onClick={()=>setDelConfirm(e.date)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:"#d1d5db",padding:4}}>×</button>)}
@@ -615,13 +615,13 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
 
   return (
     <div style={{padding:"20px 16px"}}>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Fase beheer</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:6}}>Fase beheer</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20}}>Stel in welke fase je zit en wanneer je wisselt.</div>
       <div style={card}>
         <div style={{...lbl,marginBottom:10}}>Huidige fase</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
           {faseKnoppen.map(p=>(
-            <button key={p.id} onClick={()=>setLocalPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localPhase===p.id?"#2d6a4f":"#f4f1eb",color:localPhase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>
+            <button key={p.id} onClick={()=>setLocalPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localPhase===p.id?"#5b78c9":"#f5f0e8",color:localPhase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>
               {p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span>
             </button>
           ))}
@@ -630,7 +630,7 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
         <div style={{...lbl,marginBottom:10}}>Volgende fase</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
           {faseKnoppen.map(p=>(
-            <button key={p.id} onClick={()=>setLocalNextPhase(localNextPhase===p.id?null:p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localNextPhase===p.id?"#52b788":"#f4f1eb",color:localNextPhase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>
+            <button key={p.id} onClick={()=>setLocalNextPhase(localNextPhase===p.id?null:p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:localNextPhase===p.id?"#6a9c5f":"#f5f0e8",color:localNextPhase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>
               {p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span>
             </button>
           ))}
@@ -638,19 +638,19 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
 
         <div style={{...lbl,marginBottom:6}}>Wisselmoment</div>
         <input type="date" value={localDate} onChange={e=>setLocalDate(e.target.value)} style={inp}/>
-        <button onClick={()=>{onSwitch(localPhase,localDate,localNextPhase);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#52b788":"#2d6a4f",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
+        <button onClick={()=>{onSwitch(localPhase,localDate,localNextPhase);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#6a9c5f":"#5b78c9",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
 
-      <div style={{...card,borderLeft:"4px solid #52b788"}}>
-        <div style={{fontWeight:700,color:"#52b788",marginBottom:8}}>Fase 1 — Bewust worden (2 dagen)</div>
+      <div style={{...card,borderLeft:"4px solid #6a9c5f"}}>
+        <div style={{fontWeight:700,color:"#6a9c5f",marginBottom:8}}>Fase 1 — Bewust worden (2 dagen)</div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
           In deze twee dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret, inclusief calorieën en voedingswaarden. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
           <br/><br/>
           Tegelijk bereid je je praktisch voor op fase 2: bekijk de voedingslijsten, maak je boodschappenlijst en zorg dat je de juiste producten in huis hebt. Zo start je fase 2 goed voorbereid.
         </div>
       </div>
-      <div style={{...card,borderLeft:"4px solid #2d6a4f",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#2d6a4f",marginBottom:8}}>Fase 2 — Vereenvoudigen (21–40 dagen)</div>
+      <div style={{...card,borderLeft:"4px solid #5b78c9",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#5b78c9",marginBottom:8}}>Fase 2 — Vereenvoudigen (21–40 dagen)</div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
           In fase 2 maak je je voeding tijdelijk eenvoudig en overzichtelijk. Je kiest vooral voor veel groenten, magere eiwitbronnen en fruit en laat toegevoegde vetten en de meeste zetmeelrijke koolhydraatbronnen tijdelijk weg. Zo ontstaat rust en duidelijkheid in je eetpatroon.
           <br/><br/>
@@ -658,10 +658,10 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
           <br/><br/>
           Na de avondmaaltijd eet je niet meer. Houd bij voorkeur ongeveer drie uur tussen je laatste maaltijd en het slapen. Dat geeft een duidelijke dagstructuur en voorkomt dat de avond ongemerkt een extra eetmoment wordt.
         </div>
-        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#2d6a4f"/>
+        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#5b78c9"/>
       </div>
-      <div style={{...card,borderLeft:"4px solid #b5838d",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#b5838d",marginBottom:8}}>Fase 3 — Verbreden & stabiliseren (21 dagen)</div>
+      <div style={{...card,borderLeft:"4px solid #be8b63",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#be8b63",marginBottom:8}}>Fase 3 — Verbreden & stabiliseren (21 dagen)</div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
           In fase 3 ga je je voeding stap voor stap verbreden. Na de tijdelijk zeer vetarme periode van fase 2 voegen we gezonde vetten bewust weer toe. Je lichaam heeft vetten nodig en een langdurig zeer vetarm voedingspatroon is niet het doel van BOEM.
           <br/><br/>
@@ -669,10 +669,10 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
           <br/><br/>
           Deze fase is bedoeld om je lichaam en je voedingspatroon te laten stabiliseren. Het is normaal als het afvallen in deze periode minder snel gaat of je gewicht een tijd stabiel blijft. Voeg nieuwe producten rustig toe en kijk wat ze doen met je verzadiging, energie, spijsvertering en eetlust.
         </div>
-        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#b5838d"/>
+        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#be8b63"/>
       </div>
-      <div style={{...card,borderLeft:"4px solid #f4a261",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#f4a261",marginBottom:8}}>Fase 4 — Persoonlijk maken</div>
+      <div style={{...card,borderLeft:"4px solid #1e2d5a",marginTop:12}}>
+        <div style={{fontWeight:700,color:"#1e2d5a",marginBottom:8}}>Fase 4 — Persoonlijk maken</div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
           In fase 4 ga je verder ontdekken wat bij jouw lichaam en leven past. Je voegt stap voor stap zetmeelrijke koolhydraatbronnen en andere producten toe die in de eerdere fases nog niet aan bod kwamen.
           <br/><br/>
@@ -684,10 +684,10 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
         </div>
       </div>
 
-      <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#2d6a4f",margin:"20px 0 12px"}}>Mijlpalen</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9",margin:"20px 0 12px"}}>Mijlpalen</div>
       {milestones.map(m=>{
         const done=totalLost>=m.loss;
-        return (<div key={m.loss} style={{...card,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}><div style={{fontSize:24}}>{m.emoji}</div><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:done?"#2d6a4f":"#9ca3af"}}>{"−"+m.loss+" kg"}</div><div style={{fontSize:12,color:"#9ca3af"}}>{m.msg}</div></div>{done&&<div style={{color:"#2d6a4f",fontSize:18}}>✓</div>}</div>);
+        return (<div key={m.loss} style={{...card,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}><div style={{fontSize:24}}>{m.emoji}</div><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:done?"#5b78c9":"#9ca3af"}}>{"−"+m.loss+" kg"}</div><div style={{fontSize:12,color:"#9ca3af"}}>{m.msg}</div></div>{done&&<div style={{color:"#5b78c9",fontSize:18}}>✓</div>}</div>);
       })}
     </div>
   );
@@ -698,7 +698,7 @@ function InfoModal({ title, children, onClose }) {
     <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,background:"rgba(0,0,0,0.5)",padding:24}} onClick={onClose}>
       <div style={{background:"white",borderRadius:24,padding:26,maxWidth:360,width:"100%",maxHeight:"75vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}} onClick={e=>e.stopPropagation()}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-          <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#1b4332"}}>{title}</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#1e2d5a"}}>{title}</div>
           <button onClick={onClose} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#9ca3af"}}>×</button>
         </div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>{children}</div>
@@ -709,8 +709,8 @@ function InfoModal({ title, children, onClose }) {
 
 function KeuzeRij({ opties, waarde, onKies, metDesc }) {
   return opties.map(o=>(
-    <div key={o.id} onClick={()=>onKies(o.id)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 10px",borderRadius:14,marginBottom:8,cursor:"pointer",border:waarde===o.id?"2px solid #2d6a4f":"2px solid #f4f1eb",background:waarde===o.id?"#f4f1eb":"white",transition:"all .15s"}}>
-      <div style={{width:20,height:20,borderRadius:"50%",border:waarde===o.id?"none":"2px solid #d1d5db",background:waarde===o.id?"#2d6a4f":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{waarde===o.id&&<div style={{width:8,height:8,borderRadius:"50%",background:"white"}}/>}</div>
+    <div key={o.id} onClick={()=>onKies(o.id)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 10px",borderRadius:14,marginBottom:8,cursor:"pointer",border:waarde===o.id?"2px solid #5b78c9":"2px solid #f5f0e8",background:waarde===o.id?"#f5f0e8":"white",transition:"all .15s"}}>
+      <div style={{width:20,height:20,borderRadius:"50%",border:waarde===o.id?"none":"2px solid #d1d5db",background:waarde===o.id?"#5b78c9":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{waarde===o.id&&<div style={{width:8,height:8,borderRadius:"50%",background:"white"}}/>}</div>
       <div><div style={{fontSize:14,fontWeight:600,color:"#374151"}}>{o.label}</div>{metDesc&&<div style={{fontSize:12,color:"#9ca3af"}}>{o.desc}</div>}</div>
     </div>
   ));
@@ -768,7 +768,7 @@ function EnergieCalculator({ currentWeight, onTerug }) {
       <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Dit hebben we nodig voor de berekening.</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {[{id:"vrouw",label:"Vrouw"},{id:"man",label:"Man"}].map(g=>(
-          <button key={g.id} onClick={()=>setGeslacht(g.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:geslacht===g.id?"#2d6a4f":"#f4f1eb",color:geslacht===g.id?"white":"#6b7280"}}>{g.label}</button>
+          <button key={g.id} onClick={()=>setGeslacht(g.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:geslacht===g.id?"#5b78c9":"#f5f0e8",color:geslacht===g.id?"white":"#6b7280"}}>{g.label}</button>
         ))}
       </div>
     </div>,
@@ -797,10 +797,10 @@ function EnergieCalculator({ currentWeight, onTerug }) {
   if (step < 6) {
     return (
       <div style={{padding:"20px 16px"}}>
-        <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
-        <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:4}}>Jouw energiebehoefte</div>
+        <div onClick={onTerug} style={{fontSize:12,color:"#5b78c9",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:4}}>Jouw energiebehoefte</div>
         <div style={{fontSize:12,color:"#9ca3af",marginBottom:16}}>Vraag {step+1} van 6</div>
-        <div style={{background:"#d8f3dc",borderRadius:99,height:6,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#2d6a4f",borderRadius:99,width:`${((step+1)/6)*100}%`,transition:"width .3s"}}/></div>
+        <div style={{background:"#dde3f5",borderRadius:99,height:6,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",background:"#5b78c9",borderRadius:99,width:`${((step+1)/6)*100}%`,transition:"width .3s"}}/></div>
         <div style={card}>
           {vragen[step]}
           <div style={{display:"flex",gap:10,marginTop:20}}>
@@ -833,11 +833,11 @@ function EnergieCalculator({ currentWeight, onTerug }) {
         </InfoModal>
       )}
 
-      <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Jouw energiebehoefte</div>
+      <div onClick={onTerug} style={{fontSize:12,color:"#5b78c9",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:6}}>Jouw energiebehoefte</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Jouw activiteitsniveau: {result.activiteitLabel}. Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
 
-      <div style={{...card,background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white"}}>
+      <div style={{...card,background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white"}}>
         <div style={{display:"flex",gap:10}}>
           <div style={{flex:1,textAlign:"center"}}>
             <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700}}>{result.bmr}</div>
@@ -862,8 +862,8 @@ function EnergieCalculator({ currentWeight, onTerug }) {
         <button onClick={berekenInname} style={{...btn,marginTop:14}}>Bekijk verschil</button>
 
         {heeftInname && (
-          <div style={{marginTop:18,padding:"14px 16px",background:"#f4f1eb",borderRadius:14}}>
-            <div style={{fontSize:14,color:"#2d6a4f",fontWeight:600,lineHeight:1.6}}>
+          <div style={{marginTop:18,padding:"14px 16px",background:"#f5f0e8",borderRadius:14}}>
+            <div style={{fontSize:14,color:"#5b78c9",fontWeight:600,lineHeight:1.6}}>
               {verschilPerDag>=0
                 ? `Je zit gemiddeld op een tekort van ${Math.round(verschilPerDag)} kcal per dag.`
                 : `Je zit gemiddeld op een overschot van ${Math.round(Math.abs(verschilPerDag))} kcal per dag.`}
@@ -923,8 +923,8 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
           Die bovengrens van 2,2 ligt wel dicht bij het punt waarboven voorzichtigheid wordt geadviseerd bij langdurig gebruik. Heb je een nier- of leveraandoening, overleg dan met je arts of diëtist wat voor jou een passende hoeveelheid is.
         </InfoModal>
       )}
-      <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Jouw eiwitbehoefte</div>
+      <div onClick={onTerug} style={{fontSize:12,color:"#5b78c9",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:6}}>Jouw eiwitbehoefte</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
 
       <div style={card}>
@@ -939,7 +939,7 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
       </div>
 
       {result && (
-        <div style={{...card,background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",textAlign:"center"}}>
+        <div style={{...card,background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white",textAlign:"center"}}>
           <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700}}>{result.laag}–{result.hoog}</div>
           <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>gram eiwit per dag
             <span onClick={()=>setInfoOpen(true)} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
@@ -951,29 +951,10 @@ function EiwitCalculator({ currentWeight, goalWeight, onTerug }) {
 }
 
 function whtrCategorie(ratio) {
-  if (ratio < 0.5) return { label: "Gezond", kleur: "#2d6a4f" };
-  if (ratio < 0.6) return { label: "Verhoogd risico", kleur: "#f4a261" };
+  if (ratio < 0.5) return { label: "Gezond", kleur: "#6a9c5f" };
+  if (ratio < 0.6) return { label: "Verhoogd risico", kleur: "#be8b63" };
   return { label: "Hoog risico", kleur: "#e76f51" };
 }
-function berekenRFM(lengte, buik, geslacht) {
-  const ratio = lengte / buik;
-  return geslacht === "man" ? 64 - 20*ratio : 76 - 20*ratio;
-}
-const VETPERCENTAGE_VROUW = [
-  { range:"10–13%", label:"essentieel vet" },
-  { range:"14–20%", label:"sportief / atletisch" },
-  { range:"21–24%", label:"fit" },
-  { range:"25–31%", label:"gemiddeld" },
-  { range:"32%+",   label:"verhoogd risico" },
-];
-const VETPERCENTAGE_MAN = [
-  { range:"2–5%",   label:"essentieel vet" },
-  { range:"6–13%",  label:"sportief / atletisch" },
-  { range:"14–17%", label:"fit" },
-  { range:"18–24%", label:"gemiddeld" },
-  { range:"25%+",   label:"verhoogd risico" },
-];
-
 function BuikomtrekCalculator({ onTerug }) {
   const storedEnergie = load(KEYS.energie) || {};
   const stored = load(KEYS.buikomtrek) || {};
@@ -988,7 +969,7 @@ function BuikomtrekCalculator({ onTerug }) {
     const l = parseFloat(String(lengte).replace(",","."));
     const b = parseFloat(String(buik).replace(",","."));
     if (!(l>0 && b>0)) return;
-    const data = { geslacht, lengte:l, buik:b, whtr: b/l, rfm: berekenRFM(l,b,geslacht) };
+    const data = { geslacht, lengte:l, buik:b, whtr: b/l };
     save(KEYS.buikomtrek, data);
     setResult(data);
     setVergelijkBuik("");
@@ -996,7 +977,7 @@ function BuikomtrekCalculator({ onTerug }) {
 
   const vergelijkWaarde = parseFloat(String(vergelijkBuik).replace(",","."));
   const vergelijkResult = (result && vergelijkWaarde>0)
-    ? { buik: vergelijkWaarde, whtr: vergelijkWaarde/result.lengte, rfm: berekenRFM(result.lengte, vergelijkWaarde, result.geslacht) }
+    ? { buik: vergelijkWaarde, whtr: vergelijkWaarde/result.lengte }
     : null;
 
   return (
@@ -1007,7 +988,7 @@ function BuikomtrekCalculator({ onTerug }) {
           <br/><br/>
           Een grotere middelomtrek hangt vaker samen met meer visceraal vet: vet dat dieper in de buik rond de organen ligt. Dit vet is actiever betrokken bij de stofwisseling dan vet dat vooral onder de huid zit. Een grotere hoeveelheid visceraal vet hangt samen met een hoger risico op onder andere type 2 diabetes en hart- en vaatziekten.
           <br/><br/>
-          <div style={{fontWeight:700,color:"#1b4332",marginBottom:4}}>Als algemene richtlijn geldt</div>
+          <div style={{fontWeight:700,color:"#1e2d5a",marginBottom:4}}>Als algemene richtlijn geldt</div>
           <div style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>Onder 0,50</span><span>gezond bereik</span></div>
           <div style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>0,50 tot 0,59</span><span>verhoogd risico</span></div>
           <div style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>0,60 of hoger</span><span>hoog risico</span></div>
@@ -1017,32 +998,15 @@ function BuikomtrekCalculator({ onTerug }) {
           De middel/lengte-ratio is een eenvoudige richtlijn en geen diagnose. Leeftijd, lichaamsbouw en afkomst kunnen invloed hebben op hoe de uitkomst het best geïnterpreteerd wordt.
         </InfoModal>
       )}
-      {infoOpen==="rfm" && (
-        <InfoModal title="Wat is het geschatte vetpercentage?" onClose={()=>setInfoOpen(null)}>
-          Relative Fat Mass (RFM) is een schatting van je totale vetpercentage, berekend met je lengte en buikomtrek. Dit is preciezer dan wat BMI kan schatten, omdat spiermassa er niet in meetelt als risico — bij BMI wordt spiermassa al snel verward met overgewicht.
-          <br/><br/>
-          Dit percentage verbetert als je buikomtrek afneemt, ook als je gewicht op de weegschaal minder hard daalt doordat je spieren opbouwt. Het zegt niets over hoeveel je zou moeten wegen, alleen over hoeveel van je gewicht vet is.
-          <br/><br/>
-          <div style={{fontWeight:700,color:"#1b4332",marginBottom:4}}>Ter referentie — vrouwen (ACE-richtlijnen)</div>
-          {VETPERCENTAGE_VROUW.map(r=>(
-            <div key={r.range} style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>{r.range}</span><span>{r.label}</span></div>
-          ))}
-          <div style={{fontWeight:700,color:"#1b4332",marginTop:14,marginBottom:4}}>Ter referentie — mannen (ACE-richtlijnen)</div>
-          {VETPERCENTAGE_MAN.map(r=>(
-            <div key={r.range} style={{display:"flex",justifyContent:"space-between",padding:"3px 0"}}><span style={{fontWeight:600}}>{r.range}</span><span>{r.label}</span></div>
-          ))}
-          <div style={{marginTop:12,fontSize:12,color:"#6b7280"}}>Deze bandbreedtes worden met het ouder worden iets ruimer, dus zie het als een richting, niet als een hard doel.</div>
-        </InfoModal>
-      )}
-      <div onClick={onTerug} style={{fontSize:12,color:"#2d6a4f",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Buikomtrek</div>
+      <div onClick={onTerug} style={{fontSize:12,color:"#5b78c9",cursor:"pointer",marginBottom:10}}>‹ Overzicht</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:6}}>Buikomtrek</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Puur ter info — wat je ermee doet, bepaal jij zelf.</div>
 
       <div style={card}>
         <div style={{...lbl,marginBottom:10}}>Ben je man of vrouw?</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:18}}>
           {[{id:"vrouw",label:"Vrouw"},{id:"man",label:"Man"}].map(g=>(
-            <button key={g.id} onClick={()=>setGeslacht(g.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:geslacht===g.id?"#2d6a4f":"#f4f1eb",color:geslacht===g.id?"white":"#6b7280"}}>{g.label}</button>
+            <button key={g.id} onClick={()=>setGeslacht(g.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:geslacht===g.id?"#5b78c9":"#f5f0e8",color:geslacht===g.id?"white":"#6b7280"}}>{g.label}</button>
           ))}
         </div>
 
@@ -1060,22 +1024,13 @@ function BuikomtrekCalculator({ onTerug }) {
         const cat = whtrCategorie(result.whtr);
         return (
         <>
-          <div style={{...card,background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white"}}>
-            <div style={{display:"flex",gap:10}}>
-              <div style={{flex:1,textAlign:"center"}}>
-                <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.whtr.toFixed(2)}</div>
-                <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>middel/lengte-ratio
-                  <span onClick={()=>setInfoOpen("whtr")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
-                </div>
-                <div style={{marginTop:8,display:"inline-block",background:cat.kleur,borderRadius:99,padding:"4px 12px",fontSize:11,fontWeight:600}}>{cat.label}</div>
+          <div style={{...card,background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white"}}>
+            <div style={{textAlign:"center"}}>
+              <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.whtr.toFixed(2)}</div>
+              <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>middel/lengte-ratio
+                <span onClick={()=>setInfoOpen("whtr")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
               </div>
-              <div style={{width:1,background:"rgba(255,255,255,0.2)"}}/>
-              <div style={{flex:1,textAlign:"center"}}>
-                <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{result.rfm.toFixed(0)}%</div>
-                <div style={{fontSize:11,opacity:.85,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>geschat vetpercentage
-                  <span onClick={()=>setInfoOpen("rfm")} style={{width:16,height:16,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.7)",fontSize:10,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>i</span>
-                </div>
-              </div>
+              <div style={{marginTop:8,display:"inline-block",background:cat.kleur,borderRadius:99,padding:"4px 12px",fontSize:11,fontWeight:600}}>{cat.label}</div>
             </div>
           </div>
 
@@ -1087,8 +1042,8 @@ function BuikomtrekCalculator({ onTerug }) {
             {vergelijkResult && (()=>{
               const vcat = whtrCategorie(vergelijkResult.whtr);
               return (
-                <div style={{marginTop:16,padding:"14px 16px",background:"#f4f1eb",borderRadius:14}}>
-                  <div style={{fontSize:14,color:"#2d6a4f",fontWeight:600,lineHeight:1.6}}>Bij {vergelijkResult.buik} cm: ratio {vergelijkResult.whtr.toFixed(2)} ({vcat.label}), geschat vetpercentage {vergelijkResult.rfm.toFixed(0)}%.</div>
+                <div style={{marginTop:16,padding:"14px 16px",background:"#f5f0e8",borderRadius:14}}>
+                  <div style={{fontSize:14,color:"#5b78c9",fontWeight:600,lineHeight:1.6}}>Bij {vergelijkResult.buik} cm: ratio {vergelijkResult.whtr.toFixed(2)} ({vcat.label}).</div>
                 </div>
               );
             })()}
@@ -1108,12 +1063,12 @@ function BerekeningMenu({ onKies }) {
   ];
   return (
     <div style={{padding:"20px 16px"}}>
-      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#2d6a4f",marginBottom:6}}>Berekening</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:6}}>Berekening</div>
       <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Kies wat je wilt uitrekenen.</div>
       {opties.map(o=>(
         <div key={o.id} onClick={()=>onKies(o.id)} style={{...card,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div><div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#2d6a4f"}}>{o.titel}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{o.desc}</div></div>
-          <div style={{fontSize:18,color:"#2d6a4f"}}>›</div>
+          <div><div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#5b78c9"}}>{o.titel}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{o.desc}</div></div>
+          <div style={{fontSize:18,color:"#5b78c9"}}>›</div>
         </div>
       ))}
     </div>
@@ -1210,12 +1165,12 @@ export default function App() {
     window.location.replace(window.location.pathname + "?uitgelogd=" + Date.now());
   };
 
-  if (!ready) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"Georgia,serif",color:"#2d6a4f",fontSize:18}}>Laden…</div>;
+  if (!ready) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"Georgia,serif",color:"#5b78c9",fontSize:18}}>Laden…</div>;
   if (!ingelogd) return <LoginScreen onLogin={() => setIngelogd(true)} />;
   if (!profile) return <Onboarding onComplete={handleOnboardingComplete}/>;
 
   return (
-    <div style={{fontFamily:"Georgia,serif",background:"#f4f1eb",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
+    <div style={{fontFamily:"Georgia,serif",background:"#f5f0e8",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
       {confetti&&<Confetti/>}
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
@@ -1224,7 +1179,7 @@ export default function App() {
         <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:998,background:"rgba(0,0,0,0.4)"}}>
           <div style={{background:"white",borderRadius:24,padding:32,textAlign:"center",margin:24,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
             <div style={{fontSize:56,marginBottom:12}}>{celebration.emoji}</div>
-            <div style={{fontSize:20,fontWeight:700,color:"#2d6a4f",marginBottom:8}}>{celebration.msg}</div>
+            <div style={{fontSize:20,fontWeight:700,color:"#5b78c9",marginBottom:8}}>{celebration.msg}</div>
             <div style={{color:"#9ca3af",fontSize:13}}>Je bent geweldig!</div>
           </div>
         </div>
@@ -1232,12 +1187,12 @@ export default function App() {
 
       {tab==="home"&&(
         <div>
-          <div style={{background:"linear-gradient(135deg,#2d6a4f,#1b4332)",color:"white",padding:"24px 20px 32px",position:"relative",overflow:"hidden"}}>
+          <div style={{background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white",padding:"24px 20px 32px",position:"relative",overflow:"hidden"}}>
             <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(255,255,255,0.05)",pointerEvents:"none"}}/>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
-              <HRIcon size={44}/>
+              <BoemIcon size={44}/>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%"}}>
-                <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",opacity:.8}}>Health Reset 3.0</div>
+                <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",opacity:.8}}>BOEM</div>
                 <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"white",borderRadius:99,padding:"6px 14px",fontSize:11,cursor:"pointer",letterSpacing:1}}>Uitloggen</button>
               </div>
             </div>
@@ -1245,7 +1200,7 @@ export default function App() {
             <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
             <div style={{fontSize:13,opacity:.75}}>{latest?"Gewogen op "+new Date(latest.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):"Nog geen metingen"}</div>
             <div style={{marginTop:14,display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"6px 14px"}}>
-              <div style={{width:8,height:8,borderRadius:"50%",background:"#86efac"}}/>
+              <div style={{width:8,height:8,borderRadius:"50%",background:"#a8d49c"}}/>
               <span style={{fontSize:13}}>{phaseLabel}</span>
             </div>
           </div>
@@ -1255,14 +1210,14 @@ export default function App() {
               <div style={lbl}>Voortgang naar doel</div>
               <div style={{display:"flex",gap:10,marginBottom:14}}>
                 {[{v:"−"+totalLost,l:"kg afgevallen"},{v:""+(remaining>0?remaining:0),l:"kg te gaan"},{v:progressPct.toFixed(0)+"%",l:"voltooid"}].map((s,i)=>(
-                  <div key={i} style={{flex:1,background:"#f4f1eb",borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
-                    <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#2d6a4f"}}>{s.v}</div>
+                  <div key={i} style={{flex:1,background:"#f5f0e8",borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
+                    <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#5b78c9"}}>{s.v}</div>
                     <div style={{fontSize:11,color:"#9ca3af",marginTop:3}}>{s.l}</div>
                   </div>
                 ))}
               </div>
-              <div style={{background:"#d8f3dc",borderRadius:99,height:14,overflow:"hidden"}}>
-                <div style={{height:"100%",borderRadius:99,background:"linear-gradient(90deg,#2d6a4f,#52b788)",width:`${progressPct}%`,transition:"width .8s ease"}}/>
+              <div style={{background:"#dde3f5",borderRadius:99,height:14,overflow:"hidden"}}>
+                <div style={{height:"100%",borderRadius:99,background:"linear-gradient(90deg,#5b78c9,#6a9c5f)",width:`${progressPct}%`,transition:"width .8s ease"}}/>
               </div>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9ca3af",marginTop:6}}>
                 <span>{startWeight} kg</span><span onClick={()=>setShowGoalEdit(true)} style={{cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:3}}>Doel: {goalWeight} kg ✏️</span>
@@ -1270,12 +1225,12 @@ export default function App() {
             </div>
 
             {nextPhaseDate && nextPhaseId && (
-              <div style={{...card,background:"linear-gradient(135deg,#fff9f9,#fce4ec)",border:"1.5px solid #f9c6d0"}}>
+              <div style={{...card,background:"linear-gradient(135deg,#fdf6ef,#f7e6d3)",border:"1.5px solid #f0d3b0"}}>
                 <div style={{display:"flex",alignItems:"center",gap:16}}>
                   <div style={{fontSize:38}}>{FASE_ICONS[nextPhaseId] || "🌿"}</div>
                   <div>
-                    <div style={{fontSize:13,color:"#b5838d",fontWeight:600}}>Volgende: {FASE_LABELS[nextPhaseId]}</div>
-                    <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#2d6a4f"}}>{daysToPhase===0?"Vandaag!":daysToPhase+" dagen"}</div>
+                    <div style={{fontSize:13,color:"#be8b63",fontWeight:600}}>Volgende: {FASE_LABELS[nextPhaseId]}</div>
+                    <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#5b78c9"}}>{daysToPhase===0?"Vandaag!":daysToPhase+" dagen"}</div>
                     <div style={{fontSize:12,color:"#9ca3af"}}>{new Date(nextPhaseDate).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</div>
                   </div>
                 </div>
@@ -1285,7 +1240,7 @@ export default function App() {
             <div style={{...card,cursor:"pointer"}} onClick={()=>setShowChart(true)}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                 <div style={lbl}>Gewichtsverloop</div>
-                <div style={{fontSize:11,color:"#2d6a4f",fontWeight:600,letterSpacing:1}}>VOLLEDIG</div>
+                <div style={{fontSize:11,color:"#5b78c9",fontWeight:600,letterSpacing:1}}>VOLLEDIG</div>
               </div>
               <Chart entries={sorted.slice(-40)} goalWeight={goalWeight} height={130}/>
               <div style={{fontSize:11,color:"#9ca3af",textAlign:"center",marginTop:6}}>Tik op punt voor details</div>
@@ -1294,7 +1249,7 @@ export default function App() {
             {(()=>{
               const next=milestones.find(m=>totalLost<m.loss);
               if(!next)return null;
-              return(<div style={{...card,background:"#f4f1eb"}}><div style={lbl}>Volgende mijlpaal</div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{fontSize:32}}>{next.emoji}</div><div><div style={{fontSize:15,fontWeight:600,color:"#2d6a4f"}}>{next.msg}</div><div style={{fontSize:13,color:"#9ca3af",marginTop:2}}>{"Nog "+(next.loss-totalLost).toFixed(1)+" kg te gaan!"}</div></div></div></div>);
+              return(<div style={{...card,background:"#f5f0e8"}}><div style={lbl}>Volgende mijlpaal</div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{fontSize:32}}>{next.emoji}</div><div><div style={{fontSize:15,fontWeight:600,color:"#5b78c9"}}>{next.msg}</div><div style={{fontSize:13,color:"#9ca3af",marginTop:2}}>{"Nog "+(next.loss-totalLost).toFixed(1)+" kg te gaan!"}</div></div></div></div>);
             })()}
           </div>
         </div>
@@ -1306,7 +1261,7 @@ export default function App() {
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
         {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"energie",icon:"⚡",label:"Berekening"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"12px 0",border:"none",background:"transparent",cursor:"pointer",fontSize:10,letterSpacing:1,textTransform:"uppercase",fontFamily:"Georgia,serif",color:tab===t.id?"#2d6a4f":"#9ca3af",fontWeight:tab===t.id?700:400,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"12px 0",border:"none",background:"transparent",cursor:"pointer",fontSize:10,letterSpacing:1,textTransform:"uppercase",fontFamily:"Georgia,serif",color:tab===t.id?"#5b78c9":"#9ca3af",fontWeight:tab===t.id?700:400,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
             <span style={{fontSize:20}}>{t.icon}</span>{t.label}
           </button>
         ))}
