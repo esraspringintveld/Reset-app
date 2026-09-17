@@ -376,6 +376,27 @@ function BoemIcon({ size=60 }) {
   );
 }
 
+const NAV_ICON_SRC = {
+  home: "/nav-dashboard.png",
+  weging: "/nav-weging.png",
+  berekening: "/nav-berekening.png",
+  fases: "/nav-fases.png",
+};
+
+function NavIcon({ name, active, size=24 }) {
+  const src = NAV_ICON_SRC[name];
+  if (!src) return null;
+  return (
+    <img
+      src={src}
+      alt=""
+      width={size}
+      height={size}
+      style={{ objectFit:"contain", opacity: active ? 1 : 0.42, filter: active ? "none" : "grayscale(0.25)", transition:"opacity .15s" }}
+    />
+  );
+}
+
 function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle");
@@ -1321,11 +1342,14 @@ export default function App() {
       {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} nextPhaseId={nextPhaseId} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
-        {[{id:"home",icon:"🏠",label:"Dashboard"},{id:"log",icon:"⚖️",label:"Weging"},{id:"energie",icon:"⚡",label:"Berekening"},{id:"fases",icon:"📋",label:"Fases"}].map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"12px 0",border:"none",background:"transparent",cursor:"pointer",fontSize:10,letterSpacing:1,textTransform:"uppercase",fontFamily:"Georgia,serif",color:tab===t.id?"#5b78c9":"#9ca3af",fontWeight:tab===t.id?700:400,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
-            <span style={{fontSize:20}}>{t.icon}</span>{t.label}
+        {[{id:"home",icon:"home",label:"Dashboard"},{id:"log",icon:"weging",label:"Weging"},{id:"energie",icon:"berekening",label:"Berekening"},{id:"fases",icon:"fases",label:"Fases"}].map(t=>{
+          const navColor = tab===t.id?"#5b78c9":"#9ca3af";
+          return (
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"12px 0",border:"none",background:"transparent",cursor:"pointer",fontSize:10,letterSpacing:1,textTransform:"uppercase",fontFamily:"Georgia,serif",color:navColor,fontWeight:tab===t.id?700:400,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+            <NavIcon name={t.icon} active={tab===t.id} size={24}/>{t.label}
           </button>
-        ))}
+          );
+        })}
       </nav>
     </div>
   );
