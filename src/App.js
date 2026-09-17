@@ -85,7 +85,7 @@ const MOOD_INFO = {
   "😴": { label: "Moe", color: "#be8b63" },
 };
 
-const FASE_LABELS = { 1: "Fase 1 — Bewust worden", 2: "Fase 2 — Vereenvoudigen", 3: "Fase 3 — Verbreden & stabiliseren", 4: "Fase 4 — Persoonlijk maken" };
+const FASE_LABELS = { 1: "Fase 1 — Bewust worden", 2: "Fase 2 — Vereenvoudigen", 3: "Fase 3 — Ontdekken & stabiliseren", 4: "Fase 4 — Persoonlijk maken" };
 const FASE_ICONS = { 1: "🌱", 2: "🌿", 3: "⚖️", 4: "🔥" };
 
 const DAGBOEK_INFO_TEKST = `Waarom je stemming bijhouden helpt
@@ -586,7 +586,7 @@ function Onboarding({ onComplete }) {
     save(KEYS.entries, [{date: startDate, weight: profile.startWeight, note: "Start!"}]);
     onComplete(profile, phase, nextDate);
   };
-  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Verbreden & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
+  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Ontdekken & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
   const steps = [
     <div style={{textAlign:"center",padding:"40px 24px"}}><BoemIcon size={100}/><div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:"#5b78c9",marginTop:24,marginBottom:12}}>Welkom bij BOEM</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke dashboard voor bewust omgaan met eten en je mindset.</div><button onClick={()=>setStep(1)} style={btn}>Aan de slag!</button></div>,
     <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:8}}>Hoe heet je?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 1 van 4</div><input style={inp} autoCapitalize="words" placeholder="Jouw naam" value={name} onChange={e=>setName(e.target.value)}/><button onClick={()=>setStep(2)} disabled={!canNext[0]} style={{...btn,marginTop:20,opacity:canNext[0]?1:0.4}}>Volgende</button></div>,
@@ -642,7 +642,7 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
   const [localDate, setLocalDate] = useState(nextPhaseDate);
   const [localNextPhase, setLocalNextPhase] = useState(nextPhaseId || null);
   const [saved, setSaved] = useState(false);
-  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Verbreden & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
+  const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Ontdekken & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk maken"}];
 
   return (
     <div style={{padding:"20px 16px"}}>
@@ -692,9 +692,9 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
         <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#5b78c9"/>
       </div>
       <div style={{...card,borderLeft:"4px solid #be8b63",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#be8b63",marginBottom:8}}>Fase 3 — Verbreden & stabiliseren (21 dagen)</div>
+        <div style={{fontWeight:700,color:"#be8b63",marginBottom:8}}>Fase 3 — Ontdekken & stabiliseren (21 dagen)</div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
-          In fase 3 ga je je voeding stap voor stap verbreden. Na de tijdelijk zeer vetarme periode van fase 2 voegen we gezonde vetten bewust weer toe. Je lichaam heeft vetten nodig en een langdurig zeer vetarm voedingspatroon is niet het doel van BOEM.
+          In fase 3 ga je je voeding stap voor stap uitbreiden en ontdekken wat erbij past. Na de tijdelijk zeer vetarme periode van fase 2 voegen we gezonde vetten bewust weer toe. Je lichaam heeft vetten nodig en een langdurig zeer vetarm voedingspatroon is niet het doel van BOEM.
           <br/><br/>
           Je voegt nieuwe producten één voor één toe, zoals gezonde oliën en vetten, noten en zaden, avocado, vettere vis, kaas en andere zuivelproducten. Je blijft werken vanuit de basis van veel groenten en voldoende eiwitten.
           <br/><br/>
