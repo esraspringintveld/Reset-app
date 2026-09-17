@@ -672,13 +672,13 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
       <div style={{...card,borderLeft:"4px solid #1e2d5a",marginTop:12}}>
         <div style={{fontWeight:700,color:"#1e2d5a",marginBottom:8}}>Fase 4 — Persoonlijk maken</div>
         <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
-          In fase 4 ga je verder ontdekken wat bij jouw lichaam en leven past. Je voegt stap voor stap zetmeelrijke koolhydraatbronnen en andere producten toe die in de eerdere fases nog niet aan bod kwamen.
+          In fase 4 ga je verder ontdekken wat bij jouw lichaam en jouw leven past. Je voegt stap voor stap zetmeelrijke koolhydraatbronnen en andere producten toe die in de eerdere fases nog niet aan bod kwamen.
           <br/><br/>
-          Je kijkt niet naar "goed" of "fout", maar naar wat een product doet met jouw verzadiging, energie, trek, spijsvertering en eetpatroon. Een tijdelijke stijging op de weegschaal betekent niet automatisch dat een product niet bij je past; extra koolhydraten kunnen bijvoorbeeld ook tijdelijk meer vocht vasthouden.
+          Je kijkt daarbij niet naar goed of fout, maar naar wat voeding met jou doet. Voel je verzadiging? Hoe is je energie? Blijf je helder in je hoofd? Hoe reageren je darmen? Heb je meer of minder trek, en hoe voel jij je?
           <br/><br/>
-          Zo bouw je toe naar een manier van eten die niet alleen tijdelijk werkt, maar die past bij jouw dagelijks leven.
+          Ook de weegschaal kan informatie geven, maar kijk naar de grote lijn. Een schommeling op één dag zegt niet automatisch iets over één bepaald voedingsmiddel. Gewicht kan door veel verschillende factoren veranderen.
           <br/><br/>
-          De voedingslijsten worden ook aangepast, maar dat komt later.
+          Fase 4 is geen tijdelijke fase meer. Dit is het moment waarop je steeds meer je eigen manier van eten gaat vinden: een manier die bij jouw lichaam, jouw dagelijks leven en jouw doelen past.
         </div>
       </div>
 
