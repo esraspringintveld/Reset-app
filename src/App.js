@@ -94,6 +94,21 @@ Je lichaam en je gevoel vertellen je elke dag iets. Niet altijd luid, maar wel d
 
 Tijdens een reset verandert er veel in je lichaam. Je stemming is daar onderdeel van. Het is geen bijverschijnsel, maar een signaal. Door je gevoelens bij te houden en te noteren wat er die dag speelt, leer je jezelf beter kennen en kun je zachter en slimmer bijsturen.`;
 
+function calcTrendPerWeek(sortedEntries) {
+  const window = sortedEntries.slice(-7);
+  if (window.length < 2) return null;
+  const t0 = new Date(window[0].date).getTime();
+  const pts = window.map(e => ({ x: (new Date(e.date).getTime()-t0)/86400000, y: e.weight }));
+  const n = pts.length;
+  const sumX = pts.reduce((a,p)=>a+p.x,0);
+  const sumY = pts.reduce((a,p)=>a+p.y,0);
+  const sumXY = pts.reduce((a,p)=>a+p.x*p.y,0);
+  const sumXX = pts.reduce((a,p)=>a+p.x*p.x,0);
+  const denom = n*sumXX - sumX*sumX;
+  if (denom === 0) return null;
+  const slopePerDay = (n*sumXY - sumX*sumY) / denom;
+  return slopePerDay * 7;
+}
 function generateMilestones(totalToLose) {
   const milestones = [];
   const max = Math.round(totalToLose);
@@ -642,7 +657,45 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
   const [localDate, setLocalDate] = useState(nextPhaseDate);
   const [localNextPhase, setLocalNextPhase] = useState(nextPhaseId || null);
   const [saved, setSaved] = useState(false);
+  const [openFase, setOpenFase] = useState(currentPhase);
   const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Ontdekken & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk ritme"}];
+
+  const faseData = [
+    { id:1, kleur:"#6a9c5f", titel:"Fase 1 — Bewust worden", duur:"2 dagen", body: (
+      <>In deze twee dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret, inclusief calorieën en voedingswaarden. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
+        <br/><br/>
+        Tegelijk bereid je je praktisch voor op fase 2: bekijk de voedingslijsten, maak je boodschappenlijst en zorg dat je de juiste producten in huis hebt. Zo start je fase 2 goed voorbereid.
+      </>
+    )},
+    { id:2, kleur:"#5b78c9", titel:"Fase 2 — Vereenvoudigen", duur:"21–40 dagen", body: (
+      <>In fase 2 maak je je voeding tijdelijk eenvoudig en overzichtelijk. Je kiest vooral voor veel groenten, magere eiwitbronnen en fruit en laat toegevoegde vetten en de meeste zetmeelrijke koolhydraatbronnen tijdelijk weg. Zo ontstaat rust en duidelijkheid in je eetpatroon.
+        <br/><br/>
+        Brood, pasta, rijst, aardappelen en vergelijkbare producten bewaren we voor een latere fase.
+        <br/><br/>
+        Na de avondmaaltijd eet je niet meer. Houd bij voorkeur ongeveer drie uur tussen je laatste maaltijd en het slapen. Dat geeft een duidelijke dagstructuur en voorkomt dat de avond ongemerkt een extra eetmoment wordt.
+        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#5b78c9"/>
+      </>
+    )},
+    { id:3, kleur:"#be8b63", titel:"Fase 3 — Ontdekken & stabiliseren", duur:"21 dagen", body: (
+      <>In fase 3 ga je je voeding stap voor stap uitbreiden en ontdekken wat erbij past. Na de tijdelijk zeer vetarme periode van fase 2 voegen we gezonde vetten bewust weer toe. Je lichaam heeft vetten nodig en een langdurig zeer vetarm voedingspatroon is niet het doel van BOEM.
+        <br/><br/>
+        Je voegt nieuwe producten één voor één toe, zoals gezonde oliën en vetten, noten en zaden, avocado, vettere vis, kaas en andere zuivelproducten. Je blijft werken vanuit de basis van veel groenten en voldoende eiwitten.
+        <br/><br/>
+        Deze fase is bedoeld om je lichaam en je voedingspatroon te laten stabiliseren. Het is normaal als het afvallen in deze periode minder snel gaat of je gewicht een tijd stabiel blijft. Voeg nieuwe producten rustig toe en kijk wat ze doen met je verzadiging, energie, spijsvertering en eetlust.
+        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#be8b63"/>
+      </>
+    )},
+    { id:4, kleur:"#1e2d5a", titel:"Fase 4 — Persoonlijk ritme", duur:"doorlopend", body: (
+      <>In fase 4 ga je verder ontdekken wat bij jouw lichaam en jouw leven past. Je voegt stap voor stap zetmeelrijke koolhydraatbronnen en andere producten toe die in de eerdere fases nog niet aan bod kwamen.
+        <br/><br/>
+        Je kijkt daarbij niet naar goed of fout, maar naar wat voeding met jou doet. Voel je verzadiging? Hoe is je energie? Blijf je helder in je hoofd? Hoe reageren je darmen? Heb je meer of minder trek, en hoe voel jij je?
+        <br/><br/>
+        Ook de weegschaal kan informatie geven, maar kijk naar de grote lijn. Een schommeling op één dag zegt niet automatisch iets over één bepaald voedingsmiddel. Gewicht kan door veel verschillende factoren veranderen.
+        <br/><br/>
+        Fase 4 is geen tijdelijke fase meer. Dit is het moment waarop je steeds meer je eigen manier van eten gaat vinden: een manier die bij jouw lichaam, jouw dagelijks leven en jouw doelen past.
+      </>
+    )},
+  ];
 
   return (
     <div style={{padding:"20px 16px"}}>
@@ -672,48 +725,26 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
         <button onClick={()=>{onSwitch(localPhase,localDate,localNextPhase);setSaved(true);setTimeout(()=>setSaved(false),2000);}} style={{...btn,marginTop:14,background:saved?"#6a9c5f":"#5b78c9",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
 
-      <div style={{...card,borderLeft:"4px solid #6a9c5f"}}>
-        <div style={{fontWeight:700,color:"#6a9c5f",marginBottom:8}}>Fase 1 — Bewust worden (2 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
-          In deze twee dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret, inclusief calorieën en voedingswaarden. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
-          <br/><br/>
-          Tegelijk bereid je je praktisch voor op fase 2: bekijk de voedingslijsten, maak je boodschappenlijst en zorg dat je de juiste producten in huis hebt. Zo start je fase 2 goed voorbereid.
-        </div>
-      </div>
-      <div style={{...card,borderLeft:"4px solid #5b78c9",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#5b78c9",marginBottom:8}}>Fase 2 — Vereenvoudigen (21–40 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
-          In fase 2 maak je je voeding tijdelijk eenvoudig en overzichtelijk. Je kiest vooral voor veel groenten, magere eiwitbronnen en fruit en laat toegevoegde vetten en de meeste zetmeelrijke koolhydraatbronnen tijdelijk weg. Zo ontstaat rust en duidelijkheid in je eetpatroon.
-          <br/><br/>
-          Brood, pasta, rijst, aardappelen en vergelijkbare producten bewaren we voor een latere fase.
-          <br/><br/>
-          Na de avondmaaltijd eet je niet meer. Houd bij voorkeur ongeveer drie uur tussen je laatste maaltijd en het slapen. Dat geeft een duidelijke dagstructuur en voorkomt dat de avond ongemerkt een extra eetmoment wordt.
-        </div>
-        <VoedingsLijst voeding={FASE2_VOEDING} accentColor="#5b78c9"/>
-      </div>
-      <div style={{...card,borderLeft:"4px solid #be8b63",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#be8b63",marginBottom:8}}>Fase 3 — Ontdekken & stabiliseren (21 dagen)</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
-          In fase 3 ga je je voeding stap voor stap uitbreiden en ontdekken wat erbij past. Na de tijdelijk zeer vetarme periode van fase 2 voegen we gezonde vetten bewust weer toe. Je lichaam heeft vetten nodig en een langdurig zeer vetarm voedingspatroon is niet het doel van BOEM.
-          <br/><br/>
-          Je voegt nieuwe producten één voor één toe, zoals gezonde oliën en vetten, noten en zaden, avocado, vettere vis, kaas en andere zuivelproducten. Je blijft werken vanuit de basis van veel groenten en voldoende eiwitten.
-          <br/><br/>
-          Deze fase is bedoeld om je lichaam en je voedingspatroon te laten stabiliseren. Het is normaal als het afvallen in deze periode minder snel gaat of je gewicht een tijd stabiel blijft. Voeg nieuwe producten rustig toe en kijk wat ze doen met je verzadiging, energie, spijsvertering en eetlust.
-        </div>
-        <VoedingsLijst voeding={FASE3_VOEDING} accentColor="#be8b63"/>
-      </div>
-      <div style={{...card,borderLeft:"4px solid #1e2d5a",marginTop:12}}>
-        <div style={{fontWeight:700,color:"#1e2d5a",marginBottom:8}}>Fase 4 — Persoonlijk ritme</div>
-        <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>
-          In fase 4 ga je verder ontdekken wat bij jouw lichaam en jouw leven past. Je voegt stap voor stap zetmeelrijke koolhydraatbronnen en andere producten toe die in de eerdere fases nog niet aan bod kwamen.
-          <br/><br/>
-          Je kijkt daarbij niet naar goed of fout, maar naar wat voeding met jou doet. Voel je verzadiging? Hoe is je energie? Blijf je helder in je hoofd? Hoe reageren je darmen? Heb je meer of minder trek, en hoe voel jij je?
-          <br/><br/>
-          Ook de weegschaal kan informatie geven, maar kijk naar de grote lijn. Een schommeling op één dag zegt niet automatisch iets over één bepaald voedingsmiddel. Gewicht kan door veel verschillende factoren veranderen.
-          <br/><br/>
-          Fase 4 is geen tijdelijke fase meer. Dit is het moment waarop je steeds meer je eigen manier van eten gaat vinden: een manier die bij jouw lichaam, jouw dagelijks leven en jouw doelen past.
-        </div>
-      </div>
+      {faseData.map(f=>{
+        const isOpen = openFase===f.id;
+        const isActive = currentPhase===f.id;
+        return (
+          <div key={f.id} onClick={()=>setOpenFase(isOpen?null:f.id)} style={{...card,borderLeft:`4px solid ${f.kleur}`,marginTop:f.id===1?0:12,cursor:"pointer"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
+              <div>
+                {isActive && <div style={{fontSize:10,letterSpacing:1.5,color:f.kleur,fontWeight:700,marginBottom:3}}>NU</div>}
+                <div style={{fontWeight:700,color:f.kleur}}>{f.titel} <span style={{fontWeight:400,color:"#9ca3af",fontSize:12}}>({f.duur})</span></div>
+              </div>
+              <div style={{fontSize:15,color:f.kleur,flexShrink:0,transform:isOpen?"rotate(180deg)":"none",transition:"transform .2s"}}>⌄</div>
+            </div>
+            {isOpen && (
+              <div style={{fontSize:13,color:"#374151",lineHeight:1.7,marginTop:12,paddingTop:12,borderTop:"1px solid #f0ece1"}}>
+                {f.body}
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9",margin:"20px 0 12px"}}>Mijlpalen</div>
       {milestones.map(m=>{
@@ -1100,7 +1131,7 @@ function BerekeningMenu({ onKies }) {
       <div onClick={()=>onKies("energie")} style={{...card,cursor:"pointer",background:energie?"linear-gradient(135deg,#5b78c9,#1e2d5a)":"white"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:energie?14:6}}>
           <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:energie?"rgba(255,255,255,0.85)":"#9ca3af"}}>Energieverbruik</div>
-          <div style={{fontSize:12,fontWeight:600,color:energie?"white":"#5b78c9"}}>{energie?"Herberekenen":"Invullen"} ›</div>
+          <div style={{fontSize:16,color:energie?"white":"#5b78c9"}}>›</div>
         </div>
         {energie ? (
           <div style={{display:"flex",gap:10,color:"white"}}>
@@ -1121,7 +1152,10 @@ function BerekeningMenu({ onKies }) {
 
       <div style={{display:"flex",gap:12}}>
         <div onClick={()=>onKies("eiwit")} style={{...card,flex:1,cursor:"pointer"}}>
-          <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"#9ca3af",marginBottom:8}}>Eiwit</div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"#9ca3af"}}>Eiwit</div>
+            <div style={{fontSize:16,color:"#5b78c9"}}>›</div>
+          </div>
           {eiwit ? (
             <>
               <div style={{fontFamily:"Georgia,serif",fontSize:19,fontWeight:700,color:"#5b78c9"}}>{eiwit.laag}–{eiwit.hoog}<span style={{fontSize:12,fontWeight:400,color:"#9ca3af"}}> g</span></div>
@@ -1130,11 +1164,13 @@ function BerekeningMenu({ onKies }) {
           ) : (
             <div style={{fontSize:12,color:"#9ca3af"}}>Nog niet ingevuld</div>
           )}
-          <div style={{fontSize:11,color:"#5b78c9",fontWeight:600,marginTop:12}}>{eiwit?"Herberekenen":"Invullen"} ›</div>
         </div>
 
         <div onClick={()=>onKies("buikomtrek")} style={{...card,flex:1,cursor:"pointer"}}>
-          <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"#9ca3af",marginBottom:8}}>Buikomtrek</div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"#9ca3af"}}>Buikomtrek</div>
+            <div style={{fontSize:16,color:"#5b78c9"}}>›</div>
+          </div>
           {buik ? (
             <>
               <div style={{fontFamily:"Georgia,serif",fontSize:19,fontWeight:700,color:"#5b78c9"}}>{buik.whtr.toFixed(2)}</div>
@@ -1143,7 +1179,6 @@ function BerekeningMenu({ onKies }) {
           ) : (
             <div style={{fontSize:12,color:"#9ca3af"}}>Nog niet ingevuld</div>
           )}
-          <div style={{fontSize:11,color:"#5b78c9",fontWeight:600,marginTop:12}}>{buik?"Herberekenen":"Invullen"} ›</div>
         </div>
       </div>
     </div>
@@ -1239,6 +1274,7 @@ export default function App() {
   const phaseLabel = FASE_LABELS[currentPhase] || "Fase 2 — Vetverbranding";
   const daysToPhase = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
   const milestones = generateMilestones(totalToLose);
+  const trendPerWeek = calcTrendPerWeek(sorted);
 
   const checkMilestone = useCallback((newLoss, oldLoss) => {
     const hit=[...generateMilestones(totalToLose)].reverse().find(m=>newLoss>=m.loss&&oldLoss<m.loss);
@@ -1364,7 +1400,14 @@ export default function App() {
               </div>
             </div>
             <div style={{fontSize:14,opacity:.7,marginBottom:4}}>Hallo {profile.name}! Huidig gewicht</div>
-            <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
+            <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap"}}>
+              <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
+              {trendPerWeek!=null && (
+                <span style={{fontSize:13,fontWeight:600,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"4px 12px",color:trendPerWeek<0?"#a8d49c":"#e76f51"}}>
+                  {trendPerWeek<0?"↓":"↑"} {Math.abs(trendPerWeek).toFixed(2)} kg / week
+                </span>
+              )}
+            </div>
             <div style={{fontSize:13,opacity:.75}}>{latest?"Gewogen op "+new Date(latest.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):"Nog geen metingen"}</div>
             <div style={{marginTop:14,display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"6px 14px"}}>
               <div style={{width:8,height:8,borderRadius:"50%",background:"#a8d49c"}}/>
