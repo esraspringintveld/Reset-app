@@ -594,7 +594,7 @@ function Onboarding({ onComplete }) {
     <div style={{padding:"32px 24px"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:8}}>Welke fase zit je in?</div><div style={{fontSize:14,color:"#9ca3af",marginBottom:24}}>Stap 3 van 4</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>{faseKnoppen.map(p=>(<button key={p.id} onClick={()=>setPhase(p.id)} style={{padding:"14px 8px",borderRadius:14,border:"none",cursor:"pointer",fontFamily:"Georgia,serif",fontWeight:600,fontSize:14,background:phase===p.id?"#5b78c9":"#f5f0e8",color:phase===p.id?"white":"#6b7280",transition:"all 0.2s",textAlign:"center"}}>{p.label}<br/><span style={{fontSize:11,fontWeight:400}}>{p.desc}</span></button>))}</div><div style={{...lbl,marginBottom:6}}>Wanneer wissel je naar de volgende fase?</div><input type="date" style={inp} value={nextDate} onChange={e=>setNextDate(e.target.value)}/><button onClick={()=>setStep(4)} disabled={!canNext[4]} style={{...btn,marginTop:20,opacity:canNext[4]?1:0.4}}>Volgende</button></div>,
     <div style={{textAlign:"center",padding:"40px 24px"}}><div style={{fontSize:64,marginBottom:16}}>🎉</div><div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,color:"#5b78c9",marginBottom:12}}>Alles is ingesteld, {name}!</div><div style={{fontSize:15,color:"#6b7280",lineHeight:1.7,marginBottom:32}}>Jouw persoonlijke BOEM dashboard staat klaar.</div><button onClick={finish} style={btn}>Naar mijn dashboard</button></div>,
   ];
-  return (<div style={{fontFamily:"Georgia,serif",background:"#f5f0e8",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}><div style={{...card,margin:20}}>{steps[step]}</div></div>);
+  return (<div style={{fontFamily:"Georgia,serif",background:"#e9f0e1",minHeight:"100vh",maxWidth:420,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center"}}><div style={{...card,margin:20}}>{steps[step]}</div></div>);
 }
 
 function LogForm({ sorted, onSave, onDelete }) {
@@ -1087,21 +1087,65 @@ function BuikomtrekCalculator({ onTerug }) {
 }
 
 function BerekeningMenu({ onKies }) {
-  const opties = [
-    { id:"energie",     titel:"Energieverbruik", desc:"Je rusttoestand en TDEE — hoeveel je lichaam verbruikt" },
-    { id:"eiwit",       titel:"Eiwitbehoefte",    desc:"Hoeveel eiwit je lichaam ongeveer nodig heeft" },
-    { id:"buikomtrek",  titel:"Buikomtrek",       desc:"Wat je buikomtrek zegt over je vetverdeling — preciezer dan alleen gewicht" },
-  ];
+  const energie = load(KEYS.energie);
+  const eiwit = load(KEYS.eiwit);
+  const buik = load(KEYS.buikomtrek);
+  const buikCat = buik ? whtrCategorie(buik.whtr) : null;
+
   return (
     <div style={{padding:"20px 16px"}}>
       <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:"#5b78c9",marginBottom:6}}>Berekening</div>
-      <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Kies wat je wilt uitrekenen.</div>
-      {opties.map(o=>(
-        <div key={o.id} onClick={()=>onKies(o.id)} style={{...card,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div><div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"#5b78c9"}}>{o.titel}</div><div style={{fontSize:12,color:"#9ca3af",marginTop:3}}>{o.desc}</div></div>
-          <div style={{fontSize:18,color:"#5b78c9"}}>›</div>
+      <div style={{fontSize:13,color:"#9ca3af",marginBottom:20,lineHeight:1.6}}>Jouw laatst berekende uitkomsten. Tik op een kaart om aan te passen.</div>
+
+      <div onClick={()=>onKies("energie")} style={{...card,cursor:"pointer",background:energie?"linear-gradient(135deg,#5b78c9,#1e2d5a)":"white"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:energie?14:6}}>
+          <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:energie?"rgba(255,255,255,0.85)":"#9ca3af"}}>Energieverbruik</div>
+          <div style={{fontSize:12,fontWeight:600,color:energie?"white":"#5b78c9"}}>{energie?"Herberekenen":"Invullen"} ›</div>
         </div>
-      ))}
+        {energie ? (
+          <div style={{display:"flex",gap:10,color:"white"}}>
+            <div style={{flex:1,textAlign:"center"}}>
+              <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{energie.tdee}</div>
+              <div style={{fontSize:11,opacity:.85,marginTop:2}}>kcal — TDEE</div>
+            </div>
+            <div style={{width:1,background:"rgba(255,255,255,0.25)"}}/>
+            <div style={{flex:1,textAlign:"center"}}>
+              <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700}}>{energie.bmr}</div>
+              <div style={{fontSize:11,opacity:.85,marginTop:2}}>kcal — rust (BMR)</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{fontSize:12,color:"#9ca3af"}}>Je rusttoestand en TDEE — hoeveel je lichaam verbruikt</div>
+        )}
+      </div>
+
+      <div style={{display:"flex",gap:12}}>
+        <div onClick={()=>onKies("eiwit")} style={{...card,flex:1,cursor:"pointer"}}>
+          <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"#9ca3af",marginBottom:8}}>Eiwit</div>
+          {eiwit ? (
+            <>
+              <div style={{fontFamily:"Georgia,serif",fontSize:19,fontWeight:700,color:"#5b78c9"}}>{eiwit.laag}–{eiwit.hoog}<span style={{fontSize:12,fontWeight:400,color:"#9ca3af"}}> g</span></div>
+              <div style={{fontSize:11,color:"#9ca3af",marginTop:2}}>per dag</div>
+            </>
+          ) : (
+            <div style={{fontSize:12,color:"#9ca3af"}}>Nog niet ingevuld</div>
+          )}
+          <div style={{fontSize:11,color:"#5b78c9",fontWeight:600,marginTop:12}}>{eiwit?"Herberekenen":"Invullen"} ›</div>
+        </div>
+
+        <div onClick={()=>onKies("buikomtrek")} style={{...card,flex:1,cursor:"pointer"}}>
+          <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"#9ca3af",marginBottom:8}}>Buikomtrek</div>
+          {buik ? (
+            <>
+              <div style={{fontFamily:"Georgia,serif",fontSize:19,fontWeight:700,color:"#5b78c9"}}>{buik.whtr.toFixed(2)}</div>
+              <div style={{fontSize:11,marginTop:4,display:"inline-block",background:buikCat.kleur,color:"white",borderRadius:99,padding:"2px 9px"}}>{buikCat.label}</div>
+            </>
+          ) : (
+            <div style={{fontSize:12,color:"#9ca3af"}}>Nog niet ingevuld</div>
+          )}
+          <div style={{fontSize:11,color:"#5b78c9",fontWeight:600,marginTop:12}}>{buik?"Herberekenen":"Invullen"} ›</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1288,7 +1332,7 @@ export default function App() {
   if (sectie === "mindset") return <MindsetPlaceholder onTerug={()=>handleKiesSectie("eten")}/>;
 
   return (
-    <div style={{fontFamily:"Georgia,serif",background:"#f5f0e8",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
+    <div style={{fontFamily:"Georgia,serif",background:"#e9f0e1",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
       {confetti&&<Confetti/>}
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
