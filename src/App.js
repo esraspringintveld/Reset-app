@@ -1114,6 +1114,39 @@ function EnergieTab({ currentWeight, goalWeight }) {
   return <EnergieCalculator currentWeight={currentWeight} onTerug={()=>setKeuze(null)}/>;
 }
 
+function SectieKeuze({ onKies }) {
+  return (
+    <div style={{fontFamily:"Georgia,serif",background:"#e9f0e1",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",padding:"50px 20px"}}>
+      <BoemIcon size={80}/>
+      <div style={{fontSize:20,fontWeight:700,color:"#1e2d5a",marginTop:24,marginBottom:6,textAlign:"center"}}>Wat wil je doen?</div>
+      <div style={{fontSize:12.5,color:"#7f8a72",marginBottom:32,textAlign:"center"}}>Kies een gedeelte om te openen</div>
+      <div style={{width:"100%",maxWidth:320,display:"flex",flexDirection:"column",gap:16}}>
+        <button onClick={()=>onKies("eten")} style={{background:"white",border:"1.5px solid rgba(91,120,201,0.35)",borderRadius:24,padding:"22px 16px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+          <img src="/start-eten.png" alt="" style={{width:100,height:100,objectFit:"contain"}}/>
+          <div style={{fontSize:19,fontWeight:700,color:"#1e2d5a"}}>Eten</div>
+          <div style={{fontSize:11.5,color:"#9ca3af"}}>Weging, fases &amp; voeding</div>
+        </button>
+        <button onClick={()=>onKies("mindset")} style={{background:"white",border:"1.5px solid rgba(106,156,95,0.35)",borderRadius:24,padding:"22px 16px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+          <img src="/start-mindset.png" alt="" style={{width:100,height:100,objectFit:"contain"}}/>
+          <div style={{fontSize:19,fontWeight:700,color:"#1e2d5a"}}>Mindset</div>
+          <div style={{fontSize:11.5,color:"#9ca3af"}}>Innerlijke groei &amp; verdieping</div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MindsetPlaceholder({ onTerug }) {
+  return (
+    <div style={{fontFamily:"Georgia,serif",background:"#e9f0e1",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 24px",textAlign:"center"}}>
+      <img src="/start-mindset.png" alt="" style={{width:110,height:110,objectFit:"contain",marginBottom:24}}/>
+      <div style={{fontSize:22,fontWeight:700,color:"#1e2d5a",marginBottom:12}}>Mindset</div>
+      <div style={{fontSize:14,color:"#6b7280",lineHeight:1.7,marginBottom:32,maxWidth:320}}>Dit gedeelte wordt nog gebouwd. Zodra het klaar is, verschijnt het hier vanzelf.</div>
+      <button onClick={onTerug} style={{...btn,width:"auto",padding:"13px 28px"}}>Terug naar Eten</button>
+    </div>
+  );
+}
+
 export default function App() {
   const [ingelogd, setIngelogd] = useState(false);
   const [profile, setProfile] = useState(null);
@@ -1128,9 +1161,12 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
+  const [sectie, setSectie] = useState(null);
 
   useEffect(()=>{
     if (localStorage.getItem("hr-toegang")) setIngelogd(true);
+    const s = localStorage.getItem("hr-sectie");
+    if (s) setSectie(s);
     const p=load(KEYS.profile); const e=load(KEYS.entries); const ph=load(KEYS.phase); const nd=load(KEYS.nextDate); const np=load(KEYS.nextPhase);
     if(p) setProfile(p); if(e) setEntries(e); if(ph) setCurrentPhase(ph); if(nd) setNextPhaseDate(nd); if(np) setNextPhaseId(np);
     setReady(true);
@@ -1242,9 +1278,14 @@ export default function App() {
     window.location.replace(window.location.pathname + "?uitgelogd=" + Date.now());
   };
 
+  const handleKiesSectie = (keuze) => { setSectie(keuze); localStorage.setItem("hr-sectie", keuze); };
+  const handleWisselSectie = () => { setSectie(null); localStorage.removeItem("hr-sectie"); };
+
   if (!ready) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"Georgia,serif",color:"#5b78c9",fontSize:18}}>Laden…</div>;
   if (!ingelogd) return <LoginScreen onLogin={() => setIngelogd(true)} />;
   if (!profile) return <Onboarding onComplete={handleOnboardingComplete}/>;
+  if (!sectie) return <SectieKeuze onKies={handleKiesSectie}/>;
+  if (sectie === "mindset") return <MindsetPlaceholder onTerug={()=>handleKiesSectie("eten")}/>;
 
   return (
     <div style={{fontFamily:"Georgia,serif",background:"#f5f0e8",minHeight:"100vh",maxWidth:420,margin:"0 auto",paddingBottom:80}}>
@@ -1267,7 +1308,7 @@ export default function App() {
           <div style={{background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white",padding:"24px 20px 32px",position:"relative",overflow:"hidden"}}>
             <div style={{position:"absolute",top:-40,right:-40,width:160,height:160,borderRadius:"50%",background:"rgba(255,255,255,0.05)",pointerEvents:"none"}}/>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
-              <BoemIcon size={44}/>
+              <button onClick={handleWisselSectie} title="Wissel gedeelte (Eten/Mindset)" style={{background:"none",border:"none",padding:0,cursor:"pointer",lineHeight:0}}><BoemIcon size={44}/></button>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%"}}>
                 <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",opacity:.8}}>BOEM</div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"flex-end"}}>
