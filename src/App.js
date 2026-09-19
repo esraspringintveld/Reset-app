@@ -95,13 +95,26 @@ Je lichaam en je gevoel vertellen je elke dag iets. Niet altijd luid, maar wel d
 Tijdens een reset verandert er veel in je lichaam. Je stemming is daar onderdeel van. Het is geen bijverschijnsel, maar een signaal. Door je gevoelens bij te houden en te noteren wat er die dag speelt, leer je jezelf beter kennen en kun je zachter en slimmer bijsturen.`;
 
 function calcTrendPerWeek(sortedEntries) {
-  // Positief = kg kwijtgeraakt over de afgelopen ~week, negatief = kg erbij.
-  const window = sortedEntries.slice(-7);
-  if (window.length < 2) return null;
-  const eerste = window[0], laatste = window[window.length-1];
-  const dagen = (new Date(laatste.date).getTime() - new Date(eerste.date).getTime()) / 86400000;
+  // Vergelijkt de laatste weging met de weging van rond 7 dagen daarvoor
+  // (die dag, of een dag eerder/later). Is er niets in die periode ingevuld,
+  // dan geven we niets terug (het tegeltje blijft dan leeg).
+  if (sortedEntries.length < 2) return null;
+  const laatste = sortedEntries[sortedEntries.length - 1];
+  const laatsteTijd = new Date(laatste.date).getTime();
+  const doelTijd = laatsteTijd - 7 * 86400000;
+  let referentie = null, kleinsteAfwijking = Infinity;
+  for (let i = 0; i < sortedEntries.length - 1; i++) {
+    const e = sortedEntries[i];
+    const afwijkingInDagen = Math.abs(new Date(e.date).getTime() - doelTijd) / 86400000;
+    if (afwijkingInDagen <= 1 && afwijkingInDagen < kleinsteAfwijking) {
+      kleinsteAfwijking = afwijkingInDagen;
+      referentie = e;
+    }
+  }
+  if (!referentie) return null;
+  const dagen = (laatsteTijd - new Date(referentie.date).getTime()) / 86400000;
   if (dagen <= 0) return null;
-  const verschil = eerste.weight - laatste.weight;
+  const verschil = referentie.weight - laatste.weight;
   return verschil * (7 / dagen);
 }
 function generateMilestones(totalToLose) {
@@ -1270,6 +1283,9 @@ export default function App() {
   const daysToPhase = nextPhaseDate ? Math.max(0, Math.ceil((new Date(nextPhaseDate)-new Date())/86400000)) : 0;
   const milestones = generateMilestones(totalToLose);
   const trendPerWeek = calcTrendPerWeek(sorted);
+  const startDateStr = (profile && profile.startDate) || (sorted[0] && sorted[0].date);
+  const weeksSinceStart = startDateStr ? (Date.now() - new Date(startDateStr).getTime())/(7*86400000) : 0;
+  const avgPerWeek = weeksSinceStart > 0.1 ? totalLost / weeksSinceStart : null;
 
   const checkMilestone = useCallback((newLoss, oldLoss) => {
     const hit=[...generateMilestones(totalToLose)].reverse().find(m=>newLoss>=m.loss&&oldLoss<m.loss);
@@ -1406,12 +1422,22 @@ export default function App() {
           <div style={{padding:"16px 16px 0"}}>
             <div style={card}>
               <div style={lbl}>Voortgang naar doel</div>
-              <div style={{display:"flex",gap:8,marginBottom:14}}>
+              <div style={{display:"flex",gap:8,marginBottom:8}}>
                 {[
                   {v:"−"+totalLost,l:"kg afgevallen"},
-                  ...(trendPerWeek!=null ? [{v:(trendPerWeek>=0?"−":"+")+Math.abs(trendPerWeek).toFixed(2),l:"kg per week"}] : []),
-                  {v:""+(remaining>0?remaining:0),l:"kg te gaan"},
+                  ...(avgPerWeek!=null ? [{v:(avgPerWeek>=0?"−":"+")+Math.abs(avgPerWeek).toFixed(2),l:"gem. per week"}] : []),
                   {v:progressPct.toFixed(0)+"%",l:"voltooid"},
+                ].map((s,i)=>(
+                  <div key={i} style={{flex:1,background:"#f5f0e8",borderRadius:14,padding:"12px 6px",textAlign:"center"}}>
+                    <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9"}}>{s.v}</div>
+                    <div style={{fontSize:10,color:"#9ca3af",marginTop:3}}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:8,marginBottom:14}}>
+                {[
+                  ...(trendPerWeek!=null ? [{v:(trendPerWeek>=0?"−":"+")+Math.abs(trendPerWeek).toFixed(2),l:"deze week (7 dagen)"}] : []),
+                  {v:""+(remaining>0?remaining:0),l:"kg te gaan"},
                 ].map((s,i)=>(
                   <div key={i} style={{flex:1,background:"#f5f0e8",borderRadius:14,padding:"12px 6px",textAlign:"center"}}>
                     <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9"}}>{s.v}</div>
