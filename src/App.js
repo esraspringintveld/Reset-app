@@ -95,19 +95,14 @@ Je lichaam en je gevoel vertellen je elke dag iets. Niet altijd luid, maar wel d
 Tijdens een reset verandert er veel in je lichaam. Je stemming is daar onderdeel van. Het is geen bijverschijnsel, maar een signaal. Door je gevoelens bij te houden en te noteren wat er die dag speelt, leer je jezelf beter kennen en kun je zachter en slimmer bijsturen.`;
 
 function calcTrendPerWeek(sortedEntries) {
+  // Positief = kg kwijtgeraakt over de afgelopen ~week, negatief = kg erbij.
   const window = sortedEntries.slice(-7);
   if (window.length < 2) return null;
-  const t0 = new Date(window[0].date).getTime();
-  const pts = window.map(e => ({ x: (new Date(e.date).getTime()-t0)/86400000, y: e.weight }));
-  const n = pts.length;
-  const sumX = pts.reduce((a,p)=>a+p.x,0);
-  const sumY = pts.reduce((a,p)=>a+p.y,0);
-  const sumXY = pts.reduce((a,p)=>a+p.x*p.y,0);
-  const sumXX = pts.reduce((a,p)=>a+p.x*p.x,0);
-  const denom = n*sumXX - sumX*sumX;
-  if (denom === 0) return null;
-  const slopePerDay = (n*sumXY - sumX*sumY) / denom;
-  return slopePerDay * 7;
+  const eerste = window[0], laatste = window[window.length-1];
+  const dagen = (new Date(laatste.date).getTime() - new Date(eerste.date).getTime()) / 86400000;
+  if (dagen <= 0) return null;
+  const verschil = eerste.weight - laatste.weight;
+  return verschil * (7 / dagen);
 }
 function generateMilestones(totalToLose) {
   const milestones = [];
@@ -1403,8 +1398,8 @@ export default function App() {
             <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap"}}>
               <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
               {trendPerWeek!=null && (
-                <span style={{fontSize:13,fontWeight:600,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"4px 12px",color:trendPerWeek<0?"#a8d49c":"#e76f51"}}>
-                  {trendPerWeek<0?"↓":"↑"} {Math.abs(trendPerWeek).toFixed(2)} kg / week
+                <span style={{fontSize:13,fontWeight:600,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"4px 12px",color:"white"}}>
+                  {Math.abs(trendPerWeek).toFixed(2)} kg / week {trendPerWeek>=0?"eraf":"erbij"}
                 </span>
               )}
             </div>
