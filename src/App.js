@@ -1395,14 +1395,7 @@ export default function App() {
               </div>
             </div>
             <div style={{fontSize:14,opacity:.7,marginBottom:4}}>Hallo {profile.name}! Huidig gewicht</div>
-            <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap"}}>
-              <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
-              {trendPerWeek!=null && (
-                <span style={{fontSize:13,fontWeight:600,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"4px 12px",color:"white"}}>
-                  {Math.abs(trendPerWeek).toFixed(2)} kg / week {trendPerWeek>=0?"eraf":"erbij"}
-                </span>
-              )}
-            </div>
+            <div style={{fontSize:52,fontWeight:700,lineHeight:1,marginBottom:4}}>{currentWeight} <span style={{fontSize:20,fontWeight:400}}>kg</span></div>
             <div style={{fontSize:13,opacity:.75}}>{latest?"Gewogen op "+new Date(latest.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):"Nog geen metingen"}</div>
             <div style={{marginTop:14,display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"6px 14px"}}>
               <div style={{width:8,height:8,borderRadius:"50%",background:"#a8d49c"}}/>
@@ -1413,11 +1406,16 @@ export default function App() {
           <div style={{padding:"16px 16px 0"}}>
             <div style={card}>
               <div style={lbl}>Voortgang naar doel</div>
-              <div style={{display:"flex",gap:10,marginBottom:14}}>
-                {[{v:"−"+totalLost,l:"kg afgevallen"},{v:""+(remaining>0?remaining:0),l:"kg te gaan"},{v:progressPct.toFixed(0)+"%",l:"voltooid"}].map((s,i)=>(
-                  <div key={i} style={{flex:1,background:"#f5f0e8",borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
-                    <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:"#5b78c9"}}>{s.v}</div>
-                    <div style={{fontSize:11,color:"#9ca3af",marginTop:3}}>{s.l}</div>
+              <div style={{display:"flex",gap:8,marginBottom:14}}>
+                {[
+                  {v:"−"+totalLost,l:"kg afgevallen"},
+                  ...(trendPerWeek!=null ? [{v:(trendPerWeek>=0?"−":"+")+Math.abs(trendPerWeek).toFixed(2),l:"kg per week"}] : []),
+                  {v:""+(remaining>0?remaining:0),l:"kg te gaan"},
+                  {v:progressPct.toFixed(0)+"%",l:"voltooid"},
+                ].map((s,i)=>(
+                  <div key={i} style={{flex:1,background:"#f5f0e8",borderRadius:14,padding:"12px 6px",textAlign:"center"}}>
+                    <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9"}}>{s.v}</div>
+                    <div style={{fontSize:10,color:"#9ca3af",marginTop:3}}>{s.l}</div>
                   </div>
                 ))}
               </div>
