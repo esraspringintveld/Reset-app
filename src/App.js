@@ -538,6 +538,23 @@ function ChartModal({ entries, goalWeight, onClose }) {
   );
 }
 
+function MilestonesModal({ milestones, totalLost, onClose }) {
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:500,background:"white",display:"flex",flexDirection:"column"}}>
+      <div style={{background:"linear-gradient(135deg,#5b78c9,#1e2d5a)",color:"white",padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+        <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700}}>Mijlpalen</div>
+        <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:"white",borderRadius:"50%",width:34,height:34,cursor:"pointer",fontSize:20}}>×</button>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"16px 12px 40px"}}>
+        {milestones.map(m=>{
+          const done=totalLost>=m.loss;
+          return (<div key={m.loss} style={{background:"#f5f0e8",borderRadius:14,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}><div style={{fontSize:24}}>{m.emoji}</div><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:done?"#5b78c9":"#9ca3af"}}>{"−"+m.loss+" kg"}</div><div style={{fontSize:12,color:"#9ca3af"}}>{m.msg}</div></div>{done&&<div style={{color:"#5b78c9",fontSize:18}}>✓</div>}</div>);
+        })}
+      </div>
+    </div>
+  );
+}
+
 function DailyQuote({ onClose }) {
   const quote = QUOTES[Math.floor(Date.now() / 86400000) % QUOTES.length];
   return (
@@ -660,7 +677,7 @@ function LogForm({ sorted, onSave, onDelete }) {
   );
 }
 
-function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitch, milestones }) {
+function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitch }) {
   const [localPhase, setLocalPhase] = useState(currentPhase);
   const [localDate, setLocalDate] = useState(nextPhaseDate);
   const [localNextPhase, setLocalNextPhase] = useState(nextPhaseId || null);
@@ -752,12 +769,6 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
             )}
           </div>
         );
-      })}
-
-      <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9",margin:"20px 0 12px"}}>Mijlpalen</div>
-      {milestones.map(m=>{
-        const done=totalLost>=m.loss;
-        return (<div key={m.loss} style={{...card,marginBottom:8,display:"flex",alignItems:"center",gap:12,padding:"12px 16px",opacity:done?1:0.45}}><div style={{fontSize:24}}>{m.emoji}</div><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:done?"#5b78c9":"#9ca3af"}}>{"−"+m.loss+" kg"}</div><div style={{fontSize:12,color:"#9ca3af"}}>{m.msg}</div></div>{done&&<div style={{color:"#5b78c9",fontSize:18}}>✓</div>}</div>);
       })}
     </div>
   );
@@ -1248,6 +1259,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
+  const [showMilestones, setShowMilestones] = useState(false);
   const [sectie, setSectie] = useState(null);
 
   useEffect(()=>{
@@ -1384,6 +1396,7 @@ export default function App() {
       {showQuote && <DailyQuote onClose={()=>setShowQuote(false)}/>}
       {showChart&&<ChartModal entries={sorted} goalWeight={goalWeight} onClose={()=>setShowChart(false)}/>}
       {showGoalEdit&&<GoalEditModal goalWeight={goalWeight} onSave={handleGoalSave} onClose={()=>setShowGoalEdit(false)}/>}
+      {showMilestones&&<MilestonesModal milestones={milestones} totalLost={totalLost} onClose={()=>setShowMilestones(false)}/>}
       {celebration&&(
         <div style={{position:"fixed",inset:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:998,background:"rgba(0,0,0,0.4)"}}>
           <div style={{background:"white",borderRadius:24,padding:32,textAlign:"center",margin:24,boxShadow:"0 20px 60px rgba(0,0,0,0.3)"}}>
@@ -1478,7 +1491,7 @@ export default function App() {
             {(()=>{
               const next=milestones.find(m=>totalLost<m.loss);
               if(!next)return null;
-              return(<div style={{...card,background:"#f5f0e8"}}><div style={lbl}>Volgende mijlpaal</div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{fontSize:32}}>{next.emoji}</div><div><div style={{fontSize:15,fontWeight:600,color:"#5b78c9"}}>{next.msg}</div><div style={{fontSize:13,color:"#9ca3af",marginTop:2}}>{"Nog "+(next.loss-totalLost).toFixed(1)+" kg te gaan!"}</div></div></div></div>);
+              return(<div style={{...card,background:"#f5f0e8",cursor:"pointer"}} onClick={()=>setShowMilestones(true)}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:0}}><div style={lbl}>Volgende mijlpaal</div><div style={{fontSize:11,color:"#5b78c9",fontWeight:600,letterSpacing:1}}>VOLLEDIG</div></div><div style={{display:"flex",alignItems:"center",gap:12,marginTop:8}}><div style={{fontSize:32}}>{next.emoji}</div><div><div style={{fontSize:15,fontWeight:600,color:"#5b78c9"}}>{next.msg}</div><div style={{fontSize:13,color:"#9ca3af",marginTop:2}}>{"Nog "+(next.loss-totalLost).toFixed(1)+" kg te gaan!"}</div></div></div></div>);
             })()}
           </div>
         </div>
@@ -1486,7 +1499,7 @@ export default function App() {
 
       {tab==="log" && <LogForm sorted={sorted} onSave={handleSave} onDelete={handleDelete}/>}
       {tab==="energie" && <EnergieTab currentWeight={currentWeight} goalWeight={goalWeight}/>}
-      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} nextPhaseId={nextPhaseId} totalLost={totalLost} onSwitch={handleSwitch} milestones={milestones}/>}
+      {tab==="fases" && <FasesTab currentPhase={currentPhase} nextPhaseDate={nextPhaseDate} nextPhaseId={nextPhaseId} totalLost={totalLost} onSwitch={handleSwitch}/>}
 
       <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:420,background:"white",display:"flex",borderTop:"1px solid #f0f0f0",zIndex:100}}>
         {[{id:"home",icon:"home",label:"Dashboard"},{id:"log",icon:"weging",label:"Weging"},{id:"energie",icon:"berekening",label:"Berekening"},{id:"fases",icon:"fases",label:"Fases"}].map(t=>{
