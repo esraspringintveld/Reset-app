@@ -660,7 +660,7 @@ function LogForm({ sorted, onSave, onDelete }) {
         <button onClick={handleSave} style={{...btn,marginTop:14,background:saved?"#6a9c5f":"#5b78c9",transition:"background .3s"}}>{saved?"Opgeslagen!":"Opslaan"}</button>
       </div>
       <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"#5b78c9",margin:"20px 0 12px"}}>Recente wegingen</div>
-      {[...sorted].reverse().slice(0,30).map(e=>{
+      {[...sorted].reverse().map(e=>{
         const idx=sorted.findIndex(x=>x.date===e.date); const prev=sorted[idx-1]; const diff=prev?e.weight-prev.weight:0;
         return (
           <div key={e.date} style={{...card,padding:"13px 16px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
@@ -687,7 +687,7 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
 
   const faseData = [
     { id:1, kleur:"#6a9c5f", titel:"Fase 1 — Bewust worden", duur:null, body: (
-      <>In deze twee dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret, inclusief calorieën en voedingswaarden. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
+      <>In deze dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
         <br/><br/>
         Tegelijk bereid je je praktisch voor op fase 2: bekijk de voedingslijsten, maak je boodschappenlijst en zorg dat je de juiste producten in huis hebt. Zo start je fase 2 goed voorbereid.
       </>
