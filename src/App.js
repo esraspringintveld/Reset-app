@@ -656,7 +656,7 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
   const faseKnoppen = [{id:1,label:"Fase 1",desc:"Bewust worden"},{id:2,label:"Fase 2",desc:"Vereenvoudigen"},{id:3,label:"Fase 3",desc:"Ontdekken & stabiliseren"},{id:4,label:"Fase 4",desc:"Persoonlijk ritme"}];
 
   const faseData = [
-    { id:1, kleur:"#6a9c5f", titel:"Fase 1 — Bewust worden", duur:"2 dagen", body: (
+    { id:1, kleur:"#6a9c5f", titel:"Fase 1 — Bewust worden", duur:null, body: (
       <>In deze twee dagen eet je nog zoals je gewend bent en mag je bewust ook de vettere of calorierijkere dingen eten waar je zin in hebt. Je registreert alles wat je eet en drinkt in FatSecret, inclusief calorieën en voedingswaarden. Niet om jezelf te beoordelen, maar om inzicht te krijgen in wat je nu daadwerkelijk binnenkrijgt.
         <br/><br/>
         Tegelijk bereid je je praktisch voor op fase 2: bekijk de voedingslijsten, maak je boodschappenlijst en zorg dat je de juiste producten in huis hebt. Zo start je fase 2 goed voorbereid.
@@ -724,11 +724,11 @@ function FasesTab({ currentPhase, nextPhaseDate, nextPhaseId, totalLost, onSwitc
         const isOpen = openFase===f.id;
         const isActive = currentPhase===f.id;
         return (
-          <div key={f.id} onClick={()=>setOpenFase(isOpen?null:f.id)} style={{...card,borderLeft:`4px solid ${f.kleur}`,marginTop:f.id===1?0:12,cursor:"pointer"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
+          <div key={f.id} style={{...card,borderLeft:`4px solid ${f.kleur}`,marginTop:f.id===1?0:12}}>
+            <div onClick={()=>setOpenFase(isOpen?null:f.id)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,cursor:"pointer"}}>
               <div>
                 {isActive && <div style={{fontSize:10,letterSpacing:1.5,color:f.kleur,fontWeight:700,marginBottom:3}}>NU</div>}
-                <div style={{fontWeight:700,color:f.kleur}}>{f.titel} <span style={{fontWeight:400,color:"#9ca3af",fontSize:12}}>({f.duur})</span></div>
+                <div style={{fontWeight:700,color:f.kleur}}>{f.titel}{f.duur && <span style={{fontWeight:400,color:"#9ca3af",fontSize:12}}> ({f.duur})</span>}</div>
               </div>
               <div style={{fontSize:15,color:f.kleur,flexShrink:0,transform:isOpen?"rotate(180deg)":"none",transition:"transform .2s"}}>⌄</div>
             </div>
